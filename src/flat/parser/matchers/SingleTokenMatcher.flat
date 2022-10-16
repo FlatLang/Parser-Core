@@ -5,6 +5,8 @@ import flat/datastruct/HashMap
 import flat/compiler/models/Token
 import flat/log/Logger
 
+import static flat/colorizer/Colorizer
+
 data class extends TokenMatcher {
   static Logger log = Logger(SingleTokenMatcher.class)
 
@@ -16,22 +18,31 @@ data class extends TokenMatcher {
 
   doMatch(Token token) -> SingleTokenMatch {
     if (disqualified) return null
+
+    log.traceFunc({"Matching token '#{green(token.value)}'"})
+
     if (!pattern.repeat && tokens.isNotEmpty) {
+      log.traceFunc({"Repeating not allowed. Disqualified"})
       disqualified = true
       return null
     }
     if (pattern.tokenType != token.type) {
+      log.traceFunc({"Incorrect token type. Disqualified"})
       disqualified = true
       return null
     }
     if (pattern.value && pattern.value != token.value) {
+      log.traceFunc({"Incorrect token value. Disqualified"})
       disqualified = true
       return null
     }
     if (pattern.values && pattern.values.none({ _ == token.value})) {
+      log.traceFunc({"Incorrect token value (from values). Disqualified"})
       disqualified = true
       return null
     }
+
+    log.traceFunc({"Matched token '#{green(token.value)}'"})
 
     tokens.add(token)
 
