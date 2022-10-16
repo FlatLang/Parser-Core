@@ -12,6 +12,7 @@ abstract data class {
   visible Int tokenType
   visible String value = null
   visible String[] values = null
+  visible String[] notValues = null
   visible String label = null
   visible Bool optional = false
   visible Bool repeat = false

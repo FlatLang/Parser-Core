@@ -41,6 +41,11 @@ data class extends TokenMatcher {
       disqualified = true
       return null
     }
+    if (pattern.notValues && pattern.notValues.any({ _ == token.value})) {
+      log.traceFunc({"Token value is not allowed. Disqualified"})
+      disqualified = true
+      return null
+    }
 
     log.traceFunc({"Matched token '#{green(token.value)}'"})
 
