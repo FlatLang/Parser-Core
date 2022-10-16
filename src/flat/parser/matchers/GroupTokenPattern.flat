@@ -1,0 +1,35 @@
+package flat/parser/matchers
+
+import flat/datastruct/HashMap
+import flat/datastruct/list/Queue
+import flat/datastruct/list/ArrayIterator
+import flat/compiler/models/Token
+import flat/log/Logger
+
+data class extends TokenPattern {
+  static Logger log = Logger(GroupTokenPattern.class)
+
+  override lazy Int requiredTokenCount => patterns.sum({ _.requiredTokenCount })
+
+  public construct(
+    visible Array<TokenPattern> patterns,
+    this String: label = null,
+    this Bool optional = false,
+    this Bool repeat = false,
+    this Bool greedy = true
+  ) {}
+
+  public getMatcher() => GroupTokenMatcher(this)
+
+  public toPatternString() -> String {
+    var str = ""
+
+    if (label) {
+      str += "#{label}:"
+    }
+
+    str += "(#{patterns.map(p => p.toPatternString()).join(" ")})#{getModifiersString()}"
+
+    return str
+  }
+}

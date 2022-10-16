@@ -1,0 +1,39 @@
+package flat/parser/matchers
+
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+
+abstract data class {
+  visible Token[] tokens
+  visible String label
+
+  public getValue(String label) -> String {
+    let values = this.getValues(label)
+
+    return values.first
+  }
+
+  public getValues(String label) -> String[] {
+    if (this.label == label) {
+      return tokens.map({ _.value })
+    }
+
+    return String[]
+  }
+
+  public getMatch<Type extends TokenMatch>(String label) -> Type {
+    let matches = this.getMatches(label)
+
+    return matches.first
+  }
+
+  public getMatches<Type extends TokenMatch>(String label, Bool addSelf = true) -> Type[] {
+    let array = Type[]
+
+    if (addSelf && this.label == label) {
+      array.add(this)
+    }
+
+    return array
+  }
+}

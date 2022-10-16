@@ -1,0 +1,599 @@
+package flat/parser/matchers
+
+import flat/parser
+import flat/ast
+import flat/annotations
+import flat/parser/flat
+import flat/compiler/models
+import flat/datastruct/HashMap
+import flat/io/File
+
+testable class {
+  test `can match one import`() {
+    let pattern = NodeGroupTokenPattern([ImportParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "import", type: Token.Type.IDENTIFIER),
+      Token(value: "test", type: Token.Type.IDENTIFIER)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "import", type: Token.Type.IDENTIFIER),
+          Token(value: "test", type: Token.Type.IDENTIFIER)
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "import", type: Token.Type.IDENTIFIER),
+              Token(value: "test", type: Token.Type.IDENTIFIER)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "import", type: Token.Type.IDENTIFIER),
+                  Token(value: "test", type: Token.Type.IDENTIFIER)
+                ],
+                parser: ImportParser()
+              )
+            ]
+          )
+        ]
+      )
+    )
+  }
+
+  test `can match two imports`() {
+    let pattern = NodeGroupTokenPattern([ImportParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "import", type: Token.Type.IDENTIFIER),
+      Token(value: "test", type: Token.Type.IDENTIFIER),
+      Token(value: "import", type: Token.Type.IDENTIFIER),
+      Token(value: "test2", type: Token.Type.IDENTIFIER)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "import", type: Token.Type.IDENTIFIER),
+          Token(value: "test", type: Token.Type.IDENTIFIER),
+          Token(value: "import", type: Token.Type.IDENTIFIER),
+          Token(value: "test2", type: Token.Type.IDENTIFIER)
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "import", type: Token.Type.IDENTIFIER),
+              Token(value: "test", type: Token.Type.IDENTIFIER)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "import", type: Token.Type.IDENTIFIER),
+                  Token(value: "test", type: Token.Type.IDENTIFIER)
+                ],
+                parser: ImportParser()
+              )
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "import", type: Token.Type.IDENTIFIER),
+              Token(value: "test2", type: Token.Type.IDENTIFIER)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "import", type: Token.Type.IDENTIFIER),
+                  Token(value: "test2", type: Token.Type.IDENTIFIER)
+                ],
+                parser: ImportParser()
+              )
+            ]
+          )
+        ]
+      )
+    )
+  }
+
+  test `can match one function call`() {
+    let pattern = NodeGroupTokenPattern([FunctionCallParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "test", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: ")", type: Token.Type.SYMBOL)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "test", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: ")", type: Token.Type.SYMBOL)
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "test", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: ")", type: Token.Type.SYMBOL)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "test", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: ")", type: Token.Type.SYMBOL)
+                ],
+                parser: FunctionCallParser()
+              )
+            ]
+          )
+        ]
+      )
+    )
+  }
+
+  test `can match two function calls`() {
+    let pattern = NodeGroupTokenPattern([FunctionCallParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "test", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: ")", type: Token.Type.SYMBOL),
+      Token(value: "test2", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: ")", type: Token.Type.SYMBOL)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "test", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: ")", type: Token.Type.SYMBOL),
+          Token(value: "test2", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: ")", type: Token.Type.SYMBOL)
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "test", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: ")", type: Token.Type.SYMBOL)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "test", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: ")", type: Token.Type.SYMBOL)
+                ],
+                parser: FunctionCallParser()
+              )
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "test2", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: ")", type: Token.Type.SYMBOL)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "test2", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: ")", type: Token.Type.SYMBOL)
+                ],
+                parser: FunctionCallParser()
+              )
+            ]
+          )
+        ]
+      )
+    )
+  }
+
+  test `can match one if statement`() {
+    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "if", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ")", type: Token.Type.SYMBOL),
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "}", type: Token.Type.SYMBOL)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "if", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: ")", type: Token.Type.SYMBOL),
+          Token(value: "{", type: Token.Type.SYMBOL),
+          Token(value: "}", type: Token.Type.SYMBOL)
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "if", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+              Token(value: ")", type: Token.Type.SYMBOL),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "if", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: "x", type: Token.Type.IDENTIFIER),
+                  Token(value: ")", type: Token.Type.SYMBOL),
+                ],
+                parser: IfParser()
+              )
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "{", type: Token.Type.SYMBOL)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "{", type: Token.Type.SYMBOL)
+                ],
+                parser: LocalScopeParser()
+              )
+            ]
+          )
+        ]
+      )
+    )
+  }
+
+  test `can match two if statements`() {
+    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "if", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ")", type: Token.Type.SYMBOL),
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "}", type: Token.Type.SYMBOL),
+      Token(value: "if", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: ")", type: Token.Type.SYMBOL),
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "}", type: Token.Type.SYMBOL)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "if", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: ")", type: Token.Type.SYMBOL),
+          Token(value: "{", type: Token.Type.SYMBOL),
+          Token(value: "}", type: Token.Type.SYMBOL),
+          Token(value: "if", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+          Token(value: ")", type: Token.Type.SYMBOL),
+          Token(value: "{", type: Token.Type.SYMBOL),
+          Token(value: "}", type: Token.Type.SYMBOL)
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "if", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+              Token(value: ")", type: Token.Type.SYMBOL),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "if", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: "x", type: Token.Type.IDENTIFIER),
+                  Token(value: ")", type: Token.Type.SYMBOL),
+                ],
+                parser: IfParser()
+              )
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "{", type: Token.Type.SYMBOL)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "{", type: Token.Type.SYMBOL)
+                ],
+                parser: LocalScopeParser()
+              )
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "if", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+              Token(value: ")", type: Token.Type.SYMBOL),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "if", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: "y", type: Token.Type.IDENTIFIER),
+                  Token(value: ")", type: Token.Type.SYMBOL),
+                ],
+                parser: IfParser()
+              )
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "{", type: Token.Type.SYMBOL)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "{", type: Token.Type.SYMBOL)
+                ],
+                parser: LocalScopeParser()
+              )
+            ]
+          )
+        ]
+      )
+    )
+  }
+
+  test `can match one if statement with one nested if statement`() {
+    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "if", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ")", type: Token.Type.SYMBOL),
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "if", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: ")", type: Token.Type.SYMBOL),
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "}", type: Token.Type.SYMBOL),
+      Token(value: "}", type: Token.Type.SYMBOL)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "if", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: ")", type: Token.Type.SYMBOL),
+          Token(value: "{", type: Token.Type.SYMBOL),
+          Token(value: "if", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+          Token(value: ")", type: Token.Type.SYMBOL),
+          Token(value: "{", type: Token.Type.SYMBOL),
+          Token(value: "}", type: Token.Type.SYMBOL),
+          Token(value: "}", type: Token.Type.SYMBOL)
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "if", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+              Token(value: ")", type: Token.Type.SYMBOL),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "if", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: "x", type: Token.Type.IDENTIFIER),
+                  Token(value: ")", type: Token.Type.SYMBOL),
+                ],
+                parser: IfParser()
+              )
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "{", type: Token.Type.SYMBOL)
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "{", type: Token.Type.SYMBOL)
+                ],
+                parser: LocalScopeParser()
+              )
+            ]
+          ),
+          NodeGroupTokenMatch(
+            tokens: [
+              Token(value: "if", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+              Token(value: ")", type: Token.Type.SYMBOL),
+              Token(value: "{", type: Token.Type.SYMBOL),
+              Token(value: "}", type: Token.Type.SYMBOL)
+            ],
+            childMatches: [
+              NodeTokenMatch(
+                tokens: [
+                  Token(value: "if", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: "y", type: Token.Type.IDENTIFIER),
+                  Token(value: ")", type: Token.Type.SYMBOL),
+                ],
+                childMatches: [
+                  NodeTokenMatchChild(
+                    tokens: [
+                      Token(value: "if", type: Token.Type.IDENTIFIER),
+                      Token(value: "(", type: Token.Type.SYMBOL),
+                      Token(value: "y", type: Token.Type.IDENTIFIER),
+                      Token(value: ")", type: Token.Type.SYMBOL),
+                    ],
+                    parser: IfParser()
+                  )
+                ]
+              ),
+              NodeTokenMatch(
+                tokens: [
+                  Token(value: "{", type: Token.Type.SYMBOL)
+                ],
+                childMatches: [
+                  NodeTokenMatchChild(
+                    tokens: [
+                      Token(value: "{", type: Token.Type.SYMBOL)
+                    ],
+                    parser: LocalScopeParser()
+                  )
+                ]
+              )
+            ]
+          )
+        ]
+      )
+    )
+  }
+
+  test `can match inside a group token pattern`() {
+    let pattern = GroupTokenPattern([
+      SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
+      NodeGroupTokenPattern(LocalScopeParser().childParsers, optional: true, scopeParser: LocalScopeParser(), annotationParser: AnnotationParser()),
+      SingleTokenPattern(Token.Type.SYMBOL, value: "}")
+    ])
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "}", type: Token.Type.SYMBOL)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      GroupTokenMatch(
+        tokens: [
+          Token(value: "{", type: Token.Type.SYMBOL),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "}", type: Token.Type.SYMBOL)
+        ],
+        tokenMatches: [
+          SingleTokenMatch(
+            tokens: [Token(value: "{", type: Token.Type.SYMBOL)]
+          ),
+          NodeGroupTokenMatch(
+            tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+            childMatches: [
+              NodeTokenMatch(
+                tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+                childMatches: [
+                  NodeTokenMatchChild(
+                    tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+                    parser: IdentifierParser()
+                  )
+                ]
+              )
+            ]
+          ),
+          SingleTokenMatch(
+            tokens: [Token(value: "}", type: Token.Type.SYMBOL)]
+          )
+        ]
+      )
+    )
+  }
+
+  test `can match inside a node token pattern`() {
+    let pattern = NodeTokenPattern([LambdaParser()], annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "}", type: Token.Type.SYMBOL)
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeTokenMatch(
+        tokens: [
+          Token(value: "{", type: Token.Type.SYMBOL),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "}", type: Token.Type.SYMBOL)
+        ],
+        childMatches: [
+          NodeTokenMatchChild(
+            tokens: [
+              Token(value: "{", type: Token.Type.SYMBOL),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+              Token(value: "}", type: Token.Type.SYMBOL)
+            ],
+            parser: LambdaParser()
+          )
+        ]
+      )
+    )
+  }
+
+  test `can access node group token match from match inside a node token pattern`() {
+    let pattern = NodeTokenPattern([LambdaParser()], annotationParser: AnnotationParser())
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "}", type: Token.Type.SYMBOL)
+    ], FlatParseContext()).last
+
+    let bodyContentsMatch = result.getMatch("lambda_body_contents")
+
+    expect(bodyContentsMatch).toBe(
+      NodeGroupTokenMatch(
+        label: "lambda_body_contents",
+        tokens: [
+          Token(value: "x", type: Token.Type.IDENTIFIER)
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+                parser: IdentifierParser()
+              )
+            ]
+          )
+        ]
+      )
+    )
+  }
+}

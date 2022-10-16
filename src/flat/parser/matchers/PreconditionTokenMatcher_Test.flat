@@ -1,0 +1,37 @@
+package flat/parser/matchers
+
+import flat/datastruct/HashMap
+import flat/parser
+import flat/annotations
+import flat/ast
+import flat/parser/flat
+import flat/compiler/models/Token
+import flat/io/File
+
+testable class {
+  test `returns no tokens on successful match`() {
+    let pattern = PreconditionTokenPattern([LetModifier.class])
+
+    let context = ParseContext(
+      annotations: [LetModifier(aliasUsed: "let")]
+    )
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.match(Token(value: "package", type: Token.Type.IDENTIFIER), context)
+
+    expect(result?.tokens).toBe(Array())
+  }
+
+  test `returns null on unsuccessful match`() {
+    let pattern = PreconditionTokenPattern([LetModifier.class])
+
+    let context = ParseContext(
+      annotations: [VarModifier(aliasUsed: "var")]
+    )
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.match(Token(value: "package", type: Token.Type.IDENTIFIER), context)
+
+    expect(result).toBe(null)
+  }
+}

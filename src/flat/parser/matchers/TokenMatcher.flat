@@ -1,0 +1,45 @@
+package flat/parser/matchers
+
+import flat/parser
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/log/Logger
+
+abstract data class {
+  static Logger log = Logger(TokenMatcher.class)
+
+  visible TokenPattern pattern
+
+  visible Bool partial => tokens.isNotEmpty && !disqualified
+
+  var TokenMatch[] _tokenMatches = TokenMatch[]
+  visible TokenMatch[] tokenMatches <=> _tokenMatches
+
+  var Token[] _tokens = Token[]
+  visible Token[] tokens <=> _tokens
+
+  var Bool _disqualified = false
+  visible var Bool disqualified <=> _disqualified
+
+  var Bool _valid = false
+  visible var Bool valid <=> _valid
+
+  var Bool _complete = false
+  visible var Bool complete <=> _complete
+
+  visible Bool dirty => _tokenMatches.isNotEmpty
+
+  public matchAll(Token[] tokens, ParseContext context = null) -> TokenMatch[] => tokens.map({ this.match(_, context) })
+
+  public abstract match(Token token, ParseContext context = null) -> TokenMatch
+
+  public reset() {
+    if (!dirty) return
+
+    _tokens = Array()
+    _tokenMatches = Array()
+    _disqualified = false
+    _valid = false
+    _complete = false
+  }
+}

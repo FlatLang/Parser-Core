@@ -1,0 +1,84 @@
+package flat/parser/matchers
+
+import flat/parser
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/log/Logger
+
+import static flat/colorizer/Colorizer
+
+data class extends TokenMatcher {
+  static Logger log = Logger(XorTokenMatcher.class)
+
+  XorTokenPattern pattern
+
+  lazy TokenMatcher[] matchers => pattern.patterns.map({ _.getMatcher() })
+
+  override public match(Token token, ParseContext context = null) -> XorTokenMatch {
+    return tokenMatches.add(doMatch(token, context))
+  }
+
+  doMatch(Token token, ParseContext context) -> XorTokenMatch => null {
+    if (disqualified) return null
+
+    tokens.add(token)
+
+    log.traceFunc({"|
+      Matching tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+        pattern: #{magenta(pattern.toPatternString())}
+      |"})
+
+    let matchedMatchers = matchers.filter({ _.match(token, context) != null })
+
+    let allComplete = matchers.all({ _.complete })
+    let anyPartial = matchers.any({ _.partial })
+
+    if (matchedMatchers.isEmpty) {
+      if (anyPartial) {
+        log.traceFunc({"None of the matchers matched, but still contains partial matches. Returning null"})
+        return null
+      } else {
+        log.traceFunc({"None of the matchers matched. Disqualified"})
+        disqualified = true
+        return null
+      }
+    } else if (matchedMatchers.count == 1) {
+      let matcher = matchedMatchers.first
+      let match = matcher.tokenMatches.last
+
+      if (anyPartial) {
+        if (matcher.valid) {
+          log.traceFunc({"Contains a single valid match, but still has some partial matchers. Returning match"})
+          log.traceFunc({"Partial matchers:\n  #{matchers.filter(m => m.partial).map(m => magenta(m.pattern.toPatternString())).join("\n  ")}"})
+        } else {
+          log.traceFunc({"Contains a single invalid match, but still has some partial matchers. Returning null"})
+          return null
+        }
+      } else {
+        log.traceFunc({"Contains a single match. Returning match"})
+        disqualified = true
+      }
+
+      complete = true
+      valid = true
+
+      return XorTokenMatch(
+        tokens: pattern.includeTokens ? match.tokens : Token[],
+        label: pattern.label,
+        tokenMatch: match
+      )
+    } else {
+      log.traceFunc({"Contains multiple matches. Returning null"})
+      return null
+    }
+  }
+
+  override public reset() {
+    if (!dirty) return
+
+    log.traceFunc({"Resetting matcher"})
+    super.reset()
+
+    matchers.forEach({ _.reset() })
+  }
+}

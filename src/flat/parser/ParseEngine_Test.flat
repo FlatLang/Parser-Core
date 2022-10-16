@@ -1,0 +1,411 @@
+package flat/parser
+
+import flat/parser/flat
+import flat/parser/matchers
+import flat/annotations
+import flat/compiler/models
+import flat/ast
+import flat/stream/Stream
+import flat/io/File
+
+testable class {
+  test `can consume a token`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.consume(Token(value: "package", type: Token.Type.IDENTIFIER))
+
+    expect(engine.getPartialMatches().mapNotNull({ _.lastMatch })).toBe(Array())
+  }
+
+  test `can find a package match`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.consume(Token(value: "package", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+
+    expect(engine.getPartialMatches().mapNotNull({ _.lastMatch })).toBe([
+      GroupTokenMatch(
+        tokens: [
+          Token(value: "package", type: Token.Type.IDENTIFIER),
+          Token(value: "test", type: Token.Type.IDENTIFIER)
+        ],
+        tokenMatches: [
+          SingleTokenMatch(
+            tokens: [Token(value: "package", type: Token.Type.IDENTIFIER)]
+          ),
+          SingleTokenMatch(
+            tokens: [Token(value: "test", type: Token.Type.IDENTIFIER)],
+            label: "package_location_component"
+          )
+        ]
+      )
+    ])
+  }
+
+  test `does not return package match once the next token breaks the parser matcher`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.consume(Token(value: "package", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "import", type: Token.Type.IDENTIFIER))
+
+    expect(engine.getPartialMatches().mapNotNull({ _.lastMatch })).toBe(Array())
+  }
+
+  test `returns valid package match once the next token breaks the parser matcher`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.consume(Token(value: "package", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+
+    expect(engine.getCompletedMatches().mapNotNull({ _.lastMatch })).toBe([
+      GroupTokenMatch(
+        tokens: [
+          Token(value: "package", type: Token.Type.IDENTIFIER),
+          Token(value: "test", type: Token.Type.IDENTIFIER)
+        ],
+        tokenMatches: [
+          SingleTokenMatch(
+            tokens: [Token(value: "package", type: Token.Type.IDENTIFIER)]
+          ),
+          SingleTokenMatch(
+            tokens: [Token(value: "test", type: Token.Type.IDENTIFIER)],
+            label: "package_location_component"
+          )
+        ]
+      )
+    ])
+
+    engine.consume(Token(value: "import", type: Token.Type.IDENTIFIER))
+
+    expect(engine.getPartialMatches().mapNotNull({ _.lastMatch })).toBe(Array())
+  }
+
+  test `emits node after valid package match once the next token breaks the parser matcher`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    var Node node = null
+
+    stream.on<Node>("data", { node = _ })$
+
+    engine.consume(Token(value: "package", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+
+    expect(node).toBe(null)
+
+    engine.consume(Token(value: "import", type: Token.Type.IDENTIFIER))
+
+    expect(node).toBe(PackageNode(location: "test"))
+  }
+
+  test `can parse full package before creating node`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    var Node node = null
+
+    stream.on<Node>("data", { node = _ })$
+
+    engine.consume(Token(value: "package", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+
+    expect(node).toBe(null)
+
+    engine.consume(Token(value: "/", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "test2", type: Token.Type.IDENTIFIER))
+
+    expect(node).toBe(null)
+
+    engine.consume(Token(value: "/", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "test3", type: Token.Type.IDENTIFIER))
+
+    expect(node).toBe(null)
+
+    engine.consume(Token(value: "import", type: Token.Type.IDENTIFIER))
+
+    expect(node).toBe(PackageNode(location: "test/test2/test3"))
+  }
+
+  test `pushes scope to parentStack`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    expect(engine.context.parentStack.count).toBe(2)
+
+    engine.consume(Token(value: "class", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "{", type: Token.Type.SYMBOL))
+
+    expect(engine.context.parentStack.count).toBe(3)
+
+    engine.consume(Token(value: "let", type: Token.Type.IDENTIFIER))
+
+    expect(engine.context.parentStack.count).toBe(4)
+  }
+
+  test `sets currentNode to latest parsed node`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.context.pushScope(ClassParser(), ClassNode())
+    engine.context.pushScope(ClassScopeParser(), ClassScopeNode())
+
+    engine.consume(Token(value: "let", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "String", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "thing", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "=", type: Token.Type.SYMBOL))
+
+    expect(engine.context.currentNode).toBe(FieldNode(
+      type: "String",
+      name: "thing"
+    ))
+  }
+
+  test `resets currentNode after latest parsed node statement is ended`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.context.pushScope(ClassParser(), ClassNode())
+    engine.context.pushScope(ClassScopeParser(), ClassScopeNode())
+
+    engine.consume(Token(value: "let", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "String", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "thing", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "aling", type: Token.Type.IDENTIFIER))
+
+    expect(engine.context.currentNode).toBe(ClassScopeNode())
+  }
+
+  test `can parse successful function call with argument`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.context.pushScope(ClassParser(), ClassNode())
+    engine.context.pushScope(ClassScopeParser(), ClassScopeNode())
+    engine.context.pushScope(FunctionParser(), FunctionNode())
+    engine.context.pushScope(LocalScopeParser(), LocalScopeNode())
+
+    let nodes = Node[]
+
+    stream.on<Node>("data", { nodes.add(_) })$
+
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "(", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "aoeu", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: ")", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "let", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "str", type: Token.Type.IDENTIFIER))
+
+    expect(nodes).toBe([
+      FunctionCallNode(
+        name: "test"
+      ),
+      IdentifierNode(
+        name: "aoeu"
+      )
+    ])
+  }
+
+  test `resets parsers after successful function call parse`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.context.pushScope(ClassParser(), ClassNode())
+    engine.context.pushScope(ClassScopeParser(), ClassScopeNode())
+    engine.context.pushScope(FunctionParser(), FunctionNode())
+    engine.context.pushScope(LocalScopeParser(), LocalScopeNode())
+
+    var Node node = null
+
+    stream.on<Node>("data", { node = _ })$
+
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "(", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "aoeu", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: ")", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "let", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "str", type: Token.Type.IDENTIFIER))
+
+    expect(engine.context.currentNode).toBe(LocalScopeNode())
+  }
+
+  test `resets parsers after partial function call parse`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.context.pushScope(ClassParser(), ClassNode())
+    engine.context.pushScope(ClassScopeParser(), ClassScopeNode())
+    engine.context.pushScope(FunctionParser(), FunctionNode())
+    engine.context.pushScope(LocalScopeParser(), LocalScopeNode())
+
+    var Node node = null
+
+    stream.on<Node>("data", { node = _ })$
+
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "(", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "value", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "$", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "$", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: ")", type: Token.Type.SYMBOL))
+
+    expect(node).toBe(UnaryOperationNode(operator: "$"))
+
+    engine.consume(Token(value: "log", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "(", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: ")", type: Token.Type.SYMBOL))
+
+    engine.consume(Token(value: "}", type: Token.Type.SYMBOL))
+
+    expect(node).toBe(FunctionCallNode(name: "log"))
+  }
+
+  test `resets parsers after failed function call parse`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.context.pushScope(ClassParser(), ClassNode())
+    engine.context.pushScope(ClassScopeParser(), ClassScopeNode())
+    engine.context.pushScope(FunctionParser(), FunctionNode())
+    engine.context.pushScope(LocalScopeParser(), LocalScopeNode())
+
+    let nodes = Node[]
+
+    stream.on<Node>("data", { nodes.add(_) })$
+
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "(", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "File", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "(", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "args", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "\#", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: ")", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: ")", type: Token.Type.SYMBOL))
+
+    engine.consume(Token(value: "log", type: Token.Type.IDENTIFIER))
+
+    expect(nodes).toBe([
+      IdentifierNode(name: "test"),
+      IdentifierNode(name: "File")
+    ])
+
+    engine.consume(Token(value: "(", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: ")", type: Token.Type.SYMBOL))
+
+    engine.consume(Token(value: "}", type: Token.Type.SYMBOL))
+
+    expect(nodes).toBe([
+      IdentifierNode(name: "test"),
+      IdentifierNode(name: "File"),
+      FunctionCallNode(name: "log")
+    ])
+  }
+
+  test `adds annotations to parse context after parsing one`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.context.pushScope(ClassParser(), ClassNode())
+    engine.context.pushScope(ClassScopeParser(), ClassScopeNode())
+    engine.context.pushScope(FunctionParser(), FunctionNode())
+    engine.context.pushScope(LocalScopeParser(), LocalScopeNode())
+
+    var Node node = null
+
+    stream.on<Node>("data", { node = _ })$
+
+    expect(engine.context.annotations.isEmpty).toBe(true)
+
+    engine.consume(Token(value: "let", type: Token.Type.IDENTIFIER))
+
+    expect(node).toBe(null)
+    expect(engine.context.annotations).toBe([
+      LetModifier(aliasUsed: "let")
+    ])
+  }
+
+  test `can parse function declaration with expression return`() {
+    let fileNode = FileNode(file: File("Test.flat"))
+    let fileParser = FileParser()
+    let fileScopeParser = FileScopeParser()
+    let stream = Stream(true)
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, FlatParseContext(), stream)
+
+    engine.context.pushScope(ClassParser(), ClassNode())
+    engine.context.pushScope(ClassScopeParser(), ClassScopeNode())
+
+    let nodes = Node[]
+
+    stream.on<Node>("data", { nodes.add(_) })$
+
+    engine.consume(Token(value: "test", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: "(", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: ")", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "=>", type: Token.Type.SYMBOL))
+
+    engine.consume(Token(value: "log", type: Token.Type.IDENTIFIER))
+    engine.consume(Token(value: ".", type: Token.Type.SYMBOL))
+    engine.consume(Token(value: "bob", type: Token.Type.IDENTIFIER))
+
+    engine.consume(Token(value: "public", type: Token.Type.IDENTIFIER))
+
+    expect(nodes).toBe([
+      FunctionNode(
+        name: "test"
+      ),
+      IdentifierNode(
+        name: "log"
+      ),
+      DotAccessNode(),
+      IdentifierNode(
+        name: "bob"
+      )
+    ])
+  }
+}

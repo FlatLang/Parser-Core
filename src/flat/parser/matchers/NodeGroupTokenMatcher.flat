@@ -1,0 +1,275 @@
+package flat/parser/matchers
+
+import flat/parser
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/log/Logger
+
+import static flat/colorizer/Colorizer
+
+data class extends TokenMatcher {
+  static Logger log = Logger(NodeGroupTokenMatcher.class)
+
+  NodeGroupTokenPattern pattern
+
+  var TokenMatch[] childMatches = TokenMatch[]
+  var NodeGroupTokenMatch groupMatch
+  var ParserBase[] currentParsers
+  var NodeTokenMatcher currentMatcher
+  var NodeGroupTokenMatcher subMatcher
+  var Bool addedCurrentMatch = false
+  var Bool attemptingBacktrackMatch = false
+
+  override public match(Token token, ParseContext context = null) -> NodeGroupTokenMatch {
+    if (!currentParsers) {
+      currentParsers = pattern.parsers
+    }
+    if (!currentMatcher) {
+      currentMatcher = NodeTokenPattern(currentParsers, annotationParser: pattern.annotationParser).getMatcher()
+    }
+
+    return tokenMatches.add(doMatch(token, context))
+  }
+
+  doMatch(Token token, ParseContext context) -> NodeGroupTokenMatch => null {
+    if (disqualified) return null
+    log.traceFunc({"|
+      Matching token '#{green(token.value)}':
+        tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+      |"})
+
+    tokens.add(token)
+
+    if (subMatcher) {
+      log.traceFunc({"Attempting sub-match with current matcher"})
+      if (let subMatch = subMatcher.match(token, context)) {
+        log.traceFunc({"Successful sub-match with current matcher"})
+
+        if (addedCurrentMatch) {
+          log.traceFunc({"Replacing last match"})
+          childMatches.replaceLast(subMatch)
+        } else {
+          log.traceFunc({"Adding last match"})
+          childMatches.add(subMatch)
+        }
+
+        addedCurrentMatch = true
+
+        if (groupMatch) {
+          return groupMatch = groupMatch.copy(
+            tokens: pattern.includeTokens ? tokens.copy() : Token[],
+            childMatches: childMatches.copy()
+          )
+        } else {
+          return groupMatch = NodeGroupTokenMatch(
+            tokens: pattern.includeTokens ? tokens.copy() : Token[],
+            label: pattern.label,
+            childMatches: childMatches.copy()
+          )
+        }
+      } else if (subMatcher.partial) {
+        log.traceFunc({"Partial sub-match"})
+        return null
+      } else {
+        log.traceFunc({"Sub-match disqualified"})
+      }
+    }
+
+    if (groupMatch) {
+      if (checkScopeStart(token)) {
+        return handleScopeStart()
+      } else if (checkScopeEnd(token)) {
+        return handleScopeEnd()
+      }
+    } else {
+      log.traceFunc({"No groupMatch. Not checking scope"})
+    }
+
+    if (let match = currentMatcher.match(token, context)) {
+      if (match.childMatches.isEmpty) {
+        log.traceFunc({"Partial match for current matcher"})
+        return null
+      }
+      log.traceFunc({"Successful match with current matcher. Parser: #{match.parser.class.name}"})
+      if (currentMatcher.disqualified) {
+        log.traceFunc({"Current matcher is disqualified. Returning match and switching to new current matcher"})
+        currentParsers = pattern.parsers
+        currentMatcher = NodeTokenPattern(currentParsers, annotationParser: pattern.annotationParser).getMatcher()
+      } else {
+        log.traceFunc({"Current matcher is partial. Returning match and continuing"})
+      }
+
+      if (addedCurrentMatch) {
+        log.traceFunc({"Replacing last match"})
+        childMatches.replaceLast(match)
+      } else {
+        log.traceFunc({"Adding last match"})
+        childMatches.add(match)
+      }
+
+      addedCurrentMatch = true
+
+      if (groupMatch) {
+        return groupMatch = groupMatch.copy(
+          tokens: pattern.includeTokens ? tokens.copy() : Token[],
+          childMatches: childMatches.copy()
+        )
+      } else {
+        return groupMatch = NodeGroupTokenMatch(
+          tokens: pattern.includeTokens ? tokens.copy() : Token[],
+          label: pattern.label,
+          childMatches: childMatches.copy()
+        )
+      }
+    } else if (currentMatcher.partial) {
+      log.traceFunc({"Partial match. Continuing"})
+    } else if (groupMatch && !attemptingBacktrackMatch) {
+      let tokensToMatch = tokens.skip(groupMatch.tokens.count)
+      tokens = groupMatch.tokens.copy()
+      currentMatcher = NodeTokenPattern(currentParsers, annotationParser: pattern.annotationParser).getMatcher()
+      addedCurrentMatch = false
+      if (tokensToMatch.isNotEmpty) {
+        log.traceFunc({"|
+          Attempting backtrack match:
+            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+            tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
+            childMatches.last.tokens: [#{childMatches.last.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+          |"})
+
+        attemptingBacktrackMatch = true
+        let value = tokensToMatch.map({
+          return doMatch(_, context)
+        }).last
+        attemptingBacktrackMatch = false
+
+        return value
+      } else {
+        log.traceFunc({"No more tokens to match. Disqualified"})
+        disqualified = true
+      }
+    } else {
+      log.traceFunc({"Did not match. Disqualified"})
+      disqualified = true
+    }
+  }
+
+  checkScopeStart(Token token) => false {
+    if (!pattern.scopeParser) {
+      return false
+    }
+
+    match token.value {
+      "{" => {
+        log.traceFunc({"Encountered starting brace"})
+
+        var ParserBase lastParser
+
+        if (childMatches.last.class == NodeTokenMatch.class) {
+          let obj = (Object)childMatches.last
+          let matcher = (NodeTokenMatch)obj
+          lastParser = matcher.parser
+        } else {
+          let obj = (Object)childMatches.last
+          let matcher = (NodeGroupTokenMatch)obj
+          lastParser = matcher.parser
+        }
+
+        if (lastParser.beginsScope()) {
+          log.traceFunc({"Successful scope push. parser: #{green(lastParser.class.name)}"})
+
+          return true
+        } else {
+          log.traceFunc({"Not a scope. Not pushing. parser: #{green(lastParser.class.name)}"})
+        }
+      }
+    }
+  }
+
+  handleScopeStart() -> NodeGroupTokenMatch {
+    let parser = pattern.scopeParser.copy()
+
+    subMatcher = NodeGroupTokenPattern(
+      parser.childParsers,
+      scopeParser: parser.copy(),
+      annotationParser: pattern.annotationParser
+    ).getMatcher()
+
+    addedCurrentMatch = false
+
+    let childTokens = tokens.takeLast(1)
+
+    childMatches.add(
+      NodeTokenMatch(
+        tokens: childTokens,
+        childMatches: [
+          NodeTokenMatchChild(
+            tokens: childTokens,
+            parser: parser
+          )
+        ]
+      )
+    )
+
+    return groupMatch = groupMatch.copy(
+      tokens: pattern.includeTokens ? tokens.copy() : Token[],
+      childMatches: childMatches.copy()
+    )
+  }
+
+  checkScopeEnd(Token token) => false {
+    match token.value {
+      "}" => {
+        log.traceFunc({"Encountered ending brace"})
+
+        var ParserBase lastParser
+
+        if (childMatches.last.class == NodeTokenMatch.class) {
+          let obj = (Object)childMatches.last
+          let matcher = (NodeTokenMatch)obj
+          lastParser = matcher.parser
+        } else {
+          let obj = (Object)childMatches.last
+          let matcher = (NodeGroupTokenMatch)obj
+          lastParser = matcher.parser
+        }
+
+        if (subMatcher) {
+          log.traceFunc({"Successful scope pop. parser: #{green(lastParser.class.name)}"})
+
+          return true
+        } else {
+          log.traceFunc({"Not a scope. Not popping. parser: #{green(lastParser.class.name)}"})
+        }
+      }
+    }
+  }
+
+  handleScopeEnd() -> NodeGroupTokenMatch {
+    subMatcher = null
+
+    currentParsers = pattern.parsers
+    currentMatcher = NodeTokenPattern(currentParsers, annotationParser: pattern.annotationParser).getMatcher()
+    addedCurrentMatch = false
+
+    return groupMatch = groupMatch.copy(
+      tokens: pattern.includeTokens ? tokens.copy() : Token[],
+      childMatches: childMatches.copy()
+    )
+  }
+
+  override public reset() {
+    if (!dirty) return
+
+    log.traceFunc({"Resetting matcher"})
+    super.reset()
+
+    pattern.parsers.forEach({ _.reset() })
+    childMatches = NodeTokenMatch[]
+    groupMatch = null
+    currentParsers = pattern.parsers
+    currentMatcher = null
+    subMatcher = null
+    addedCurrentMatch = false
+    attemptingBacktrackMatch = false
+  }
+}

@@ -1,0 +1,51 @@
+package flat/parser/matchers
+
+import flat/parser
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/ast/Node
+
+data class extends TokenMatch {
+  visible NodeTokenMatchChild[] childMatches = NodeTokenMatchChild[]
+
+  visible ParserBase parser => childMatches.last.parser
+
+  override public getValues(String label) => String[] {
+    return childMatches.flatMap({ _.getValues(label) })
+  }
+
+  override public getMatches<Type extends TokenMatch>(String label, Bool addSelf = true) -> Type[] {
+    let array = Type[]
+
+    if (addSelf && this.label == label) {
+      array.add(this)
+    }
+
+    return array:addAll(childMatches.flatMap({ _.getMatches(label, addSelf) }))
+  }
+
+  public generateNode(ParseContext context) =>
+    childMatches.first.generateNode(context)
+
+  public generateNodes(var ParseContext context) -> Node[] {
+    context = context.copy()
+    var current = context.currentNode
+
+    let nodes = Node[]
+
+    childMatches.forEach((match) => {
+      current = match.generateNode((context:updateScopeForNode(match.parser, current)))
+      nodes.add(current)
+
+      if (let childNodeMatches = match.parser.getChildNodeTokenMatches(context, match)) {
+        if (childNodeMatches.isNotEmpty) {
+          childNodeMatches.forEach((childMatch) => {
+            nodes.addAll(childMatch.generateNodes(context))
+          })
+        }
+      }
+    })
+
+    return nodes
+  }
+}

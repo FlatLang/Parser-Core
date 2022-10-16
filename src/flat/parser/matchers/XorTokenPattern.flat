@@ -1,0 +1,33 @@
+package flat/parser/matchers
+
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/ast/AnnotationNode
+import flat/log/Logger
+
+data class extends TokenPattern {
+  static Logger log = Logger(XorTokenPattern.class)
+
+  public construct(
+    visible Array<TokenPattern> patterns,
+    this String: label = null,
+    this Bool optional = false,
+    this Bool repeat = false,
+    this Bool greedy = true,
+    this Bool includeTokens = true
+  ) {}
+
+  public getMatcher() => XorTokenMatcher(this)
+
+  override public toPatternString() -> String {
+    var str = ""
+
+    if (label) {
+      str += "#{label}:"
+    }
+
+    str += "xor(#{patterns.map(p => p.toPatternString()).join(" ")})#{getModifiersString()}"
+
+    return str
+  }
+}

@@ -1,0 +1,48 @@
+package flat/parser/matchers
+
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/log/Logger
+
+abstract data class {
+  static Logger log = Logger(TokenPattern.class)
+
+  lazy Int requiredTokenCount => optional ? 0 : 1
+
+  visible Int tokenType
+  visible String value = null
+  visible String[] values = null
+  visible String label = null
+  visible Bool optional = false
+  visible Bool repeat = false
+  visible Bool greedy = true
+  visible Bool includeTokens = true
+
+  public abstract getMatcher() -> TokenMatcher
+
+  public abstract toPatternString() -> String
+
+  public getModifiersString() -> String {
+    if (optional && repeat) {
+      if (greedy) {
+        return "*"
+      } else {
+        return "*?"
+      }
+    } else if (optional) {
+      if (greedy) {
+        return "?"
+      } else {
+        return "??"
+      }
+    } else if (repeat) {
+      if (greedy) {
+        return "+"
+      } else {
+        return "+?"
+      }
+    } else {
+      return ""
+    }
+  }
+}

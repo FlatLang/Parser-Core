@@ -1,0 +1,50 @@
+package flat/parser/matchers
+
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/log/Logger
+
+data class extends TokenPattern {
+  static Logger log = Logger(CaptureTokenPattern.class)
+
+  visible Token start
+  visible Token end
+  visible Bool includeEndToken = true
+  visible Bool skipGenerics = true
+  visible Int minimumTokenCount = 0
+  visible Token[] allowedTokens
+
+  override public getMatcher() => CaptureTokenMatcher(this)
+
+  public toPatternString() -> String {
+    var str = ""
+
+    if (label) {
+      str += "#{label}:"
+    }
+
+    str += "capture("
+
+    if (start) {
+      str += "start:\"#{start.value}\" "
+    }
+    if (end) {
+      str += "end:"
+
+      if (!includeEndToken) {
+        str += "~"
+      }
+
+      str += "\"#{end.value}\" "
+    }
+    if (minimumTokenCount) {
+      str += "min:#{minimumTokenCount} "
+    }
+
+    str = str.trimEnd()
+
+    str += ")#{getModifiersString()}"
+
+    return str
+  }
+}

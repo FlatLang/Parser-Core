@@ -1,0 +1,59 @@
+package flat/parser
+
+import flat/datastruct/list/Stack
+import flat/ast/Node
+import flat/ast/AnnotationNode
+import flat/ast/FileNode
+import flat/ast/ScopeNode
+import flat/compiler/models/Token
+import flat/io/File
+import flat/log/Logger
+import flat/stream/Stream
+
+class {
+  static Logger log = Logger(Parser.class)
+
+  public async parse(
+    File file,
+    ParserBase fileParser,
+    ParserBase fileScopeParser,
+    ParseContext parseContext,
+    Stream tokenStream
+  ) -> Stream {
+    let fileNode = FileNode(file: file)
+
+    return parse(fileNode, fileParser, fileScopeParser, parseContext, tokenStream)
+  }
+
+  async parse(
+    FileNode fileNode,
+    ParserBase fileParser,
+    ParserBase fileScopeParser,
+    ParseContext parseContext,
+    Stream tokenStream
+  ) -> Stream {
+    let stream = Stream(true)
+
+    stream.emit("data", fileNode)$
+
+    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, parseContext, stream)
+
+    tokenStream.on<Token>("data", (token) => {
+      Parser.log.traceFunc({"Received data from Token Stream: #{token}"})
+
+      engine.consume(token)
+    })
+
+    tokenStream.on<String>("error", (error) => {
+      Parser.log.traceFunc({"Received error from Token Stream: #{error}"})
+      stream.emit("error", error)$
+    })
+
+    tokenStream.on("close", {
+      Parser.log.traceFunc({"Token Stream closed"})
+      stream.emit("close")$
+    })
+
+    return stream
+  }
+}

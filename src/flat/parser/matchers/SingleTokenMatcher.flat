@@ -1,0 +1,50 @@
+package flat/parser/matchers
+
+import flat/parser
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/log/Logger
+
+data class extends TokenMatcher {
+  static Logger log = Logger(SingleTokenMatcher.class)
+
+  SingleTokenPattern pattern
+
+  override public match(Token token, ParseContext context = null) -> SingleTokenMatch {
+    return tokenMatches.add(doMatch(token))
+  }
+
+  doMatch(Token token) -> SingleTokenMatch {
+    if (disqualified) return null
+    if (!pattern.repeat && tokens.isNotEmpty) {
+      disqualified = true
+      return null
+    }
+    if (pattern.tokenType != token.type) {
+      disqualified = true
+      return null
+    }
+    if (pattern.value && pattern.value != token.value) {
+      disqualified = true
+      return null
+    }
+    if (pattern.values && pattern.values.none({ _ == token.value})) {
+      disqualified = true
+      return null
+    }
+
+    tokens.add(token)
+
+    valid = true
+    complete = true
+
+    if (!pattern.repeat) {
+      disqualified = true
+    }
+
+    return SingleTokenMatch(
+      tokens: pattern.includeTokens ? tokens.copy() : Token[],
+      label: pattern.label
+    )
+  }
+}

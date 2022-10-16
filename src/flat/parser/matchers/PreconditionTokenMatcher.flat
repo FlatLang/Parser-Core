@@ -1,0 +1,43 @@
+package flat/parser/matchers
+
+import flat/parser
+import flat/datastruct/HashMap
+import flat/compiler/models/Token
+import flat/log/Logger
+
+data class extends TokenMatcher {
+  static Logger log = Logger(PreconditionTokenMatcher.class)
+
+  PreconditionTokenPattern pattern
+
+  override public match(Token token, ParseContext context = null) -> PreconditionTokenMatch {
+    return tokenMatches.add(doMatch(token, context))
+  }
+
+  doMatch(Token token, ParseContext context) -> PreconditionTokenMatch => null {
+    if (disqualified) return null
+
+    disqualified = true
+
+    if (pattern.annotations) {
+      log.traceFunc({"Matcher has annotation checks for: [#{pattern.annotations.map(a => a.name).join(", ")}]"})
+      if (pattern.annotations.any(requiredAnnotation => context.annotations.none({ _.class == requiredAnnotation }))) {
+        log.traceFunc({"Context annotations have none of the required annotations"})
+        return null
+      } else {
+        log.traceFunc({"Matched all of the required annotations"})
+      }
+    } else {
+      log.traceFunc({"Matcher has no annotation checks"})
+    }
+
+    log.traceFunc({"Precondition passed successfully"})
+    complete = true
+    valid = true
+
+    return PreconditionTokenMatch(
+      tokens: pattern.includeTokens ? tokens.copy() : Token[],
+      label: pattern.label
+    )
+  }
+}
