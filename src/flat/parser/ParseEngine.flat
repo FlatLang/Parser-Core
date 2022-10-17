@@ -127,25 +127,6 @@ class {
     } else {
       ParseEngine.log.debugFunc({"Has partial matches"})
       ParseEngine.log.traceFunc({"Partial matches:\n  #{getPartialMatches().map(m => m.pattern.toPatternString()).join("\n  ")}"})
-
-      if (containsCompletedMatches()) {
-        ParseEngine.log.debugFunc({"Has completed matches"})
-        ParseEngine.log.traceFunc({"Completed matches:\n  #{getCompletedMatches().map(m => m.pattern.toPatternString()).join("\n  ")}"})
-        let parser = getBestMatch(getCompletedMatches())
-        ParseEngine.log.debugFunc({"Matched parser: #{parser.class.name}"})
-
-        if (parser.class.name == "AnnotationParser") {
-          ParseEngine.log.debugFunc({"Generating annotation"})
-          if (let annotation = generateAnnotation(parser)) {
-            context.annotations.add(annotation)
-            clearTokensAfterParse(parser)
-          }
-        } else {
-          ParseEngine.log.debugFunc({"Not an annotation. Skipping"})
-        }
-      } else {
-        ParseEngine.log.debugFunc({"No completed matches"})
-      }
     }
   }
 
