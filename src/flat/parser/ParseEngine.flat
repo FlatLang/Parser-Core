@@ -79,12 +79,14 @@ class {
     ParseEngine.log.debugFunc({"Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]) #{green(context.currentParser.class.name)}"})
     ParseEngine.log.debugFunc({"Parsers: [#{context.currentParsers.map(p => p.class.name).join(", ")}]"})
 
-    context.currentParsers.forEach((parser) => {
+    context.currentParsers.firstWhere((parser) => {
       if (let match = parser.match(token, context)) {
         ParseEngine.log.debugFunc({"Matched: #{parser.class.name}"})
+        return parser.acceptImmediately()
       } else if (parser.matcher.partial) {
         ParseEngine.log.debugFunc({"Partial match: #{parser.class.name}"})
       }
+      return false
     })
 
     checkMatches()
