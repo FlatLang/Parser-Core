@@ -12,12 +12,17 @@ data class extends TokenMatcher {
 
   NodeTokenPattern pattern
 
+  var ParseContext context
   var NodeTokenMatch lastMatch
   var NodeTokenMatchChild[] childMatches = NodeTokenMatchChild[]
   var ParserBase[] currentParsers
   var Bool addedCurrentMatch = false
 
   override public match(Token token, ParseContext context = null) -> NodeTokenMatch {
+    if (!this.context) {
+      this.context = context?.copy(
+        annotations: Array()
+      )
     }
     if (!currentParsers) {
       currentParsers = pattern.parsers.forEach({ _.copy() })
@@ -25,10 +30,10 @@ data class extends TokenMatcher {
 
     tokens.add(token)
 
-    return tokenMatches.add(doMatch(token, context))
+    return tokenMatches.add(doMatch(token))
   }
 
-  doMatch(Token token, var ParseContext context) -> NodeTokenMatch {
+  doMatch(Token token) -> NodeTokenMatch {
     if (disqualified) return null
     log.traceFunc({"Matching token '#{green(token.value)}'"})
 
@@ -47,6 +52,10 @@ data class extends TokenMatcher {
         matches.add(match)
         if (!matchParser || parser.acceptImmediately()) {
           matchParser = parser
+
+          if (parser.acceptImmediately()) {
+            break
+          }
         }
         matchParsers.add(parser)
       } else if (parser.matcher.partial) {
@@ -89,7 +98,7 @@ data class extends TokenMatcher {
                 parser: #{lastParser.class.name}
               |"})
 
-            let value = doMatch(token, context)
+            let value = doMatch(token)
 
             NodeTokenMatcher.log.traceFunc({"|
               Finished matching continuation token '#{green(token.value)}'
@@ -103,18 +112,22 @@ data class extends TokenMatcher {
           }).last
 
           if (matchValue) {
+            tokens.addAll(tokensToMatch)
             log.traceFunc({"|
               Got a complete match from child parser. Returning match
                 lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
+                matchValue.tokens: [#{matchValue.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 parser: #{lastParser.class.name}
                 childParsers: [#{childParsers.map(p => green(p.class.name)).join(", ")}]
                 disqualified: #{disqualified}
                 complete: #{complete}
                 valid: #{valid}
               |"})
-            return matchValue
+            return matchValue.copy(
+              tokens: tokens
+            )
           } else {
             log.traceFunc({"|
               Did not get a complete match from child parser
@@ -196,13 +209,13 @@ data class extends TokenMatcher {
       }
       addedCurrentMatch = true
 
+      let acceptImmediately = matchParser.acceptImmediately()
+
       lastMatch = NodeTokenMatch(
         tokens: pattern.includeTokens ? tokens.copy() : Token[],
         label: pattern.label,
         childMatches: childMatches.copy()
       )
-
-      let acceptImmediately = matchParser.acceptImmediately()
 
       if (acceptImmediately) {
         log.traceFunc({"Contains exact match"})
@@ -258,7 +271,7 @@ data class extends TokenMatcher {
               log.traceFunc({"Matching child parsers for parser #{green(lastParser.class.name)}"})
               currentParsers = childParsers
               addedCurrentMatch = false
-              return doMatch(token, context)
+              return doMatch(token)
             } else {
               log.traceFunc({"No more partial matches and no child parsers. Disqualified. Returning last match"})
               complete = lastParser.matcher.complete
@@ -293,7 +306,8 @@ data class extends TokenMatcher {
 
     childMatches = NodeTokenMatch[]
     lastMatch = null
-    currentParsers = pattern.parsers
+    context = null
+    currentParsers = pattern.parsers.map({ _.copy() })
     addedCurrentMatch = false
   }
 }
