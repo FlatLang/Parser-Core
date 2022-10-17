@@ -10,7 +10,7 @@ abstract data class {
   visible Bool isMetadata => false
 
   visible lazy TokenPattern pattern => null
-  visible lazy TokenMatcher matcher => pattern.getMatcher()
+  visible lazy TokenMatcher matcher => pattern?.getMatcher()
 
   public var TokenMatch lastMatch <=> lastMatch
 
