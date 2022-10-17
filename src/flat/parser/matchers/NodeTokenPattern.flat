@@ -15,8 +15,7 @@ data class extends TokenPattern {
     this Bool repeat = false,
     this Bool greedy = true,
     this Bool includeTokens = true,
-    visible Bool parseChildren = true,
-    visible var ParserBase annotationParser = null
+    visible Bool parseChildren = true
   ) {}
 
   public getMatcher() => NodeTokenMatcher(this) {

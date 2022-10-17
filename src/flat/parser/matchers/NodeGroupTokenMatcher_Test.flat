@@ -10,7 +10,7 @@ import flat/io/File
 
 testable class {
   test `can match one import`() {
-    let pattern = NodeGroupTokenPattern([ImportParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+    let pattern = NodeGroupTokenPattern([ImportParser()], scopeParser: LocalScopeParser())
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -46,7 +46,7 @@ testable class {
   }
 
   test `can match two imports`() {
-    let pattern = NodeGroupTokenPattern([ImportParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+    let pattern = NodeGroupTokenPattern([ImportParser()], scopeParser: LocalScopeParser())
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -101,7 +101,7 @@ testable class {
   }
 
   test `can match one function call`() {
-    let pattern = NodeGroupTokenPattern([FunctionCallParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+    let pattern = NodeGroupTokenPattern([FunctionCallParser()], scopeParser: LocalScopeParser())
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -141,7 +141,7 @@ testable class {
   }
 
   test `can match two function calls`() {
-    let pattern = NodeGroupTokenPattern([FunctionCallParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+    let pattern = NodeGroupTokenPattern([FunctionCallParser()], scopeParser: LocalScopeParser())
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -204,7 +204,7 @@ testable class {
   }
 
   test `can match one if statement`() {
-    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser())
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -265,7 +265,7 @@ testable class {
   }
 
   test `can match two if statements`() {
-    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser())
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -370,7 +370,7 @@ testable class {
   }
 
   test `can match one if statement with one nested if statement`() {
-    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser(), annotationParser: AnnotationParser())
+    let pattern = NodeGroupTokenPattern([IfParser()], scopeParser: LocalScopeParser())
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -489,7 +489,7 @@ testable class {
   test `can match inside a group token pattern`() {
     let pattern = GroupTokenPattern([
       SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
-      NodeGroupTokenPattern(LocalScopeParser().childParsers, optional: true, scopeParser: LocalScopeParser(), annotationParser: AnnotationParser()),
+      NodeGroupTokenPattern(LocalScopeParser().childParsers, optional: true, scopeParser: LocalScopeParser()),
       SingleTokenPattern(Token.Type.SYMBOL, value: "}")
     ])
 
@@ -534,7 +534,7 @@ testable class {
   }
 
   test `can match inside a node token pattern`() {
-    let pattern = NodeTokenPattern([LambdaParser()], annotationParser: AnnotationParser())
+    let pattern = NodeTokenPattern([LambdaParser()])
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -565,7 +565,7 @@ testable class {
   }
 
   test `can access node group token match from match inside a node token pattern`() {
-    let pattern = NodeTokenPattern([LambdaParser()], annotationParser: AnnotationParser())
+    let pattern = NodeTokenPattern([LambdaParser()])
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([

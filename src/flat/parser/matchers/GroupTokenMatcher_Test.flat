@@ -712,7 +712,7 @@ testable class {
   test `can match an inner multi-node expression node pattern`() {
     let pattern = GroupTokenPattern([
       SingleTokenPattern(Token.Type.SYMBOL, "("),
-      NodeTokenPattern([IdentifierParser()], label: "argument", annotationParser: AnnotationParser()),
+      NodeTokenPattern([IdentifierParser()], label: "argument"),
       SingleTokenPattern(Token.Type.SYMBOL, ")")
     ])
 

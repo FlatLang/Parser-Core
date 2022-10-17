@@ -25,7 +25,7 @@ data class extends TokenMatcher {
       currentParsers = pattern.parsers
     }
     if (!currentMatcher) {
-      currentMatcher = NodeTokenPattern(currentParsers, annotationParser: pattern.annotationParser).getMatcher()
+      currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
     }
 
     return tokenMatches.add(doMatch(token, context))
@@ -94,7 +94,7 @@ data class extends TokenMatcher {
       if (currentMatcher.disqualified) {
         log.traceFunc({"Current matcher is disqualified. Returning match and switching to new current matcher"})
         currentParsers = pattern.parsers
-        currentMatcher = NodeTokenPattern(currentParsers, annotationParser: pattern.annotationParser).getMatcher()
+        currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
       } else {
         log.traceFunc({"Current matcher is partial. Returning match and continuing"})
       }
@@ -126,7 +126,7 @@ data class extends TokenMatcher {
     } else if (groupMatch && !attemptingBacktrackMatch) {
       let tokensToMatch = tokens.skip(groupMatch.tokens.count)
       tokens = groupMatch.tokens.copy()
-      currentMatcher = NodeTokenPattern(currentParsers, annotationParser: pattern.annotationParser).getMatcher()
+      currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
       addedCurrentMatch = false
       if (tokensToMatch.isNotEmpty) {
         log.traceFunc({"|
@@ -190,8 +190,7 @@ data class extends TokenMatcher {
 
     subMatcher = NodeGroupTokenPattern(
       parser.childParsers,
-      scopeParser: parser.copy(),
-      annotationParser: pattern.annotationParser
+      scopeParser: parser.copy()
     ).getMatcher()
 
     addedCurrentMatch = false
@@ -248,7 +247,7 @@ data class extends TokenMatcher {
     subMatcher = null
 
     currentParsers = pattern.parsers
-    currentMatcher = NodeTokenPattern(currentParsers, annotationParser: pattern.annotationParser).getMatcher()
+    currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
     addedCurrentMatch = false
 
     return groupMatch = groupMatch.copy(

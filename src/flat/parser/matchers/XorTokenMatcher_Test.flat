@@ -140,8 +140,7 @@ testable class {
             LocalScopeParser().childParsers,
             optional: true,
             label: "lambda_body_contents",
-            scopeParser: LocalScopeParser(),
-            annotationParser: AnnotationParser()
+            scopeParser: LocalScopeParser()
           ),
           SingleTokenPattern(Token.Type.SYMBOL, value: "}")
         ], optional: true)
@@ -152,8 +151,7 @@ testable class {
           LocalScopeParser().childParsers,
           optional: true,
           label: "lambda_body_contents",
-          scopeParser: LocalScopeParser(),
-          annotationParser: AnnotationParser()
+          scopeParser: LocalScopeParser()
         ),
         SingleTokenPattern(Token.Type.SYMBOL, value: "}")
       ])
