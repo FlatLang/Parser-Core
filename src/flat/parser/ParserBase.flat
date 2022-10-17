@@ -6,6 +6,9 @@ import flat/compiler/models/Token
 
 abstract data class {
   ParserBase[] childParsers => null
+
+  visible Bool isMetadata => false
+
   visible lazy TokenPattern pattern => null
   visible lazy TokenMatcher matcher => pattern.getMatcher()
 

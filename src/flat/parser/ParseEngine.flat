@@ -99,6 +99,9 @@ class {
       if (let node = generateNode(parser)) {
         context.updateScopeForNode(parser, node)
         clearTokensAfterParse(parser)
+        if (parser.isMetadata) {
+          context.addMetadata(node)
+        }
       }
       return
     }

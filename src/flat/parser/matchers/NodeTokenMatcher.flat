@@ -222,6 +222,17 @@ data class extends TokenMatcher {
         } else {
           log.traceFunc({"No child matchers. Returning last match"})
         }
+
+        if (matchParser?.isMetadata) {
+          if (let metadataNode = matchParser.generateNode(context, matchParser.lastMatch)) {
+            context.addMetadata(metadataNode)
+            currentParsers = pattern.parsers.map({ _.copy() })
+            addedCurrentMatch = false
+            log.traceFunc({"Added metadata node and reset parsers"})
+          } else {
+            log.warnFunc({"Failed to parse metadata node"})
+          }
+        }
       } else {
         log.traceFunc({"Current matchParser is partial or has other remaining partial matches"})
       }

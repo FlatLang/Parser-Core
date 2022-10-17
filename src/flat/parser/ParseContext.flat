@@ -101,4 +101,11 @@ abstract data class {
   public reset() {
     currentParsers = currentParsers.map({ _.copy() })
   }
+
+  public addMetadata(Node node) {
+    if (node.class.isOfType(AnnotationNode.class)) {
+      annotations.add((AnnotationNode)node)
+      log.debugFunc({"Added annotation #{node.class.name}"})
+    }
+  }
 }
