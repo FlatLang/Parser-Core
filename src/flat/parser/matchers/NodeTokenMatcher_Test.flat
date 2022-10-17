@@ -309,4 +309,19 @@ testable class {
     ])
     expect(matcher.partial).toBe(true)
   }
+
+  test `can parse preceding annotations`() {
+    let pattern = NodeTokenPattern([AnnotationParser(), IdentifierParser()])
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "async", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER)
+    ], FlatParseContext()).last
+
+    expect(result?.tokens).toBe([
+      Token(value: "async", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER)
+    ])
+    expect(matcher.partial).toBe(true)
+  }
 }

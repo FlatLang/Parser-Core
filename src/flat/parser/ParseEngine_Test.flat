@@ -183,10 +183,7 @@ testable class {
     engine.consume(Token(value: "thing", type: Token.Type.IDENTIFIER))
     engine.consume(Token(value: "=", type: Token.Type.SYMBOL))
 
-    expect(engine.context.currentNode).toBe(FieldNode(
-      type: "String",
-      name: "thing"
-    ))
+    expect(engine.context.currentNode).toBe(AssignmentNode())
   }
 
   test `resets currentNode after latest parsed node statement is ended`() {
@@ -236,6 +233,9 @@ testable class {
       ),
       IdentifierNode(
         name: "aoeu"
+      ),
+      LetModifier(
+        aliasUsed: "let"
       )
     ])
   }
@@ -361,10 +361,11 @@ testable class {
     stream.on<Node>("data", { node = _ })$
 
     expect(engine.context.annotations.isEmpty).toBe(true)
+    expect(node).toBe(null)
 
     engine.consume(Token(value: "let", type: Token.Type.IDENTIFIER))
 
-    expect(node).toBe(null)
+    expect(node).toBe(LetModifier(aliasUsed: "let"))
     expect(engine.context.annotations).toBe([
       LetModifier(aliasUsed: "let")
     ])
@@ -405,6 +406,9 @@ testable class {
       DotAccessNode(),
       IdentifierNode(
         name: "bob"
+      ),
+      PublicModifier(
+        aliasUsed: "public"
       )
     ])
   }
