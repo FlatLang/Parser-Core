@@ -64,7 +64,7 @@ testable class {
   test `can match correctly in a group token pattern`() {
     let pattern = GroupTokenPattern([
       NodeTokenPattern([ParameterParser()], label: "node_match"),
-      SingleTokenPattern(Token.Type.SYMBOL, ",")
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: ",")
     ])
 
     let matcher = pattern.getMatcher()
@@ -106,13 +106,13 @@ testable class {
 
   test `can match a parameter in parentheses`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.SYMBOL, "("),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "("),
       NodeTokenPattern([ParameterParser()], label: "parameter"),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, ","),
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: ","),
         NodeTokenPattern([ParameterParser()], label: "parameter")
       ], optional: true, repeat: true),
-      SingleTokenPattern(Token.Type.SYMBOL, ")")
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: ")")
     ])
 
     let matcher = pattern.getMatcher()
@@ -128,13 +128,13 @@ testable class {
 
   test `can match a parameter with array brackets in parentheses`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.SYMBOL, "("),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "("),
       NodeTokenPattern([ParameterParser()], label: "parameter"),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, ","),
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: ","),
         NodeTokenPattern([ParameterParser()], label: "parameter")
       ], optional: true, repeat: true),
-      SingleTokenPattern(Token.Type.SYMBOL, ")")
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: ")")
     ])
 
     let matcher = pattern.getMatcher()

@@ -11,8 +11,8 @@ import flat/io/File
 testable class {
   test `returns tokens on simple successful match on first pattern`() {
     let pattern = XorTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, "import")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "import")
     ])
 
     let matcher = pattern.getMatcher()
@@ -23,8 +23,8 @@ testable class {
 
   test `returns tokens on simple successful match on second pattern`() {
     let pattern = XorTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, "import")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "import")
     ])
 
     let matcher = pattern.getMatcher()
@@ -35,8 +35,8 @@ testable class {
 
   test `returns null on unsuccessful match`() {
     let pattern = XorTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, "import")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "import")
     ])
 
     let matcher = pattern.getMatcher()
@@ -48,18 +48,18 @@ testable class {
   test `can match on group patterns`() {
     let pattern = XorTokenPattern([
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, label: "declaration_name"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "declaration_name")
+        SingleTokenPattern(type: Token.Type.SYMBOL, label: "declaration_name"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "declaration_name")
       ]),
       GroupTokenPattern([
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "declaration_type"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "declaration_type"),
           GroupTokenPattern([
-            SingleTokenPattern(Token.Type.SYMBOL, "["),
-            SingleTokenPattern(Token.Type.SYMBOL, "]")
+            SingleTokenPattern(type: Token.Type.SYMBOL, value: "["),
+            SingleTokenPattern(type: Token.Type.SYMBOL, value: "]")
           ], repeat: true, greedy: false, optional: true, label: "brackets")
         ], label: "type"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "declaration_name")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "declaration_name")
       ])
     ])
 
@@ -82,18 +82,18 @@ testable class {
   test `can match on complex group patterns`() {
     let pattern = XorTokenPattern([
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, label: "declaration_name"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "declaration_name")
+        SingleTokenPattern(type: Token.Type.SYMBOL, label: "declaration_name"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "declaration_name")
       ]),
       GroupTokenPattern([
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "declaration_type"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "declaration_type"),
           GroupTokenPattern([
-            SingleTokenPattern(Token.Type.SYMBOL, "["),
-            SingleTokenPattern(Token.Type.SYMBOL, "]")
+            SingleTokenPattern(type: Token.Type.SYMBOL, value: "["),
+            SingleTokenPattern(type: Token.Type.SYMBOL, value: "]")
           ], repeat: true, greedy: false, optional: true, label: "brackets")
         ], greedy: false, label: "type"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "declaration_name")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "declaration_name")
       ])
     ])
 
@@ -127,31 +127,31 @@ testable class {
               start: Token(value: "("),
               end: Token(value: ")")
             ),
-            SingleTokenPattern(Token.Type.SYMBOL, value: "=>")
+            SingleTokenPattern(type: Token.Type.SYMBOL, value: "=>")
           ]),
           GroupTokenPattern([
-            SingleTokenPattern(Token.Type.IDENTIFIER, label: "param_name"),
-            SingleTokenPattern(Token.Type.SYMBOL, value: "=>")
+            SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "param_name"),
+            SingleTokenPattern(type: Token.Type.SYMBOL, value: "=>")
           ])
         ]),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: "{"),
           NodeGroupTokenPattern(
             LocalScopeParser().valueParsers,
             optional: true,
             label: "lambda_body_contents"
           ),
-          SingleTokenPattern(Token.Type.SYMBOL, value: "}")
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: "}")
         ], optional: true)
       ]),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "{"),
         NodeGroupTokenPattern(
           LocalScopeParser().valueParsers,
           optional: true,
           label: "lambda_body_contents"
         ),
-        SingleTokenPattern(Token.Type.SYMBOL, value: "}")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "}")
       ])
     ])
 

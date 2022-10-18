@@ -11,8 +11,8 @@ import flat/io/File
 testable class {
   test `can match package matcher group`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component")
     ])
 
     let result = groupPattern
@@ -28,8 +28,8 @@ testable class {
 
   test `does not return value after second time matching`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component")
     ])
 
     let matcher = groupPattern.getMatcher()
@@ -50,8 +50,8 @@ testable class {
 
   test `does return value after second time matching if the matcher is reset`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component")
     ])
 
     let matcher = groupPattern.getMatcher()
@@ -73,11 +73,11 @@ testable class {
 
   test `can match package matcher group with unmatched optional repeating package_location_component`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component"),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, "/", label: "package_location_component"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "/", label: "package_location_component"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component")
       ], repeat: true, optional: true)
     ])
 
@@ -94,11 +94,11 @@ testable class {
 
   test `can match package matcher group with matched optional repeating package_location_component`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component"),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, "/", label: "package_location_component"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "/", label: "package_location_component"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component")
       ], repeat: true, optional: true)
     ])
 
@@ -119,18 +119,18 @@ testable class {
 
   test `can match multiple nested matcher groups with matched optional repeating values`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "class"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "class"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "extends"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "extends_class_name")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "extends"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "extends_class_name")
       ], optional: true),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "implements"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "implements"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name"),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.SYMBOL, ","),
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name")
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: ","),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name")
         ], repeat: true, optional: true)
       ], optional: true)
     ])
@@ -157,18 +157,18 @@ testable class {
 
   test `can match multiple nested matcher groups with matched optional repeating values where the non-greedy value is matched`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "class"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "class"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "extends"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "extends_class_name")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "extends"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "extends_class_name")
       ], optional: true),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "implements"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "implements"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name"),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.SYMBOL, ","),
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name")
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: ","),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name")
         ], repeat: true, optional: true)
       ], optional: true)
     ])
@@ -196,7 +196,7 @@ testable class {
 
   test `can match against matcher with multiple values`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "alias", values: Array():addAll([
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "alias", values: Array():addAll([
           "test1", "test2", "test3", "test4"
         ])
       )
@@ -214,11 +214,11 @@ testable class {
 
   test `can match partially against matcher when too few tokens given`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "package"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component"),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, "/", label: "package_location_component"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "package_location_component")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "/", label: "package_location_component"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "package_location_component")
       ], repeat: true, optional: true)
     ])
 
@@ -236,11 +236,11 @@ testable class {
 
   test `doesnt match partially against matcher when too few and incorrect tokens given`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "import"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "import_location_component"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "import"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "import_location_component"),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, "/", label: "import_location_component"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "import_location_component")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "/", label: "import_location_component"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "import_location_component")
       ], repeat: true, optional: true)
     ])
 
@@ -258,18 +258,18 @@ testable class {
 
   test `doesnt match partially against matcher when too many tokens that dont match are given`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "class"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "class"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "extends"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "extends_class_name")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "extends"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "extends_class_name")
       ], optional: true),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "implements"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "implements"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name"),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.SYMBOL, ","),
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name")
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: ","),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name")
         ], repeat: true, optional: true)
       ], optional: true)
     ])
@@ -297,18 +297,18 @@ testable class {
 
   test `matches against just first identifier if all others are optional`() {
     let groupPattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "class"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "class"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "extends"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "extends_class_name")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "extends"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "extends_class_name")
       ], optional: true),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "implements"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "implements"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name"),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.SYMBOL, ","),
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name")
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: ","),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name")
         ], repeat: true, optional: true)
       ], optional: true)
     ])
@@ -325,13 +325,13 @@ testable class {
   test `matches completely against multiple entry options`() {
     let groupPattern = GroupTokenPattern([
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, "["),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "identifier"),
-        SingleTokenPattern(Token.Type.SYMBOL, "]")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "["),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "identifier"),
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "]")
       ], optional: true),
       GroupTokenPattern([
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "alias", values: Array()
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "alias", values: Array()
             :addAll(VisibleModifier.aliases)
             :addAll(PublicModifier.aliases)
             :addAll(PrivateModifier.aliases)
@@ -354,13 +354,13 @@ testable class {
   test `doesnt match complete single array bracket in annotation matcher`() {
     let groupPattern = GroupTokenPattern([
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, "["),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "identifier"),
-        SingleTokenPattern(Token.Type.SYMBOL, "]")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "["),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "identifier"),
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "]")
       ], optional: true),
       GroupTokenPattern([
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "alias", values: Array()
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "alias", values: Array()
             :addAll(VisibleModifier.aliases)
             :addAll(PublicModifier.aliases)
             :addAll(PrivateModifier.aliases)
@@ -383,13 +383,13 @@ testable class {
   test `doesnt match ending part of annotation`() {
     let groupPattern = GroupTokenPattern([
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, "["),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "identifier"),
-        SingleTokenPattern(Token.Type.SYMBOL, "]")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "["),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "identifier"),
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "]")
       ], optional: true),
       GroupTokenPattern([
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "alias", values: Array()
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "alias", values: Array()
             :addAll(VisibleModifier.aliases)
             :addAll(PublicModifier.aliases)
             :addAll(PrivateModifier.aliases)
@@ -481,27 +481,27 @@ testable class {
 
   test `can match a parameter with array brackets in parentheses`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.SYMBOL, "("),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "("),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "type"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "type"),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.SYMBOL, "[", label: "bracket_start"),
-          SingleTokenPattern(Token.Type.SYMBOL, "]", label: "bracket_end")
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: "[", label: "bracket_start"),
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: "]", label: "bracket_end")
         ], repeat: true, optional: true),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "name")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "name")
       ], label: "parameter"),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, ","),
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: ","),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "type"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "type"),
           GroupTokenPattern([
-            SingleTokenPattern(Token.Type.SYMBOL, "[", label: "bracket_start"),
-            SingleTokenPattern(Token.Type.SYMBOL, "]", label: "bracket_end")
+            SingleTokenPattern(type: Token.Type.SYMBOL, value: "[", label: "bracket_start"),
+            SingleTokenPattern(type: Token.Type.SYMBOL, value: "]", label: "bracket_end")
           ], repeat: true, optional: true),
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "name")
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "name")
         ], label: "parameter")
       ], optional: true, repeat: true),
-      SingleTokenPattern(Token.Type.SYMBOL, ")")
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: ")")
     ])
 
     let match = pattern
@@ -520,9 +520,9 @@ testable class {
 
   test `does not return full match if last required pattern is not matched`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.SYMBOL, "("),
-      SingleTokenPattern(Token.Type.IDENTIFIER, repeat: true),
-      SingleTokenPattern(Token.Type.SYMBOL, ")")
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "("),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, repeat: true),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: ")")
     ])
 
     let matcher = pattern.getMatcher()
@@ -537,11 +537,11 @@ testable class {
 
   test `does not return full match if last required pattern is not matched, where the pattern before it is completed`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.SYMBOL, "("),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "("),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, repeat: true)
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, repeat: true)
       ]),
-      SingleTokenPattern(Token.Type.SYMBOL, ")")
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: ")")
     ])
 
     let matcher = pattern.getMatcher()
@@ -557,8 +557,8 @@ testable class {
   test `continues on when precondition matcher matches`() {
     let pattern = GroupTokenPattern([
       PreconditionTokenPattern([LetModifier.class]),
-      SingleTokenPattern(Token.Type.IDENTIFIER, "test"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, "test2")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test2")
     ])
 
     let context = ParseContext(
@@ -582,8 +582,8 @@ testable class {
   test `breaks when precondition matcher doesnt matches`() {
     let pattern = GroupTokenPattern([
       PreconditionTokenPattern([LetModifier.class]),
-      SingleTokenPattern(Token.Type.IDENTIFIER, "test"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, "test2")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test2")
     ])
 
     let context = ParseContext(
@@ -601,18 +601,18 @@ testable class {
 
   test `can handle reaching forward multiple patterns for a non-greedy match`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "class"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "class"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "class_name", optional: true, greedy: false),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "extends"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "extends_class_name")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "extends"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "extends_class_name")
       ], optional: true),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "implements"),
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "implements"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name"),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.SYMBOL, ","),
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "implements_class_name")
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: ","),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "implements_class_name")
         ], repeat: true, optional: true)
       ], optional: true)
     ])
@@ -636,13 +636,13 @@ testable class {
 
   test `can handle matching required pattern after repeating pattern`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "external"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "external"),
       GroupTokenPattern([
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.IDENTIFIER, "not"),
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "exclude"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "not"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "exclude"),
         ], optional: true),
-        SingleTokenPattern(Token.Type.IDENTIFIER, optional: true, label: "include")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, optional: true, label: "include")
       ], repeat: true, optional: true),
       CaptureTokenPattern(
         label: "body",
@@ -674,13 +674,13 @@ testable class {
 
   test `does not match when required pattern after repeating pattern is not matched`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "external"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "external"),
       GroupTokenPattern([
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.IDENTIFIER, "not"),
-          SingleTokenPattern(Token.Type.IDENTIFIER, label: "exclude"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "not"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "exclude"),
         ], optional: true),
-        SingleTokenPattern(Token.Type.IDENTIFIER, optional: true, label: "include")
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, optional: true, label: "include")
       ], repeat: true, optional: true),
       CaptureTokenPattern(
         label: "body",
@@ -701,9 +701,9 @@ testable class {
 
   test `can match an inner multi-node expression node pattern`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.SYMBOL, "("),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "("),
       NodeTokenPattern([IdentifierParser()], label: "argument"),
-      SingleTokenPattern(Token.Type.SYMBOL, ")")
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: ")")
     ])
 
     let matcher = pattern.getMatcher()
@@ -721,13 +721,13 @@ testable class {
   test `does not match when optional broken sub-match had some of the tokens matched`() {
     let pattern = GroupTokenPattern([
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, label: "declaration_type"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "declaration_type"),
         GroupTokenPattern([
-          SingleTokenPattern(Token.Type.SYMBOL, "["),
-          SingleTokenPattern(Token.Type.SYMBOL, "]")
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: "["),
+          SingleTokenPattern(type: Token.Type.SYMBOL, value: "]")
         ], repeat: true, greedy: false, optional: true, label: "brackets")
       ], label: "type"),
-      SingleTokenPattern(Token.Type.IDENTIFIER, label: "declaration_name")
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, label: "declaration_name")
     ])
 
     let matcher = pattern.getMatcher()
@@ -744,13 +744,13 @@ testable class {
 
   test `can match non-greedy sub-matches`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.IDENTIFIER, "class"),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "class"),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER)
+        SingleTokenPattern(type: Token.Type.IDENTIFIER)
       ], optional: true, greedy: false),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.IDENTIFIER, "extends"),
-        SingleTokenPattern(Token.Type.IDENTIFIER),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "extends"),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER),
         CaptureTokenPattern(
           label: "generic_arguments",
           start: Token(value: "<"),
@@ -768,9 +768,9 @@ testable class {
         )
       ], optional: true),
       GroupTokenPattern([
-        SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "{"),
         NodeGroupTokenPattern(LocalScopeParser().valueParsers, optional: true),
-        SingleTokenPattern(Token.Type.SYMBOL, value: "}")
+        SingleTokenPattern(type: Token.Type.SYMBOL, value: "}")
       ])
     ])
     let matcher = pattern.getMatcher()

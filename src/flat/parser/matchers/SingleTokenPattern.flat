@@ -7,6 +7,11 @@ import flat/log/Logger
 data class extends TokenPattern {
   static Logger log = Logger(SingleTokenPattern.class)
 
+  visible Int type
+  visible String value = null
+  visible String[] values = null
+  visible String[] notValues = null
+
   public getMatcher() => SingleTokenMatcher(this)
 
   override public toPatternString() -> String {
@@ -17,7 +22,7 @@ data class extends TokenPattern {
     }
 
     str += "<"
-    str += Token.Type.toString(tokenType)
+    str += Token.Type.toString(type)
 
     if (values) {
       str += "[" + values.map({ "\"#{_}\"" }).join(" ") + "]"

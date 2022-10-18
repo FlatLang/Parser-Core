@@ -10,7 +10,7 @@ import flat/io/File
 
 testable class {
   test `can match token`() {
-    let pattern = SingleTokenPattern(Token.Type.IDENTIFIER, "package")
+    let pattern = SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package")
 
     let result = pattern
       .getMatcher()
@@ -22,7 +22,7 @@ testable class {
   }
 
   test `doesnt match wrong token`() {
-    let pattern = SingleTokenPattern(Token.Type.IDENTIFIER, "package")
+    let pattern = SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package")
 
     let result = pattern
       .getMatcher()

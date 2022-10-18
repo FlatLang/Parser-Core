@@ -420,9 +420,9 @@ testable class {
 
   test `can match inside a group token pattern`() {
     let pattern = GroupTokenPattern([
-      SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "{"),
       NodeGroupTokenPattern(LocalScopeParser().valueParsers, optional: true),
-      SingleTokenPattern(Token.Type.SYMBOL, value: "}")
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "}")
     ])
 
     let matcher = pattern.getMatcher()

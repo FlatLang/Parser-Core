@@ -26,7 +26,7 @@ data class extends TokenMatcher {
       disqualified = true
       return null
     }
-    if (pattern.tokenType != token.type) {
+    if (pattern.type != token.type) {
       log.traceFunc({"Incorrect token type. Disqualified"})
       disqualified = true
       return null
