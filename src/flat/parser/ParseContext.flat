@@ -19,6 +19,7 @@ abstract data class {
   visible var Token[] tokens = Token[]
   visible var AnnotationNode[] annotations = AnnotationNode[]
 
+  visible File file
   visible FileNode fileNode => parentStack.toArray().firstWhere({ _.class.isOfType(FileNode.class) })
 
   public abstract shouldContinuePopping(ParserBase currentParser) -> Bool

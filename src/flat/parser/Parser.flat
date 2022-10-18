@@ -14,29 +14,13 @@ class {
   static Logger log = Logger(Parser.class)
 
   public async parse(
-    File file,
-    ParserBase fileParser,
-    ParserBase fileScopeParser,
-    ParseContext parseContext,
-    Stream tokenStream
-  ) -> Stream {
-    let fileNode = FileNode(file: file)
-
-    return parse(fileNode, fileParser, fileScopeParser, parseContext, tokenStream)
-  }
-
-  async parse(
-    FileNode fileNode,
-    ParserBase fileParser,
-    ParserBase fileScopeParser,
+    ParserBase rootParser,
     ParseContext parseContext,
     Stream tokenStream
   ) -> Stream {
     let stream = Stream(true)
 
-    stream.emit("data", fileNode)$
-
-    let engine = ParseEngine(fileNode, fileParser, fileScopeParser, parseContext, stream)
+    let engine = ParseEngine(rootParser, parseContext, stream)
 
     tokenStream.on<Token>("data", (token) => {
       Parser.log.traceFunc({"Received data from Token Stream: #{token}"})
@@ -51,6 +35,7 @@ class {
 
     tokenStream.on("close", {
       Parser.log.traceFunc({"Token Stream closed"})
+      engine.end()
       stream.emit("close")$
     })
 
