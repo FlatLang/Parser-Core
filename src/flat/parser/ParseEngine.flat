@@ -28,10 +28,10 @@ class {
   }
 
   public containsPartialMatches() =>
-    context.currentParsers.any(p => p.matcher.partial || p.matcher.tokenMatches.last != null)
+    context.currentParsers.any(p => p.matcher.partial)
 
   public getPartialMatches() =>
-    context.currentParsers.filter(p => p.matcher.partial || p.matcher.tokenMatches.last != null)
+    context.currentParsers.filter(p => p.matcher.partial)
 
   public containsCompletedMatches() =>
     context.currentParsers.any({ _.lastMatch != null })
