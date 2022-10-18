@@ -15,6 +15,8 @@ abstract data class {
   var TokenMatch[] _tokenMatches = TokenMatch[]
   visible TokenMatch[] tokenMatches <=> _tokenMatches
 
+  visible TokenMatch lastMatch => _tokenMatches.lastWhere({ _ != null })
+
   var Token[] _tokens = Token[]
   visible Token[] tokens <=> _tokens
 
