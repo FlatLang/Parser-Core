@@ -28,7 +28,7 @@ testable class {
     let result = matcher.matchAll([
       Token(value: "import", type: Token.Type.IDENTIFIER),
       Token(value: "test", type: Token.Type.IDENTIFIER)
-    ]).last
+    ], FlatParseContext()).last
 
     let expected = [
       Token(value: "import", type: Token.Type.IDENTIFIER),
@@ -72,7 +72,7 @@ testable class {
       Token(value: "String", type: Token.Type.IDENTIFIER),
       Token(value: "test", type: Token.Type.IDENTIFIER),
       Token(value: ",", type: Token.Type.SYMBOL)
-    ]).last
+    ], FlatParseContext()).last
 
     expect(result).toBe(
       GroupTokenMatch(
@@ -115,7 +115,7 @@ testable class {
       Token(value: "String", type: Token.Type.IDENTIFIER),
       Token(value: "test", type: Token.Type.IDENTIFIER),
       Token(value: ",", type: Token.Type.SYMBOL)
-    ]).last
+    ], FlatParseContext()).last
 
     expect(match).toNotBe(null)
 
@@ -146,7 +146,7 @@ testable class {
       Token(value: "String", type: Token.Type.IDENTIFIER),
       Token(value: "test", type: Token.Type.IDENTIFIER),
       Token(value: ")", type: Token.Type.SYMBOL)
-    ]).last
+    ], FlatParseContext()).last
 
     expect(match).toNotBe(null)
 
@@ -179,7 +179,7 @@ testable class {
       Token(value: "]", type: Token.Type.SYMBOL),
       Token(value: "test", type: Token.Type.IDENTIFIER),
       Token(value: ")", type: Token.Type.SYMBOL)
-    ]).last
+    ], FlatParseContext()).last
 
     expect(match).toNotBe(null)
 
