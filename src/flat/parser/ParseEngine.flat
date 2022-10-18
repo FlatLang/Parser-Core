@@ -39,7 +39,11 @@ class {
   }
 
   public end() {
-    generateNode(rootParser)
+    rootParser.generateNodes(context).forEach({
+      stream.emit("data", _)$
+    })
+
+    stream.emit("close")$
   }
 
   public matchToken(Token token) {
@@ -51,31 +55,6 @@ class {
       ParseEngine.log.debugFunc({"Partial match: #{rootParser.class.name}"})
     } else {
       invalidTokens()
-    }
-  }
-
-  public generateNode(ParserBase parser) -> Node {
-    ParseEngine.log.debugFunc({"Generating node for parser: #{parser.class.name}"})
-    let node = parser.generateNode(context, parser.lastMatch)
-
-    if (node) {
-      stream.emit("data", node)$
-    }
-
-    parseChildNodes(parser)
-
-    return node
-  }
-
-  public parseChildNodes(ParserBase parser) {
-    if (let nodeMatches = parser.getChildNodeTokenMatches(context, parser.lastMatch)) {
-      nodeMatches.forEach((nodeMatch) => {
-        ParseEngine.log.debugFunc({"Parsing child nodes for match: [#{nodeMatch.childMatches.map(m => m.parser.class.name).join(", ")}]"})
-        nodeMatch.generateNodes(context).forEach((node) => {
-          ParseEngine.log.debugFunc({"Parsed child node: #{node.class.name}"})
-          stream.emit("data", node)$
-        })
-      })
     }
   }
 

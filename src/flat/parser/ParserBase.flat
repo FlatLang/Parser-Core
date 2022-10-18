@@ -14,7 +14,8 @@ abstract data class {
 
   public var TokenMatch lastMatch <=> lastMatch
 
-  public abstract generateNode(ParseContext context, TokenMatch match) -> Node
+  public abstract generateNode(ParseContext context, TokenMatch match = lastMatch) -> Node
+  public generateNodes(ParseContext context, TokenMatch match = lastMatch) => Array<Node>():add(this.generateNode(context, match))
 
   public getChildParseRequests(ParseContext context, TokenMatch match) => ParseRequest()
   public getChildNodeTokenMatches(ParseContext context, TokenMatch match) => NodeTokenMatch[]
