@@ -233,6 +233,8 @@ testable class {
               Token(value: "(", type: Token.Type.SYMBOL),
               Token(value: "x", type: Token.Type.IDENTIFIER),
               Token(value: ")", type: Token.Type.SYMBOL),
+              Token(value: "{", type: Token.Type.SYMBOL),
+              Token(value: "}", type: Token.Type.SYMBOL)
             ],
             childMatches: [
               NodeTokenMatchChild(
@@ -241,21 +243,10 @@ testable class {
                   Token(value: "(", type: Token.Type.SYMBOL),
                   Token(value: "x", type: Token.Type.IDENTIFIER),
                   Token(value: ")", type: Token.Type.SYMBOL),
+                  Token(value: "{", type: Token.Type.SYMBOL),
+                  Token(value: "}", type: Token.Type.SYMBOL)
                 ],
                 parser: IfParser()
-              )
-            ]
-          ),
-          NodeTokenMatch(
-            tokens: [
-              Token(value: "{", type: Token.Type.SYMBOL)
-            ],
-            childMatches: [
-              NodeTokenMatchChild(
-                tokens: [
-                  Token(value: "{", type: Token.Type.SYMBOL)
-                ],
-                parser: LocalScopeParser()
               )
             ]
           )
@@ -306,6 +297,8 @@ testable class {
               Token(value: "(", type: Token.Type.SYMBOL),
               Token(value: "x", type: Token.Type.IDENTIFIER),
               Token(value: ")", type: Token.Type.SYMBOL),
+              Token(value: "{", type: Token.Type.SYMBOL),
+              Token(value: "}", type: Token.Type.SYMBOL)
             ],
             childMatches: [
               NodeTokenMatchChild(
@@ -314,21 +307,10 @@ testable class {
                   Token(value: "(", type: Token.Type.SYMBOL),
                   Token(value: "x", type: Token.Type.IDENTIFIER),
                   Token(value: ")", type: Token.Type.SYMBOL),
+                  Token(value: "{", type: Token.Type.SYMBOL),
+                  Token(value: "}", type: Token.Type.SYMBOL)
                 ],
                 parser: IfParser()
-              )
-            ]
-          ),
-          NodeTokenMatch(
-            tokens: [
-              Token(value: "{", type: Token.Type.SYMBOL)
-            ],
-            childMatches: [
-              NodeTokenMatchChild(
-                tokens: [
-                  Token(value: "{", type: Token.Type.SYMBOL)
-                ],
-                parser: LocalScopeParser()
               )
             ]
           ),
@@ -338,6 +320,8 @@ testable class {
               Token(value: "(", type: Token.Type.SYMBOL),
               Token(value: "y", type: Token.Type.IDENTIFIER),
               Token(value: ")", type: Token.Type.SYMBOL),
+              Token(value: "{", type: Token.Type.SYMBOL),
+              Token(value: "}", type: Token.Type.SYMBOL)
             ],
             childMatches: [
               NodeTokenMatchChild(
@@ -346,21 +330,10 @@ testable class {
                   Token(value: "(", type: Token.Type.SYMBOL),
                   Token(value: "y", type: Token.Type.IDENTIFIER),
                   Token(value: ")", type: Token.Type.SYMBOL),
+                  Token(value: "{", type: Token.Type.SYMBOL),
+                  Token(value: "}", type: Token.Type.SYMBOL)
                 ],
                 parser: IfParser()
-              )
-            ]
-          ),
-          NodeTokenMatch(
-            tokens: [
-              Token(value: "{", type: Token.Type.SYMBOL)
-            ],
-            childMatches: [
-              NodeTokenMatchChild(
-                tokens: [
-                  Token(value: "{", type: Token.Type.SYMBOL)
-                ],
-                parser: LocalScopeParser()
               )
             ]
           )
@@ -411,6 +384,14 @@ testable class {
               Token(value: "(", type: Token.Type.SYMBOL),
               Token(value: "x", type: Token.Type.IDENTIFIER),
               Token(value: ")", type: Token.Type.SYMBOL),
+              Token(value: "{", type: Token.Type.SYMBOL),
+              Token(value: "if", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+              Token(value: ")", type: Token.Type.SYMBOL),
+              Token(value: "{", type: Token.Type.SYMBOL),
+              Token(value: "}", type: Token.Type.SYMBOL),
+              Token(value: "}", type: Token.Type.SYMBOL),
             ],
             childMatches: [
               NodeTokenMatchChild(
@@ -419,65 +400,16 @@ testable class {
                   Token(value: "(", type: Token.Type.SYMBOL),
                   Token(value: "x", type: Token.Type.IDENTIFIER),
                   Token(value: ")", type: Token.Type.SYMBOL),
-                ],
-                parser: IfParser()
-              )
-            ]
-          ),
-          NodeTokenMatch(
-            tokens: [
-              Token(value: "{", type: Token.Type.SYMBOL)
-            ],
-            childMatches: [
-              NodeTokenMatchChild(
-                tokens: [
-                  Token(value: "{", type: Token.Type.SYMBOL)
-                ],
-                parser: LocalScopeParser()
-              )
-            ]
-          ),
-          NodeGroupTokenMatch(
-            tokens: [
-              Token(value: "if", type: Token.Type.IDENTIFIER),
-              Token(value: "(", type: Token.Type.SYMBOL),
-              Token(value: "y", type: Token.Type.IDENTIFIER),
-              Token(value: ")", type: Token.Type.SYMBOL),
-              Token(value: "{", type: Token.Type.SYMBOL),
-              Token(value: "}", type: Token.Type.SYMBOL)
-            ],
-            childMatches: [
-              NodeTokenMatch(
-                tokens: [
+                  Token(value: "{", type: Token.Type.SYMBOL),
                   Token(value: "if", type: Token.Type.IDENTIFIER),
                   Token(value: "(", type: Token.Type.SYMBOL),
                   Token(value: "y", type: Token.Type.IDENTIFIER),
                   Token(value: ")", type: Token.Type.SYMBOL),
+                  Token(value: "{", type: Token.Type.SYMBOL),
+                  Token(value: "}", type: Token.Type.SYMBOL),
+                  Token(value: "}", type: Token.Type.SYMBOL),
                 ],
-                childMatches: [
-                  NodeTokenMatchChild(
-                    tokens: [
-                      Token(value: "if", type: Token.Type.IDENTIFIER),
-                      Token(value: "(", type: Token.Type.SYMBOL),
-                      Token(value: "y", type: Token.Type.IDENTIFIER),
-                      Token(value: ")", type: Token.Type.SYMBOL),
-                    ],
-                    parser: IfParser()
-                  )
-                ]
-              ),
-              NodeTokenMatch(
-                tokens: [
-                  Token(value: "{", type: Token.Type.SYMBOL)
-                ],
-                childMatches: [
-                  NodeTokenMatchChild(
-                    tokens: [
-                      Token(value: "{", type: Token.Type.SYMBOL)
-                    ],
-                    parser: LocalScopeParser()
-                  )
-                ]
+                parser: IfParser()
               )
             ]
           )
@@ -565,7 +497,7 @@ testable class {
   }
 
   test `can access node group token match from match inside a node token pattern`() {
-    let pattern = NodeTokenPattern([LambdaParser()])
+    let pattern = NodeTokenPattern([LocalScopeParser()])
 
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
@@ -574,11 +506,11 @@ testable class {
       Token(value: "}", type: Token.Type.SYMBOL)
     ], FlatParseContext()).last
 
-    let bodyContentsMatch = result.getMatch("lambda_body_contents")
+    let bodyContentsMatch = result.getMatch("scope_body_contents")
 
     expect(bodyContentsMatch).toBe(
       NodeGroupTokenMatch(
-        label: "lambda_body_contents",
+        label: "scope_body_contents",
         tokens: [
           Token(value: "x", type: Token.Type.IDENTIFIER)
         ],

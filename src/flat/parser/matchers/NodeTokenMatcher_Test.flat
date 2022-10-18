@@ -290,22 +290,14 @@ testable class {
   }
 
   test `returns partial match if the sub-match is partial`() {
-    let pattern = NodeTokenPattern([LambdaParser()])
+    let pattern = NodeTokenPattern([IdentifierParser()])
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
-      Token(value: "(", type: Token.Type.SYMBOL),
-      Token(value: "String", type: Token.Type.IDENTIFIER),
-      Token(value: "x", type: Token.Type.IDENTIFIER),
-      Token(value: ")", type: Token.Type.SYMBOL),
-      Token(value: "=>", type: Token.Type.SYMBOL)
+      Token(value: "x", type: Token.Type.IDENTIFIER)
     ], FlatParseContext()).last
 
     expect(result?.tokens).toBe([
-      Token(value: "(", type: Token.Type.SYMBOL),
-      Token(value: "String", type: Token.Type.IDENTIFIER),
-      Token(value: "x", type: Token.Type.IDENTIFIER),
-      Token(value: ")", type: Token.Type.SYMBOL),
-      Token(value: "=>", type: Token.Type.SYMBOL)
+      Token(value: "x", type: Token.Type.IDENTIFIER)
     ])
     expect(matcher.partial).toBe(true)
   }
