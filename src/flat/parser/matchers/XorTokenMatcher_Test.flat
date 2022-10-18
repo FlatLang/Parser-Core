@@ -137,10 +137,9 @@ testable class {
         GroupTokenPattern([
           SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
           NodeGroupTokenPattern(
-            LocalScopeParser().childParsers,
+            LocalScopeParser().valueParsers,
             optional: true,
-            label: "lambda_body_contents",
-            scopeParser: LocalScopeParser()
+            label: "lambda_body_contents"
           ),
           SingleTokenPattern(Token.Type.SYMBOL, value: "}")
         ], optional: true)
@@ -148,10 +147,9 @@ testable class {
       GroupTokenPattern([
         SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
         NodeGroupTokenPattern(
-          LocalScopeParser().childParsers,
+          LocalScopeParser().valueParsers,
           optional: true,
-          label: "lambda_body_contents",
-          scopeParser: LocalScopeParser()
+          label: "lambda_body_contents"
         ),
         SingleTokenPattern(Token.Type.SYMBOL, value: "}")
       ])
