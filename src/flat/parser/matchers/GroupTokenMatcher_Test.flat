@@ -759,4 +759,56 @@ testable class {
     expect(matcher.disqualified).toBe(true)
     expect(matcher.partial).toBe(false)
   }
+
+  test `can match non-greedy sub-matches`() {
+    let pattern = GroupTokenPattern([
+      SingleTokenPattern(Token.Type.IDENTIFIER, "class"),
+      GroupTokenPattern([
+        SingleTokenPattern(Token.Type.IDENTIFIER)
+      ], optional: true, greedy: false),
+      GroupTokenPattern([
+        SingleTokenPattern(Token.Type.IDENTIFIER, "extends"),
+        SingleTokenPattern(Token.Type.IDENTIFIER),
+        CaptureTokenPattern(
+          label: "generic_arguments",
+          start: Token(value: "<"),
+          end: Token(value: ">"),
+          skipGenerics: false,
+          allowedTokens: [
+            Token(type: Token.Type.IDENTIFIER),
+            Token(type: Token.Type.SYMBOL, value: "<"),
+            Token(type: Token.Type.SYMBOL, value: ">"),
+            Token(type: Token.Type.SYMBOL, value: "["),
+            Token(type: Token.Type.SYMBOL, value: "]"),
+            Token(type: Token.Type.SYMBOL, value: ",")
+          ],
+          optional: true
+        )
+      ], optional: true),
+      GroupTokenPattern([
+        SingleTokenPattern(Token.Type.SYMBOL, value: "{"),
+        NodeGroupTokenPattern(LocalScopeParser().valueParsers, optional: true),
+        SingleTokenPattern(Token.Type.SYMBOL, value: "}")
+      ])
+    ])
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "class", type: Token.Type.IDENTIFIER),
+      Token(value: "extends", type: Token.Type.IDENTIFIER),
+      Token(value: "Test", type: Token.Type.IDENTIFIER),
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "}", type: Token.Type.SYMBOL),
+    ], FlatParseContext()).last
+
+    let expected = [
+      Token(value: "class", type: Token.Type.IDENTIFIER),
+      Token(value: "extends", type: Token.Type.IDENTIFIER),
+      Token(value: "Test", type: Token.Type.IDENTIFIER),
+      Token(value: "{", type: Token.Type.SYMBOL),
+      Token(value: "}", type: Token.Type.SYMBOL),
+    ]
+
+    expect(result?.tokens).toBe(expected)
+    expect(matcher.partial).toBe(false)
+  }
 }
