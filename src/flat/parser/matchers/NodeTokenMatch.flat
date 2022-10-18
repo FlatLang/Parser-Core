@@ -3,7 +3,7 @@ package flat/parser/matchers
 import flat/parser
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
-import flat/ast/Node
+import flat/ast
 
 data class extends TokenMatch {
   visible NodeTokenMatchChild[] childMatches = NodeTokenMatchChild[]
@@ -24,23 +24,19 @@ data class extends TokenMatch {
     return array:addAll(childMatches.flatMap({ _.getMatches(label, addSelf) }))
   }
 
-  public generateNode(ParseContext context) =>
-    childMatches.first.generateNode(context)
+  public generateNode() =>
+    childMatches.first.generateNode()
 
-  public generateNodes(var ParseContext context) -> Node[] {
-    context = context.copy()
-    var current = context.currentNode
-
+  public generateNodes() -> Node[] {
     let nodes = Node[]
 
     childMatches.forEach((match) => {
-      current = match.generateNode((context:updateScopeForNode(match.parser, current)))
-      nodes.add(current)
+      nodes.add(match.generateNode())
 
-      if (let childNodeMatches = match.parser.getChildNodeTokenMatches(context, match)) {
+      if (let childNodeMatches = match.parser.getChildNodeTokenMatches()) {
         if (childNodeMatches.isNotEmpty) {
           childNodeMatches.forEach((childMatch) => {
-            nodes.addAll(childMatch.generateNodes(context))
+            nodes.addAll(childMatch.generateNodes())
           })
         }
       }

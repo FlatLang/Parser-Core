@@ -104,31 +104,6 @@ testable class {
     )
   }
 
-  test `can match correctly in a group token pattern and get node`() {
-    let pattern = GroupTokenPattern([
-      NodeTokenPattern([ParameterParser()], label: "parameter"),
-      SingleTokenPattern(Token.Type.SYMBOL, ",")
-    ])
-
-    let matcher = pattern.getMatcher()
-    let match = matcher.matchAll([
-      Token(value: "String", type: Token.Type.IDENTIFIER),
-      Token(value: "test", type: Token.Type.IDENTIFIER),
-      Token(value: ",", type: Token.Type.SYMBOL)
-    ], FlatParseContext()).last
-
-    expect(match).toNotBe(null)
-
-    let result = ParameterParser().generateNode(null, match.getMatch("parameter"))
-
-    expect(result).toBe(
-      ParameterNode(
-        type: "String",
-        name: "test"
-      )
-    )
-  }
-
   test `can match a parameter in parentheses`() {
     let pattern = GroupTokenPattern([
       SingleTokenPattern(Token.Type.SYMBOL, "("),
@@ -149,15 +124,6 @@ testable class {
     ], FlatParseContext()).last
 
     expect(match).toNotBe(null)
-
-    let result = ParameterParser().generateNode(null, match.getMatch("parameter"))
-
-    expect(result).toBe(
-      ParameterNode(
-        type: "String",
-        name: "test"
-      )
-    )
   }
 
   test `can match a parameter with array brackets in parentheses`() {
@@ -182,16 +148,6 @@ testable class {
     ], FlatParseContext()).last
 
     expect(match).toNotBe(null)
-
-    let result = ParameterParser().generateNode(null, match.getMatch("parameter"))
-
-    expect(result).toBe(
-      ParameterNode(
-        type: "String",
-        name: "test",
-        arrayDimensions: 1
-      )
-    )
   }
 
   test `can match a multi-node expression`() {
@@ -234,33 +190,6 @@ testable class {
     )
   }
 
-  test `can generate nodes for a multi-node expression`() {
-    let pattern = NodeTokenPattern([IdentifierParser()], label: "argument")
-
-    let matcher = pattern.getMatcher()
-    matcher.matchAll([
-      Token(value: "thing", type: Token.Type.IDENTIFIER),
-      Token(value: ".", type: Token.Type.SYMBOL),
-      Token(value: "otherThing", type: Token.Type.IDENTIFIER)
-    ])
-
-    let match = matcher.lastMatch
-
-    expect(match).toNotBe(null, "match was null")
-
-    let nodeMatch = match.getMatch<NodeTokenMatch>("argument")
-
-    expect(nodeMatch).toNotBe(null, "nodeMatch was null")
-
-    let result = nodeMatch.generateNodes(FlatParseContext())
-
-    expect(result).toBe([
-      IdentifierNode(name: "thing"),
-      DotAccessNode(),
-      IdentifierNode(name: "otherThing")
-    ])
-  }
-
   test `can backtrack to a successful match and continue with children`() {
     let pattern = NodeTokenPattern([IdentifierParser(), LocalDeclarationParser()], label: "argument")
 
@@ -279,14 +208,6 @@ testable class {
     let nodeMatch = match.getMatch<NodeTokenMatch>("argument")
 
     expect(nodeMatch).toNotBe(null, "nodeMatch was null")
-
-    let result = nodeMatch.generateNodes(FlatParseContext())
-
-    expect(result).toBe([
-      IdentifierNode(name: "thing"),
-      ArrayAccessNode(),
-      IdentifierNode(name: "otherThing")
-    ])
   }
 
   test `returns partial match if the sub-match is partial`() {

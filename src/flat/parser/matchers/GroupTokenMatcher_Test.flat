@@ -516,16 +516,6 @@ testable class {
       ], FlatParseContext()).last
 
     expect(match).toNotBe(null)
-
-    let result = ParameterParser().generateNode(null, match.getMatch("parameter"))
-
-    expect(result).toBe(
-      ParameterNode(
-        type: "String",
-        name: "test",
-        arrayDimensions: 1
-      )
-    )
   }
 
   test `does not return full match if last required pattern is not matched`() {
@@ -726,14 +716,6 @@ testable class {
     ], FlatParseContext()).last
 
     expect(match).toNotBe(null)
-
-    let result = match.getMatch<NodeTokenMatch>("argument").generateNodes(FlatParseContext())
-
-    expect(result).toBe([
-      IdentifierNode(name: "thing"),
-      DotAccessNode(),
-      IdentifierNode(name: "otherThing")
-    ])
   }
 
   test `does not match when optional broken sub-match had some of the tokens matched`() {

@@ -20,6 +20,7 @@ class {
     private var Stream stream
   ) {
     context.pushScope(rootParser, FileNode())
+    rootParser.context = context
   }
 
   public consume(Token token) {
@@ -39,7 +40,7 @@ class {
   }
 
   public end() {
-    rootParser.generateNodes(context).forEach({
+    rootParser.generateNodes().forEach({
       stream.emit("data", _)$
     })
 
@@ -49,7 +50,7 @@ class {
   public matchToken(Token token) {
     ParseEngine.log.debugFunc({"Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]) #{green(rootParser.class.name)}"})
 
-    if (let match = rootParser.match(token, context)) {
+    if (let match = rootParser.match(token)) {
       ParseEngine.log.debugFunc({"Matched: #{rootParser.class.name}"})
     } else if (rootParser.matcher.partial) {
       ParseEngine.log.debugFunc({"Partial match: #{rootParser.class.name}"})

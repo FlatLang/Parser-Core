@@ -13,27 +13,21 @@ abstract data class {
   visible lazy TokenMatcher matcher => pattern?.getMatcher()
 
   public var TokenMatch lastMatch <=> lastMatch
+  public var ParseContext context <=> context
 
-  public abstract generateNode(ParseContext context, TokenMatch match = lastMatch) -> Node
-  public generateNodes(ParseContext context, TokenMatch match = lastMatch) => Array<Node>():add(this.generateNode(context, match))
+  public abstract generateNode() -> Node
+  public generateNodes() => Array<Node>():add(this.generateNode())
+  public getChildNodeTokenMatches() => NodeTokenMatch[]
 
-  public getChildParseRequests(ParseContext context, TokenMatch match) => ParseRequest()
-  public getChildNodeTokenMatches(ParseContext context, TokenMatch match) => NodeTokenMatch[]
-
-  public checkStatementContinuation(ParseContext context, Token token) => false
   public acceptImmediately() => false
 
-  public beginsScope() => false
-  public endsScope() => false
+  public matchAll(Token[] tokens) -> TokenMatch[] => tokens.map({ this.match(_) })
 
-  public matchAll(Token[] tokens, ParseContext context = null) -> TokenMatch[] => tokens.map({ this.match(_, context) })
-
-  public match(Token token, ParseContext context = null) -> TokenMatch => null {
+  public match(Token token) -> TokenMatch => null {
     if (!matcher) return null
 
     if (let match = matcher.match(token, context))  {
-      lastMatch = match
-      return match
+      return lastMatch = match
     }
   }
 

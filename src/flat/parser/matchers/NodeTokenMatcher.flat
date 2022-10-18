@@ -27,6 +27,7 @@ data class extends TokenMatcher {
     }
     if (!currentParsers) {
       currentParsers = pattern.parsers.forEach({ _.copy() })
+      currentParsers.forEach({ _.context = context })
     }
 
     tokens.add(token)
@@ -48,7 +49,7 @@ data class extends TokenMatcher {
         Matching token '#{green(token.value)}' #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())} against parser: #{green(parser.class.name)}
           tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
         |"})
-      if (let match = parser.match(token, context)) {
+      if (let match = parser.match(token)) {
         log.traceFunc({"Matched token '#{green(token.value)}'"})
         matches.add(match)
         if (!matchParser || parser.acceptImmediately()) {
@@ -82,6 +83,7 @@ data class extends TokenMatcher {
       if (let childParsers = lastParser.childParsers) {
         log.traceFunc({"Setting currentParsers to childParsers from parser: #{lastParser.class.name}"})
         currentParsers = childParsers
+        currentParsers.forEach({ _.context = context })
         addedCurrentMatch = false
         complete = true
         let successfulTokens = childMatches.flatMap({ _.tokens })
@@ -254,6 +256,7 @@ data class extends TokenMatcher {
         if (let childParsers = matchParser.childParsers) {
           log.traceFunc({"Contains possible child matchers. Continuing with childParsers: [#{childParsers.map(p => green(p.class.name)).join(", ")}]"})
           currentParsers = childParsers
+          currentParsers.forEach({ _.context = context })
           addedCurrentMatch = false
         } else if (attemptingBacktrack) {
           log.traceFunc({"No child matchers. Returning last match"})
@@ -265,9 +268,10 @@ data class extends TokenMatcher {
         }
 
         if (matchParser?.isMetadata) {
-          if (let metadataNode = matchParser.generateNode(context, matchParser.lastMatch)) {
+          if (let metadataNode = matchParser.generateNode()) {
             context.addMetadata(metadataNode)
             currentParsers = pattern.parsers.map({ _.copy() })
+            currentParsers.forEach({ _.context = context })
             addedCurrentMatch = false
             log.traceFunc({"Added metadata node and reset parsers"})
           } else {
@@ -298,6 +302,7 @@ data class extends TokenMatcher {
             if (let childParsers = lastParser.childParsers) {
               log.traceFunc({"Matching child parsers for parser #{green(lastParser.class.name)}"})
               currentParsers = childParsers
+              currentParsers.forEach({ _.context = context })
               addedCurrentMatch = false
               return doMatch(token)
             } else {
@@ -346,6 +351,7 @@ data class extends TokenMatcher {
     lastMatch = null
     context = null
     currentParsers = pattern.parsers.map({ _.copy() })
+    currentParsers.forEach({ _.context = context })
     addedCurrentMatch = false
   }
 }

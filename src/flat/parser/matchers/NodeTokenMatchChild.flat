@@ -28,6 +28,5 @@ data class extends TokenMatch {
     return array.unique()
   }
 
-  public generateNode(ParseContext context) =>
-    parser.generateNode(context, this)
+  public generateNode() => parser.generateNode()
 }
