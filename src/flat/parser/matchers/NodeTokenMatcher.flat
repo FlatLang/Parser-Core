@@ -16,6 +16,7 @@ data class extends TokenMatcher {
   var NodeTokenMatch lastMatch
   var NodeTokenMatchChild[] childMatches = NodeTokenMatchChild[]
   var ParserBase[] currentParsers
+  var Bool attemptingBacktrack = false
   var Bool addedCurrentMatch = false
 
   override public match(Token token, ParseContext context = null) -> NodeTokenMatch {
@@ -44,7 +45,7 @@ data class extends TokenMatcher {
     for (parser in currentParsers) {
       if (parser.matcher.disqualified) continue
       log.traceFunc({"|
-        Matching token '#{green(token.value)}' against parser: #{green(parser.class.name)}
+        Matching token '#{green(token.value)}' #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())} against parser: #{green(parser.class.name)}
           tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
         |"})
       if (let match = parser.match(token, context)) {
@@ -70,6 +71,12 @@ data class extends TokenMatcher {
     }
 
     if (allParsersDisqualified() && childMatches.isNotEmpty) {
+      if (attemptingBacktrack) {
+        log.traceFunc({"Already attempting backtrack parse. Disqualified"})
+        disqualified = true
+        return null
+      }
+
       let lastParser = childMatches.last.parser
 
       if (let childParsers = lastParser.childParsers) {
@@ -77,12 +84,16 @@ data class extends TokenMatcher {
         currentParsers = childParsers
         addedCurrentMatch = false
         complete = true
-        let tokensToMatch = tokens.skip(lastMatch.tokens.count)
-        tokens = lastMatch.tokens.copy()
+        let successfulTokens = childMatches.flatMap({ _.tokens })
+        let tokensToMatch = tokens.skip(successfulTokens.count)
+        tokens = successfulTokens
 
         if (tokensToMatch.isNotEmpty) {
           log.traceFunc({"|
             All matchers are incomplete and disqualified. Attempting to parse further child nodes from last match
+              successfulTokens: [#{successfulTokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+              childMatches:
+                #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ") + "]").join("\n    ")}
               lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
               tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
@@ -90,18 +101,26 @@ data class extends TokenMatcher {
               parser: #{lastParser.class.name}
             |"})
 
-          let matchValue = tokensToMatch.map((token) => {
+          attemptingBacktrack = true
+
+          let continuationMatches = tokensToMatch.map((token) => {
             NodeTokenMatcher.log.traceFunc({"|
               Matching continuation token '#{green(token.value)}'
+                successfulTokens: [#{successfulTokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+                childMatches:
+                  #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ") + "]").join("\n    ")}
                 tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
                 parser: #{lastParser.class.name}
               |"})
 
-            let value = doMatch(token)
+            let value = this.match(token)
 
             NodeTokenMatcher.log.traceFunc({"|
               Finished matching continuation token '#{green(token.value)}'
+                successfulTokens: [#{successfulTokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+                childMatches:
+                  #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ") + "]").join("\n    ")}
                 matchedTokens: #{value?.tokens.map(t => "'" + green(t.value) + "'").join(", ")}
                 tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
@@ -109,12 +128,16 @@ data class extends TokenMatcher {
               |"})
 
             return value
-          }).last
+          })
 
-          if (matchValue) {
-            tokens.addAll(tokensToMatch)
+          attemptingBacktrack = false
+
+          if (let matchValue = continuationMatches.lastWhere({ _ != null })) {
             log.traceFunc({"|
               Got a complete match from child parser. Returning match
+                successfulTokens: [#{successfulTokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+                childMatches:
+                  #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ") + "]").join("\n    ")}
                 lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
@@ -125,12 +148,11 @@ data class extends TokenMatcher {
                 complete: #{complete}
                 valid: #{valid}
               |"})
-            return matchValue.copy(
-              tokens: tokens
-            )
+            return matchValue
           } else {
             log.traceFunc({"|
               Did not get a complete match from child parser
+                successfulTokens: [#{successfulTokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
                 tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
@@ -149,6 +171,7 @@ data class extends TokenMatcher {
         } else {
           log.traceFunc({"|
             No more tokens to match.
+              successfulTokens: [#{successfulTokens.map(t => "'" + green(t.value) + "'").join(", ")}]
               lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
               tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
@@ -232,6 +255,11 @@ data class extends TokenMatcher {
           log.traceFunc({"Contains possible child matchers. Continuing with childParsers: [#{childParsers.map(p => green(p.class.name)).join(", ")}]"})
           currentParsers = childParsers
           addedCurrentMatch = false
+        } else if (attemptingBacktrack) {
+          log.traceFunc({"No child matchers. Returning last match"})
+        } else if (!matchParser || !matchParser.isMetadata) {
+          log.traceFunc({"No child matchers. Returning last match and disqualified"})
+          disqualified = true
         } else {
           log.traceFunc({"No child matchers. Returning last match"})
         }
@@ -273,7 +301,7 @@ data class extends TokenMatcher {
               addedCurrentMatch = false
               return doMatch(token)
             } else {
-              log.traceFunc({"No more partial matches and no child parsers. Disqualified. Returning last match"})
+              log.traceFunc({"No more partial matches and no child parsers. Disqualified"})
               complete = lastParser.matcher.complete
               disqualified = true
               return null
@@ -292,6 +320,16 @@ data class extends TokenMatcher {
         }
       }
     }
+
+    log.traceFunc({"|
+      Returning match at end of function
+        lastMatch.tokens: [#{lastMatch?.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+        currentParsers complete/disqualified/partial:
+          [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ")}]
+        disqualified: #{disqualified}
+        complete: #{complete}
+        valid: #{valid}
+      |"})
 
     return lastMatch
   }

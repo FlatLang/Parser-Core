@@ -316,4 +316,68 @@ testable class {
     ])
     expect(matcher.partial).toBe(true)
   }
+
+  test `can parse multiple continuation tokens`() {
+    let pattern = NodeTokenPattern([IdentifierParser(), FunctionCallParser()])
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "<", type: Token.Type.SYMBOL),
+      Token(value: "count", type: Token.Type.IDENTIFIER),
+      Token(value: "++", type: Token.Type.SYMBOL),
+    ], FlatParseContext()).last
+
+    expect(result?.tokens).toBe([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "<", type: Token.Type.SYMBOL),
+      Token(value: "count", type: Token.Type.IDENTIFIER),
+      Token(value: "++", type: Token.Type.SYMBOL),
+    ])
+    expect(matcher.partial).toBe(true)
+  }
+
+  test `can parse multiple child continuation tokens`() {
+    let pattern = NodeTokenPattern([IdentifierParser(), FunctionCallParser()])
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ".", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "<", type: Token.Type.SYMBOL),
+      Token(value: "count", type: Token.Type.IDENTIFIER),
+      Token(value: "++", type: Token.Type.SYMBOL),
+    ], FlatParseContext()).last
+
+    expect(result?.tokens).toBe([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ".", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "<", type: Token.Type.SYMBOL),
+      Token(value: "count", type: Token.Type.IDENTIFIER),
+      Token(value: "++", type: Token.Type.SYMBOL),
+    ])
+    expect(matcher.partial).toBe(true)
+  }
+
+  test `can parse multiple child continuation tokens that eventually break`() {
+    let pattern = NodeTokenPattern([IdentifierParser(), FunctionCallParser()])
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ".", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "<", type: Token.Type.SYMBOL),
+      Token(value: "count", type: Token.Type.IDENTIFIER),
+      Token(value: ";", type: Token.Type.SYMBOL),
+    ], FlatParseContext()).last
+
+    expect(result?.tokens).toBe([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ".", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "<", type: Token.Type.SYMBOL),
+      Token(value: "count", type: Token.Type.IDENTIFIER),
+    ])
+    expect(matcher.partial).toBe(false)
+  }
 }
