@@ -21,8 +21,7 @@ data class extends TokenMatcher {
 
   override public match(Token token, ParseContext context = null) -> NodeGroupTokenMatch {
     if (!currentParsers) {
-      currentParsers = pattern.parsers
-      currentParsers.forEach({ _.context = context })
+      resetCurrentParsers(context)
     }
     if (!currentMatcher) {
       currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
@@ -50,8 +49,7 @@ data class extends TokenMatcher {
       let wasDisqualified = currentMatcher.disqualified
       if (currentMatcher.disqualified) {
         log.traceFunc({"Current matcher is disqualified. Returning match and switching to new current matcher"})
-        currentParsers = pattern.parsers
-        currentParsers.forEach({ _.context = context })
+        resetCurrentParsers(context)
         currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
         complete = true
       } else {
@@ -123,6 +121,11 @@ data class extends TokenMatcher {
       log.traceFunc({"Did not match. Disqualified"})
       disqualified = true
     }
+  }
+
+  resetCurrentParsers(ParseContext context) {
+    currentParsers = pattern.parsers
+    currentParsers.forEach({ _.context = context })
   }
 
   override public reset() {
