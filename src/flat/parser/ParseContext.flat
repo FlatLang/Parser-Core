@@ -41,7 +41,7 @@ abstract data class {
   public pushScope(ParserBase parser, Node node) {
     currentNode = parentStack.push(node)
     currentParser = parserStack.push(parser)
-    currentParsers = parsersStack.push(parser.childParsers)
+    currentParsers = parsersStack.push(parser.childParsers ?: Array())
     ParseContext.log.debugFunc({"|
       Pushed node to parent stack
         parser: #{parser.class.name}
