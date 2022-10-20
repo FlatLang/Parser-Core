@@ -25,6 +25,11 @@ abstract data class {
 
   public match(Token token) -> TokenMatch => null {
     if (!matcher) return null
+    if (context && !Object.referenceEquals(context.currentParser, this)) {
+      context = context.copy(
+        parserStack: context.parserStack.copy():push(this)
+      )
+    }
 
     if (let match = matcher.match(token, context))  {
       return lastMatch = match
