@@ -39,9 +39,11 @@ class {
   }
 
   public end() {
-    rootParser.generateNodes().forEach({
-      stream.emit("data", _)$
-    })
+    if (rootParser.lastMatch) {
+      rootParser.generateNodes().forEach({
+        stream.emit("data", _)$
+      })
+    }
 
     stream.emit("close")$
   }
