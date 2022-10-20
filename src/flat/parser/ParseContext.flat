@@ -6,102 +6,18 @@ import flat/compiler/models/Token
 import flat/io/File
 import flat/log/Logger
 
-abstract data class {
+data class {
   static Logger log = Logger(ParseContext.class)
 
   visible Stack<Node> parentStack = Stack()
   visible Stack<ParserBase> parserStack = Stack()
-  visible Stack<Array<ParserBase>> parsersStack = Stack()
   visible var Stack<Node> statementParentStack = Stack()
   visible var Node currentNode
-  visible var ParserBase currentParser
-  visible var ParserBase[] currentParsers = ParserBase[]
   visible var Token[] tokens = Token[]
   visible var AnnotationNode[] annotations = AnnotationNode[]
 
   visible File file
   visible FileNode fileNode => parentStack.toArray().firstWhere({ _.class.isOfType(FileNode.class) })
-
-  public abstract shouldContinuePopping(ParserBase currentParser) -> Bool
-  public abstract shouldPushScope(Node node) -> Bool
-
-  public resetCurrentScope() {
-    currentNode = parentStack.peek()
-    currentParser = parserStack.peek()
-    currentParsers = parsersStack.peek()
-    statementParentStack = parentStack.copy()
-    annotations = Annotation[]
-    ParseContext.log.debugFunc({"|
-      Reset current scope
-        currentNode: #{currentNode.class.name}
-        currentParser: #{currentParser.class.name}
-        currentParsers: [#{currentParsers.map(p => p.class.name).join(", ")}]
-      |"})
-  }
-
-  public pushScope(ParserBase parser, Node node) {
-    currentNode = parentStack.push(node)
-    currentParser = parserStack.push(parser)
-    currentParsers = parsersStack.push(parser.childParsers ?: Array())
-    ParseContext.log.debugFunc({"|
-      Pushed node to parent stack
-        parser: #{parser.class.name}
-        currentNode: #{currentNode.class.name}
-        currentParser: #{currentParser.class.name}
-        currentParsers: [#{currentParsers.map(p => p.class.name).join(", ")}]
-      |"})
-  }
-
-  public popScope(Token token = null) {
-    if (parentStack.count > 1) {
-      let popped = parentStack.peek()
-      currentNode = parentStack:pop().peek()
-      currentParser = parserStack:pop().peek()
-      currentParsers = parsersStack:pop().peek()
-      ParseContext.log.debugFunc({"|
-        Popped node from parent stack
-          popped: #{popped.class.name}
-          currentNode: #{currentNode.class.name}
-          currentParser: #{currentParser.class.name}
-          currentParsers: [#{currentParsers.map(p => p.class.name).join(", ")}]
-        |"})
-
-      if (shouldContinuePopping(currentParser)) {
-        popScope(token)
-      }
-    } else if (token) {
-      ParseContext.log.errorFunc({"Unexpected '}' at #{token.location.lineNumber}:#{token.location.column}"})
-    } else {
-      ParseContext.log.errorFunc({"Unexpected end of scope"})
-    }
-  }
-
-  public updateScopeForNode(ParserBase parser, Node node) {
-    annotations = Annotation[]
-
-    if (shouldPushScope(node)) {
-      pushScope(parser, node)
-    } else if (let childParsers = parser.childParsers) {
-      setCurrentParsers(parser, node, childParsers)
-    }
-  }
-
-  public setCurrentParsers(ParserBase parser, Node node, ParserBase[] parsers) {
-    ParseContext.log.debugFunc({"|
-      Setting current parsers
-        parser: #{parser.class.name}
-        node: #{node.class.name}
-        parsers: [#{parsers.map(p => p.class.name).join(", ")}]
-      |"})
-    currentNode = node
-    currentParser = parser
-    currentParsers = parsers
-    statementParentStack = statementParentStack.copy():push(currentNode)
-  }
-
-  public reset() {
-    currentParsers = currentParsers.map({ _.copy() })
-  }
 
   public addMetadata(Node node) {
     if (node.class.isOfType(AnnotationNode.class)) {
