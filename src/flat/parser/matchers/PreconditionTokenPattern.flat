@@ -1,8 +1,8 @@
 package flat/parser/matchers
 
-import flat/datastruct/HashMap
+import flat/ast
+import flat/datastruct
 import flat/compiler/models/Token
-import flat/ast/AnnotationNode
 import flat/log/Logger
 
 data class extends TokenPattern {
@@ -10,6 +10,7 @@ data class extends TokenPattern {
 
   public construct(
     visible Array<Class<AnnotationNode>> annotations = null,
+    visible Array<Class<Node>> parentTypes = null,
     this String: label = null,
     this Bool optional = false,
     this Bool repeat = false,
@@ -31,9 +32,17 @@ data class extends TokenPattern {
 
       _pattern += "pre("
 
+      let args = String[]
+
       if (annotations) {
-        _pattern += "Annotations[#{annotations.map(a => a.name).join(", ")}]"
+        args.add("Annotations[#{annotations.map(a => a.name).join(", ")}]")
       }
+
+      if (parentTypes) {
+        args.add("ParentTypes[#{parentTypes.map(a => a.name).join(", ")}]")
+      }
+
+      _pattern += args.join(" ")
 
       _pattern += ")"
       _pattern += getModifiersString()

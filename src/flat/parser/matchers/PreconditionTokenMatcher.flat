@@ -16,6 +16,11 @@ data class extends TokenMatcher {
 
   doMatch(Token token, ParseContext context) -> PreconditionTokenMatch => null {
     if (disqualified) return null
+    if (!context) {
+      disqualified = true
+      log.traceFunc({"No context. Disqualified"})
+      return null
+    }
 
     disqualified = true
 
@@ -29,6 +34,25 @@ data class extends TokenMatcher {
       }
     } else {
       log.traceFunc({"Matcher has no annotation checks"})
+    }
+
+    if (pattern.parentTypes) {
+      if (let parser = context.currentScopeParser) {
+        let parentName = parser.class.name.trimEnd(count: 6)
+        log.traceFunc({"Matcher has parentType checks for: [#{pattern.parentTypes.map(a => a.name.trimEnd(count: 4)).join(", ")}] against #{parentName}"})
+        if (pattern.parentTypes.none(requiredType => parentName == requiredType.name.trimEnd(count: 4))) {
+          log.traceFunc({"Context parent is not one of the required parentTypes"})
+          return null
+        } else {
+          log.traceFunc({"Matched some of the required parentTypes"})
+        }
+      } else {
+        disqualified = true
+        log.traceFunc({"Context parents are empty. Disqualified"})
+        return null
+      }
+    } else {
+      log.traceFunc({"Matcher has no parentType checks"})
     }
 
     log.traceFunc({"Precondition passed successfully"})

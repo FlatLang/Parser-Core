@@ -556,7 +556,7 @@ testable class {
 
   test `continues on when precondition matcher matches`() {
     let pattern = GroupTokenPattern([
-      PreconditionTokenPattern([LetModifier.class]),
+      PreconditionTokenPattern(annotations: [LetModifier.class]),
       SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test"),
       SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test2")
     ])
@@ -581,7 +581,7 @@ testable class {
 
   test `breaks when precondition matcher doesnt matches`() {
     let pattern = GroupTokenPattern([
-      PreconditionTokenPattern([LetModifier.class]),
+      PreconditionTokenPattern(annotations: [LetModifier.class]),
       SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test"),
       SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "test2")
     ])
