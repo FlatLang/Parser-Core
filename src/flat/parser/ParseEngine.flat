@@ -19,7 +19,6 @@ class {
     visible var ParseContext context,
     private var Stream stream
   ) {
-    context.pushScope(rootParser, FileNode())
     rootParser.context = context
   }
 
