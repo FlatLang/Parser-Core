@@ -73,5 +73,6 @@ class {
         ParseEngine.log.errorFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}] at #{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}"})
       }
     }
+    stream.emit("quit")$
   }
 }
