@@ -506,6 +506,8 @@ testable class {
       Token(value: "}", type: Token.Type.SYMBOL)
     ], FlatParseContext()).last
 
+    expect(result).toNotBe(null)
+
     let bodyContentsMatch = result.getMatch("scope_body_contents")
 
     expect(bodyContentsMatch).toBe(
