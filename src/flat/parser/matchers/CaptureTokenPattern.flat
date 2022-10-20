@@ -16,35 +16,37 @@ data class extends TokenPattern {
 
   override public getMatcher() => CaptureTokenMatcher(this)
 
-  public toPatternString() -> String {
-    var str = ""
+  var String _pattern
 
-    if (label) {
-      str += "#{label}:"
-    }
+  override public toPatternString() => _pattern {
+    if (!_pattern) {
+      _pattern = ""
 
-    str += "capture("
-
-    if (start) {
-      str += "start:\"#{start.value}\" "
-    }
-    if (end) {
-      str += "end:"
-
-      if (!includeEndToken) {
-        str += "~"
+      if (label) {
+        _pattern += "#{label}:"
       }
 
-      str += "\"#{end.value}\" "
+      _pattern += "capture("
+
+      if (start) {
+        _pattern += "start:\"#{start.value}\" "
+      }
+      if (end) {
+        _pattern += "end:"
+
+        if (!includeEndToken) {
+          _pattern += "~"
+        }
+
+        _pattern += "\"#{end.value}\" "
+      }
+      if (minimumTokenCount) {
+        _pattern += "min:#{minimumTokenCount} "
+      }
+
+      _pattern = _pattern.trimEnd()
+
+      _pattern += ")#{getModifiersString()}"
     }
-    if (minimumTokenCount) {
-      str += "min:#{minimumTokenCount} "
-    }
-
-    str = str.trimEnd()
-
-    str += ")#{getModifiersString()}"
-
-    return str
   }
 }

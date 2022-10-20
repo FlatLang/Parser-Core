@@ -19,22 +19,24 @@ data class extends TokenPattern {
 
   public getMatcher() => PreconditionTokenMatcher(this)
 
-  override public toPatternString() -> String {
-    var str = ""
+  var String _pattern
 
-    if (label) {
-      str += "#{label}:"
+  override public toPatternString() => _pattern {
+    if (!_pattern) {
+      _pattern = ""
+
+      if (label) {
+        _pattern += "#{label}:"
+      }
+
+      _pattern += "pre("
+
+      if (annotations) {
+        _pattern += "Annotations[#{annotations.map(a => a.name).join(", ")}]"
+      }
+
+      _pattern += ")"
+      _pattern += getModifiersString()
     }
-
-    str += "pre("
-
-    if (annotations) {
-      str += "Annotations[#{annotations.map(a => a.name).join(", ")}]"
-    }
-
-    str += ")"
-    str += getModifiersString()
-
-    return str
   }
 }

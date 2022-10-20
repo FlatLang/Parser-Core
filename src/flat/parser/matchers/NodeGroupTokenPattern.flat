@@ -21,5 +21,11 @@ data class extends TokenPattern {
     parsers = parsers.map({ _.copy() })
   }
 
-  public toPatternString() => "node_group(#{parsers.map(p => p.class.name.trimEnd("Parser".count)).join(" ")})#{getModifiersString()}"
+  var String _pattern
+
+  override public toPatternString() => _pattern {
+    if (!_pattern) {
+      _pattern = "#{label ? label + ":" : ""}node_group(#{parsers.map(p => p.class.name.trimEnd("Parser".count)).join(" ")})#{getModifiersString()}"
+    }
+  }
 }

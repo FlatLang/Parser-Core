@@ -14,26 +14,28 @@ data class extends TokenPattern {
 
   public getMatcher() => SingleTokenMatcher(this)
 
-  override public toPatternString() -> String {
-    var str = ""
+  var String _pattern
 
-    if (label) {
-      str += "#{label}:"
+  override public toPatternString() => _pattern {
+    if (!_pattern) {
+      _pattern = ""
+
+      if (label) {
+        _pattern += "#{label}:"
+      }
+
+      _pattern += "<"
+      _pattern += Token.Type.toString(type)
+
+      if (values) {
+        _pattern += "[" + values.map({ "\"#{_}\"" }).join(" ") + "]"
+      }
+      if (value) {
+        _pattern += ":\"" + value + "\""
+      }
+
+      _pattern += ">"
+      _pattern += getModifiersString()
     }
-
-    str += "<"
-    str += Token.Type.toString(type)
-
-    if (values) {
-      str += "[" + values.map({ "\"#{_}\"" }).join(" ") + "]"
-    }
-    if (value) {
-      str += ":\"" + value + "\""
-    }
-
-    str += ">"
-    str += getModifiersString()
-
-    return str
   }
 }
