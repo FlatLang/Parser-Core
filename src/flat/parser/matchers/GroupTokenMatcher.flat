@@ -238,7 +238,13 @@ data class extends TokenMatcher {
           } else {
             if (hasNextMatcher()) {
               nextMatcher()
-              log.traceFunc({"This matcher is not greedy and there are other matchers. Returning match and skipped to next matcher: " + magenta(matcher.pattern.toPatternString())})
+
+              if (iterator.allNextInclusive.all({ _.pattern.optional })) {
+                log.traceFunc({"This matcher is not greedy and there are other matchers. Returning match and skipped to next matcher: " + magenta(matcher.pattern.toPatternString())})
+              } else {
+                log.traceFunc({"This matcher is not greedy and there are other required. Returning null for partial match and skipped to next matcher: " + magenta(matcher.pattern.toPatternString())})
+                return null
+              }
             } else {
               log.traceFunc({"This matcher is not greedy and there are no other matchers. Completing and returning match"})
               complete = true
