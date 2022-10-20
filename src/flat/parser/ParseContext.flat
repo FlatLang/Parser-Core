@@ -11,8 +11,10 @@ data class {
 
   visible Stack<Node> parentStack = Stack()
   visible Stack<ParserBase> parserStack = Stack()
+  visible var ParserBase currentParser => parserStack.peek()
+  visible var ParserBase currentScopeParser => parserStack.toArray().lastWhere({ _.class.interfaces.any({ _.name == "ScopeableParser" }) })
   visible var Stack<Node> statementParentStack = Stack()
-  visible var Node currentNode
+  visible var Node currentNode => statementParentStack.peek()
   visible var Token[] tokens = Token[]
   visible var AnnotationNode[] annotations = AnnotationNode[]
 
