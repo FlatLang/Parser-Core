@@ -13,7 +13,7 @@ import flat/stream/Stream
 class {
   static Logger log = Logger(Parser.class)
 
-  public async parse(
+  public parse(
     ParserBase rootParser,
     ParseContext parseContext,
     Stream tokenStream
@@ -26,18 +26,18 @@ class {
       Parser.log.traceFunc({"Received data from Token Stream: #{token}"})
 
       engine.consume(token)
-    })
+    })$
 
     tokenStream.on<String>("error", (error) => {
       Parser.log.traceFunc({"Received error from Token Stream: #{error}"})
       stream.emit("error", error)$
-    })
+    })$
 
     tokenStream.on("close", {
       Parser.log.traceFunc({"Token Stream closed"})
       engine.end()
       stream.emit("close")$
-    })
+    })$
 
     return stream
   }
