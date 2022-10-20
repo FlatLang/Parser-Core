@@ -21,7 +21,7 @@ class {
   public static async main(String args[]) {
     let test = Parser_TestSuite()
 
-    let results = new TestResult[]
+    let results = TestResult[]
 
     Timer timer = Timer().start()
 
