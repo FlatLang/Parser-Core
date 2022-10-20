@@ -24,7 +24,7 @@ data class extends TokenMatcher {
     tokens.add(token)
 
     log.traceFunc({"|
-      Matching tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+      Matching tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         pattern: #{magenta(pattern.toPatternString())}
       |"})
 

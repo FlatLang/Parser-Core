@@ -48,7 +48,7 @@ class {
   }
 
   public matchToken(Token token) {
-    ParseEngine.log.debugFunc({"Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]) #{green(rootParser.class.name)}"})
+    ParseEngine.log.debugFunc({"Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]) #{green(rootParser.class.name)}"})
 
     if (let match = rootParser.match(token)) {
       ParseEngine.log.debugFunc({"Matched: #{rootParser.class.name}"})

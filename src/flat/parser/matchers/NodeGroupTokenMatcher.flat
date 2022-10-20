@@ -37,7 +37,7 @@ data class extends TokenMatcher {
 
     log.traceFunc({"|
       Matching token '#{green(token.value)}' #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())}:
-        tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
+        tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
       |"})
 
     if (let match = currentMatcher.match(token, context)) {
@@ -72,53 +72,104 @@ data class extends TokenMatcher {
         addedCurrentMatch = false
       }
 
-      log.traceFunc({"|
-        Returning group match:
-          tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
-          childMatches:
-            #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ") + "]").join("\n    ")}
-        |"})
-
       if (groupMatch) {
-        return groupMatch = groupMatch.copy(
-          tokens: pattern.includeTokens ? tokens.copy() : Token[],
+        log.traceFunc({"|
+          Adding to current groupMatch
+            current groupMatch.tokens: [#{groupMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          |"})
+        groupMatch = groupMatch.copy(
+          tokens: pattern.includeTokens ? childMatches.flatMap({ _.tokens }) : Token[],
           childMatches: childMatches.copy()
         )
       } else {
-        return groupMatch = NodeGroupTokenMatch(
-          tokens: pattern.includeTokens ? tokens.copy() : Token[],
+        log.traceFunc({"|
+          Creating new groupMatch from tokens:
+            match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          |"})
+        groupMatch = NodeGroupTokenMatch(
+          tokens: pattern.includeTokens ? match.tokens : Token[],
           label: pattern.label,
           childMatches: childMatches.copy()
         )
       }
+
+      if (groupMatch.tokens.count != tokens.count) {
+        if (let backtrack = attemptBacktrackMatch(context)) {
+          return backtrack
+        }
+      }
+
+      log.traceFunc({"|
+        Returning group match:
+          tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          childMatches:
+            #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+        |"})
+
+      return groupMatch
     } else if (currentMatcher.partial) {
       log.traceFunc({"Partial match. Continuing"})
     } else if (groupMatch && !attemptingBacktrackMatch) {
-      let tokensToMatch = tokens.skip(groupMatch.tokens.count)
-      tokens = groupMatch.tokens.copy()
-      currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
-      addedCurrentMatch = false
-      if (tokensToMatch.isNotEmpty) {
-        log.traceFunc({"|
-          Attempting backtrack match:
-            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
-            tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ")}]
-            childMatches.last.tokens: [#{childMatches.last.tokens.map(t => "'" + green(t.value) + "'").join(", ")}]
-          |"})
-
-        attemptingBacktrackMatch = true
-        let values = tokensToMatch.map({
-          return doMatch(_, context)
-        })
-        attemptingBacktrackMatch = false
-
-        return values.lastWhere({ _ != null })
-      } else {
-        log.traceFunc({"No more tokens to match. Disqualified"})
-        disqualified = true
-      }
+      return attemptBacktrackMatch(context)
     } else {
       log.traceFunc({"Did not match. Disqualified"})
+      disqualified = true
+    }
+  }
+
+  attemptBacktrackMatch(ParseContext context) => groupMatch {
+    let tokensToMatch = tokens.skip(groupMatch.tokens.count)
+    resetCurrentParsers(context)
+    currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
+    addedCurrentMatch = false
+    log.traceFunc({"|
+      Attempting backtrack match:
+        old tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+        new tokens: [#{groupMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+        tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+        childMatches:
+          #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+        disqualified: #{disqualified}
+        complete: #{complete}
+        valid: #{valid}
+      |"})
+    tokens = groupMatch.tokens.copy()
+    if (tokensToMatch.isNotEmpty) {
+      attemptingBacktrackMatch = true
+      let values = tokensToMatch.map({
+        return doMatch(_, context)
+      })
+      attemptingBacktrackMatch = false
+
+      if (let backtrackMatch = values.lastWhere({ _ != null })) {
+        log.traceFunc({"|
+          Got successful backtrack match:
+            matched tokens: [#{backtrackMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            childMatches:
+              #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+            disqualified: #{disqualified}
+            complete: #{complete}
+            valid: #{valid}
+          |"})
+        return backtrackMatch
+      } else {
+        log.traceFunc({"|
+          Failed backtrack match:
+            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            childMatches:
+              #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+            disqualified: #{disqualified}
+            complete: #{complete}
+            valid: #{valid}
+          |"})
+        return null
+      }
+    } else {
+      log.traceFunc({"No more tokens to match. Disqualified"})
       disqualified = true
     }
   }
