@@ -390,7 +390,12 @@ data class extends TokenMatcher {
 
         if (matcher.disqualified) {
           disqualified = true
-          log.traceFunc({"Continuation match was disqualified. Disqualified. Returning successful match without the remaining tokens"})
+          if (matcher.complete) {
+            log.traceFunc({"Continuation match was complete and disqualified. Disqualified. Returning successful match without the remaining tokens"})
+          } else {
+            log.traceFunc({"Continuation match was invalid and disqualified. Disqualified"})
+            return null
+          }
         } else if (matcher.partial) {
           log.traceFunc({"Continuation match is partial. Returning null"})
           return null
