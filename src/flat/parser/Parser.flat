@@ -17,30 +17,25 @@ class {
     ParserBase rootParser,
     ParseContext parseContext,
     Stream tokenStream
-  ) -> Stream {
-    let stream = Stream(true)
+  ) =>
+    Stream(true).on("start", (data, stream) => {
+      let engine = ParseEngine(rootParser, parseContext, stream)
 
-    let engine = ParseEngine(rootParser, parseContext, stream)
+      tokenStream.on<Token>("data", (token) => {
+        Parser.log.traceFunc({"Received data from Token Stream: #{token}"})
 
-    let dataEvent = tokenStream.on<Token>("data", (token) => {
-      Parser.log.traceFunc({"Received data from Token Stream: #{token}"})
+        engine.consume(token)
+      })
 
-      engine.consume(token)
-    })$
+      tokenStream.on<String>("error", (error) => {
+        Parser.log.traceFunc({"Received error from Token Stream: #{error}"})
+        stream.emit("error", error)
+      })
 
-    let errorEvent = tokenStream.on<String>("error", (error) => {
-      Parser.log.traceFunc({"Received error from Token Stream: #{error}"})
-      stream.emit("error", error)$
-    })$
-
-    tokenStream.on("close", {
-      await dataEvent
-      await errorEvent
-      Parser.log.traceFunc({"Token Stream closed"})
-      engine.end()
-      stream.emit("close")$
-    })$
-
-    return stream
-  }
+      tokenStream.on("close", {
+        Parser.log.traceFunc({"Token Stream closed"})
+        engine.end()
+        stream.emit("close")
+      })
+    })
 }

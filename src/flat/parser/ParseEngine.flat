@@ -47,8 +47,6 @@ class {
         stream.emit("data", _)$
       })
     }
-
-    stream.emit("close")$
   }
 
   public matchToken(Token token) {
