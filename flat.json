@@ -15,7 +15,7 @@
         "github:FlatLang/System": "master",
         "github:FlatLang/IO": "master",
         "github:FlatLang/Logger": "master",
-        "github:FlatLang/Stream": "master",
+        "github:FlatLang/Event-Stream": "master",
         "github:FlatLang/Flat-AST": "master",
         "github:FlatLang/Flat-Annotations": "master",
         "github:FlatLang/Flat-Compiler-Models": "master"

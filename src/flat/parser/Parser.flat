@@ -8,7 +8,7 @@ import flat/ast/ScopeNode
 import flat/compiler/models/Token
 import flat/io/File
 import flat/log/Logger
-import flat/stream/Stream
+import flat/eventstream/EventStream
 
 class {
   static Logger log = Logger(Parser.class)
@@ -16,24 +16,24 @@ class {
   public parse(
     ParserBase rootParser,
     ParseContext parseContext,
-    Stream tokenStream
+    EventStream tokenStream
   ) =>
-    Stream(true).on("start", (data, stream) => {
+    EventStream(true).on("start", (data, stream) => {
       let engine = ParseEngine(rootParser, parseContext, stream)
 
       tokenStream.on<Token>("data", (token) => {
-        Parser.log.traceFunc({"Received data from Token Stream: #{token}"})
+        Parser.log.traceFunc({"Received data from Token EventStream: #{token}"})
 
         engine.consume(token)
       })
 
       tokenStream.on<String>("error", (error) => {
-        Parser.log.traceFunc({"Received error from Token Stream: #{error}"})
+        Parser.log.traceFunc({"Received error from Token EventStream: #{error}"})
         stream.emit("error", error)
       })
 
       tokenStream.on("close", {
-        Parser.log.traceFunc({"Token Stream closed"})
+        Parser.log.traceFunc({"Token EventStream closed"})
         engine.end()
         stream.emit("close")
       })
