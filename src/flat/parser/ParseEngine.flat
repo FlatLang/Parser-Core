@@ -23,6 +23,8 @@ class {
   }
 
   public consume(Token token) {
+    if (stream.closed) return
+
     match token.type {
       Token.Type.COMMENT =>
       Token.Type.WS => return
