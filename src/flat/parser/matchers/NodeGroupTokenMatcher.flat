@@ -88,7 +88,7 @@ data class extends TokenMatcher {
             match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           |"})
         groupMatch = NodeGroupTokenMatch(
-          tokens: pattern.includeTokens ? match.tokens : Token[],
+          tokens: pattern.includeTokens ? match.tokens.copy() : Token[],
           label: pattern.label,
           childMatches: childMatches.copy()
         )
@@ -97,6 +97,8 @@ data class extends TokenMatcher {
       if (groupMatch.tokens.count != tokens.count) {
         if (let backtrack = attemptBacktrackMatch(context)) {
           return backtrack
+        } else if (partial) {
+          return null
         }
       }
 
@@ -118,7 +120,7 @@ data class extends TokenMatcher {
     }
   }
 
-  attemptBacktrackMatch(ParseContext context) => groupMatch {
+  attemptBacktrackMatch(ParseContext context) -> NodeGroupTokenMatch => null {
     let tokensToMatch = tokens.skip(groupMatch.tokens.count)
     resetCurrentParsers(context)
     currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
@@ -143,6 +145,17 @@ data class extends TokenMatcher {
       attemptingBacktrackMatch = false
 
       if (let backtrackMatch = values.lastWhere({ _ != null })) {
+        if (values.last == null && partial) {
+          log.traceFunc({"Successful backtrack match. Matcher is partial. Returning null"})
+          return null
+        }
+
+        for (var Int i = values.count - 1; i >= 0; i--) {
+          if (values[i] == null) {
+            tokens.removeLast()
+          }
+        }
+
         log.traceFunc({"|
           Got successful backtrack match:
             matched tokens: [#{backtrackMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -154,6 +167,7 @@ data class extends TokenMatcher {
             complete: #{complete}
             valid: #{valid}
           |"})
+
         return backtrackMatch
       } else {
         log.traceFunc({"|

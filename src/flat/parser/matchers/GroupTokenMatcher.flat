@@ -390,6 +390,12 @@ data class extends TokenMatcher {
       })
 
       if (let continuationMatch = continuationMatches.lastWhere({ _ != null })) {
+        for (var Int i = continuationMatches.count - 1; !partial && i >= 0; i--) {
+          if (continuationMatches[i] == null) {
+            tokens.removeLast()
+          }
+        }
+
         log.traceFunc({"Returning successful continuation match"})
         return continuationMatch
       } else {
@@ -399,9 +405,16 @@ data class extends TokenMatcher {
           disqualified = true
           if (matcher.complete) {
             log.traceFunc({"Continuation match was complete and disqualified. Disqualified. Returning successful match without the remaining tokens"})
+          } else if (matcher.valid) {
+            log.traceFunc({"Continuation match was valid and disqualified. Disqualified. Returning successful match without the remaining tokens"})
           } else {
             log.traceFunc({"Continuation match was invalid and disqualified. Disqualified"})
-            return null
+
+            if (iterator.allNextInclusive.all({ _.pattern.optional })) {
+              log.traceFunc({"Rest of matchers are optional. Returning successful match without the remaining tokens"})
+            } else {
+              return null
+            }
           }
         } else if (matcher.partial) {
           log.traceFunc({"Continuation match is partial. Returning null"})

@@ -336,6 +336,12 @@ data class extends TokenMatcher {
         attemptingBacktrack = false
 
         if (let matchValue = continuationMatches.lastWhere({ _ != null })) {
+          for (var Int i = continuationMatches.count - 1; i >= 0; i--) {
+            if (continuationMatches[i] == null) {
+              tokens.removeLast()
+            }
+          }
+
           log.traceFunc({"|
             Got a complete match from child parser. Returning match
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -368,10 +374,7 @@ data class extends TokenMatcher {
               complete: #{complete}
               valid: #{valid}
             |"})
-          if (currentParsers.any(p => p.matcher.partial)) {
-            log.traceFunc({"Contains partial matches. Returning null"})
-            return null
-          }
+          return null
         }
       } else {
         log.traceFunc({"|
