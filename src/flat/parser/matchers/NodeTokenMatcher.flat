@@ -62,7 +62,11 @@ data class extends TokenMatcher {
             #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
         |"})
       if (let match = parser.match(token)) {
-        log.traceFunc({"Matched token '#{green(token.value)}'"})
+        log.traceFunc({"|
+          Matched token '#{green(token.value)}'
+            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          |"})
         matches.add(match)
         if (!targetParser || parser.acceptImmediately()) {
           targetParser = parser
@@ -171,6 +175,7 @@ data class extends TokenMatcher {
       } else if (remainingPartialMatches) {
         log.traceFunc({"|
           Contains partial matches. Returning match and continuing
+            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             targetParser: #{targetParser.class.name}
             parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => p.class.name).join(", ", 50)}]
           |"})
@@ -210,6 +215,7 @@ data class extends TokenMatcher {
     } else {
       log.traceFunc({"|
         Matches are empty
+          tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           currentParsers complete/disqualified/partial:
             [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
           childMatches:
@@ -220,6 +226,7 @@ data class extends TokenMatcher {
         if (remainingPartialMatches) {
           log.traceFunc({"|
             Contains partial matches. Continuing
+              tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               targetParser: #{targetParser.class.name}
               parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => p.class.name).join(", ", 50)}]
               childMatches:
@@ -243,6 +250,7 @@ data class extends TokenMatcher {
         if (remainingPartialMatches) {
           log.traceFunc({"|
             Contains partial matches. Returning null
+              tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               targetParser: #{targetParser.class.name}
               parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => p.class.name).join(", ", 50)}]
             |"})
@@ -257,6 +265,7 @@ data class extends TokenMatcher {
 
     log.traceFunc({"|
       Returning match at end of function
+        tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         lastMatch.tokens: [#{lastMatch?.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         currentParsers complete/disqualified/partial:
           [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
@@ -341,6 +350,7 @@ data class extends TokenMatcher {
               complete: #{complete}
               valid: #{valid}
             |"})
+
           return matchValue
         } else {
           log.traceFunc({"|
