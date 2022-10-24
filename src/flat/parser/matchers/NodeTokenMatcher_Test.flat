@@ -191,7 +191,7 @@ testable class {
   }
 
   test `can backtrack to a successful match and continue with children`() {
-    let pattern = NodeTokenPattern([IdentifierParser(), LocalDeclarationParser()], label: "argument")
+    let pattern = NodeTokenPattern([LocalDeclarationParser(), IdentifierParser()], label: "argument")
 
     let matcher = pattern.getMatcher()
     matcher.matchAll([

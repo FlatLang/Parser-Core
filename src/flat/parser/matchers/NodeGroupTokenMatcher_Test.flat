@@ -530,4 +530,372 @@ testable class {
       )
     )
   }
+
+  test `can match identifier and then function call`() {
+    let pattern = NodeGroupTokenPattern([
+      LocalDeclarationParser(),
+      IdentifierParser(),
+      FunctionCallParser(),
+    ])
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: ")", type: Token.Type.SYMBOL),
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: ")", type: Token.Type.SYMBOL),
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+                parser: IdentifierParser()
+              )
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: ")", type: Token.Type.SYMBOL),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "y", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: ")", type: Token.Type.SYMBOL),
+                ],
+                parser: FunctionCallParser()
+              )
+            ]
+          ),
+        ]
+      )
+    )
+  }
+
+  test `can match local declaration with explicit type and then assignment`() {
+    let pattern = NodeGroupTokenPattern([
+      LocalDeclarationParser(),
+      IdentifierParser(),
+      AssignmentParser(),
+    ])
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "String", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "=", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "String", type: Token.Type.IDENTIFIER),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "=", type: Token.Type.SYMBOL),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "String", type: Token.Type.IDENTIFIER),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+              Token(value: "=", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "String", type: Token.Type.IDENTIFIER),
+                  Token(value: "x", type: Token.Type.IDENTIFIER),
+                ],
+                parser: LocalDeclarationParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "=", type: Token.Type.SYMBOL)],
+                parser: AssignmentParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "y", type: Token.Type.IDENTIFIER)],
+                parser: IdentifierParser()
+              ),
+            ]
+          ),
+        ]
+      )
+    )
+  }
+
+  test `can match local declaration with implicit type and then assignment`() {
+    let pattern = NodeGroupTokenPattern(LocalScopeParser().valueParsers)
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "let", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "=", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "let", type: Token.Type.IDENTIFIER),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "=", type: Token.Type.SYMBOL),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "let", type: Token.Type.IDENTIFIER),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+              Token(value: "=", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [Token(value: "let", type: Token.Type.IDENTIFIER)],
+                parser: AnnotationParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+                parser: LocalDeclarationParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "=", type: Token.Type.SYMBOL)],
+                parser: AssignmentParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "y", type: Token.Type.IDENTIFIER)],
+                parser: IdentifierParser()
+              ),
+            ]
+          ),
+        ]
+      )
+    )
+  }
+
+  test `can match local declaration with explicit type and var modifier then separate assignment statement`() {
+    let pattern = NodeGroupTokenPattern(LocalScopeParser().valueParsers)
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "var", type: Token.Type.IDENTIFIER),
+      Token(value: "String", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "z", type: Token.Type.IDENTIFIER),
+      Token(value: "=", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "var", type: Token.Type.IDENTIFIER),
+          Token(value: "String", type: Token.Type.IDENTIFIER),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "z", type: Token.Type.IDENTIFIER),
+          Token(value: "=", type: Token.Type.SYMBOL),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "var", type: Token.Type.IDENTIFIER),
+              Token(value: "String", type: Token.Type.IDENTIFIER),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [Token(value: "var", type: Token.Type.IDENTIFIER)],
+                parser: AnnotationParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "String", type: Token.Type.IDENTIFIER),
+                  Token(value: "x", type: Token.Type.IDENTIFIER),
+                ],
+                parser: LocalDeclarationParser()
+              ),
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "z", type: Token.Type.IDENTIFIER),
+              Token(value: "=", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [Token(value: "z", type: Token.Type.IDENTIFIER)],
+                parser: IdentifierParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "=", type: Token.Type.SYMBOL)],
+                parser: AssignmentParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "y", type: Token.Type.IDENTIFIER)],
+                parser: IdentifierParser()
+              ),
+            ]
+          ),
+        ]
+      )
+    )
+  }
+
+  test `can match local declaration with explicit type and var modifier then separate if statement`() {
+    let pattern = NodeGroupTokenPattern(LocalScopeParser().valueParsers)
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "var", type: Token.Type.IDENTIFIER),
+      Token(value: "String", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "if", type: Token.Type.IDENTIFIER),
+      Token(value: "(", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: ")", type: Token.Type.SYMBOL),
+      Token(value: "z", type: Token.Type.IDENTIFIER),
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "var", type: Token.Type.IDENTIFIER),
+          Token(value: "String", type: Token.Type.IDENTIFIER),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "if", type: Token.Type.IDENTIFIER),
+          Token(value: "(", type: Token.Type.SYMBOL),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+          Token(value: ")", type: Token.Type.SYMBOL),
+          Token(value: "z", type: Token.Type.IDENTIFIER),
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "var", type: Token.Type.IDENTIFIER),
+              Token(value: "String", type: Token.Type.IDENTIFIER),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [Token(value: "var", type: Token.Type.IDENTIFIER)],
+                parser: AnnotationParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "String", type: Token.Type.IDENTIFIER),
+                  Token(value: "x", type: Token.Type.IDENTIFIER),
+                ],
+                parser: LocalDeclarationParser()
+              ),
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "if", type: Token.Type.IDENTIFIER),
+              Token(value: "(", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+              Token(value: ")", type: Token.Type.SYMBOL),
+              Token(value: "z", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "if", type: Token.Type.IDENTIFIER),
+                  Token(value: "(", type: Token.Type.SYMBOL),
+                  Token(value: "y", type: Token.Type.IDENTIFIER),
+                  Token(value: ")", type: Token.Type.SYMBOL),
+                  Token(value: "z", type: Token.Type.IDENTIFIER),
+                ],
+                parser: IfParser()
+              ),
+            ]
+          ),
+        ]
+      )
+    )
+  }
+
+  test `can match local declaration with implicit type then separate identifier`() {
+    let pattern = NodeGroupTokenPattern(LocalScopeParser().valueParsers)
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "let", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "=", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "z", type: Token.Type.IDENTIFIER),
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "let", type: Token.Type.IDENTIFIER),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "=", type: Token.Type.SYMBOL),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+          Token(value: "z", type: Token.Type.IDENTIFIER),
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "let", type: Token.Type.IDENTIFIER),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+              Token(value: "=", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [Token(value: "let", type: Token.Type.IDENTIFIER)],
+                parser: AnnotationParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
+                parser: LocalDeclarationParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "=", type: Token.Type.SYMBOL)],
+                parser: AssignmentParser()
+              ),
+              NodeTokenMatchChild(
+                tokens: [Token(value: "y", type: Token.Type.IDENTIFIER)],
+                parser: IdentifierParser()
+              ),
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "z", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [Token(value: "z", type: Token.Type.IDENTIFIER)],
+                parser: IdentifierParser()
+              ),
+            ]
+          ),
+        ]
+      )
+    )
+  }
 }
