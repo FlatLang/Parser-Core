@@ -66,10 +66,10 @@ data class extends TokenMatcher {
         childMatches.add(match)
       }
 
-      addedCurrentMatch = true
-
       if (wasDisqualified) {
         addedCurrentMatch = false
+      } else {
+        addedCurrentMatch = true
       }
 
       if (groupMatch) {
