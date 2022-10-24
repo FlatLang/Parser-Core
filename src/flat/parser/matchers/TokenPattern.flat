@@ -38,6 +38,8 @@ abstract data class {
       } else {
         return "+?"
       }
+    } else if (!greedy) {
+      return "?!"
     } else {
       return ""
     }
