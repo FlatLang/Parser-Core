@@ -26,9 +26,11 @@ data class extends TokenMatcher {
 
   override public match(Token token, ParseContext context = null) -> NodeTokenMatch {
     if (!this.context) {
-      this.context = context?.copy(
-        annotations: Array()
-      )
+      this.context = context?.copy(annotations: Array())
+
+      if (!this.context) {
+        this.context = ParseContext()
+      }
     }
     if (!currentParsers) {
       setCurrentParsers(pattern.parsers.forEach({ _.copy() }))
@@ -187,6 +189,7 @@ data class extends TokenMatcher {
         if (let childParsers = targetParser.childParsers) {
           log.traceFunc({"Contains possible child matchers. Continuing with childParsers: [#{childParsers.map(p => green(p.class.name)).join(", ", 50)}]"})
           setCurrentParsers(childParsers)
+          this.context = this.context.copy(annotations: Array())
           addedCurrentMatch = false
         } else if (attemptingBacktrack) {
           log.traceFunc({"No child matchers. Returning last match"})
@@ -201,6 +204,7 @@ data class extends TokenMatcher {
           if (let metadataNode = targetParser.generateNode()) {
             context.addMetadata(metadataNode)
             setCurrentParsers(pattern.parsers.map({ _.copy() }))
+            this.context = this.context.copy(annotations: Array())
             addedCurrentMatch = false
             log.traceFunc({"Added metadata node and reset parsers"})
           } else {
@@ -284,6 +288,7 @@ data class extends TokenMatcher {
     if (let childParsers = lastParser.childParsers) {
       log.traceFunc({"Setting currentParsers to childParsers from parser: #{lastParser.class.name}"})
       setCurrentParsers(childParsers)
+      this.context = this.context.copy(annotations: Array())
       addedCurrentMatch = false
       complete = true
       let tokensToMatch = tokens.skip(successfulMatchedTokens.count)
