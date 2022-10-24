@@ -36,11 +36,19 @@ class {
     let unsuccessful = results.filter({ !_.success })
 
     if (unsuccessful.count > 0) {
-      fancy.writeHeader(
-        "#unsuccessful.count Failure#{unsuccessful.count == 1 ? "" : "s"} out of #results.count test#{results.count == 1 ? "" : "s"}",
-        pattern: ":'( ",
-        symmetrical: true
-      )
+      if (results.count == 1) {
+        fancy.writeHeader(
+          "Test Failed",
+          pattern: ":'( ",
+          symmetrical: true
+        )
+      } else {
+        fancy.writeHeader(
+          "#unsuccessful.count Failure#{unsuccessful.count == 1 ? "" : "s"} out of #results.count test#{results.count == 1 ? "" : "s"}",
+          pattern: ":'( ",
+          symmetrical: true
+        )
+      }
 
       if (unsuccessful.count > 1 || results.last.success) {
         unsuccessful.forEach({
