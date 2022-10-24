@@ -94,22 +94,31 @@ data class extends TokenMatcher {
         )
       }
 
-      if (groupMatch.tokens.count != tokens.count) {
-        if (let backtrack = attemptBacktrackMatch(context)) {
-          return backtrack
-        } else if (partial) {
-          return null
-        }
+      if (groupMatch.tokens.count == tokens.count) {
+        log.traceFunc({"|
+          Returning group match:
+            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            childMatches:
+              #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+          |"})
+
+        return groupMatch
       }
 
-      log.traceFunc({"|
-        Returning group match:
-          tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-          childMatches:
-            #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-        |"})
+      if (let backtrack = attemptBacktrackMatch(context)) {
+        return backtrack
+      }
 
-      return groupMatch
+      if (!partial) {
+        log.traceFunc({"|
+          Backtrack was not partial. Returning group match:
+            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            childMatches:
+              #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+          |"})
+
+        return groupMatch
+      }
     } else if (currentMatcher.partial) {
       log.traceFunc({"Partial match. Continuing"})
     } else if (groupMatch && !attemptingBacktrackMatch) {
