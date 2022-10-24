@@ -68,6 +68,7 @@ data class extends TokenMatcher {
             match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           |"})
         matches.add(match)
+        matchParsers.add(parser)
         if (!targetParser || parser.acceptImmediately()) {
           targetParser = parser
           targetMatch = match
@@ -76,7 +77,6 @@ data class extends TokenMatcher {
             break
           }
         }
-        matchParsers.add(parser)
       } else if (parser.matcher.partial) {
         log.traceFunc({"Partial match for token '#{green(token.value)}'"})
       } else {
