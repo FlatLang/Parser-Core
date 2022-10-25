@@ -73,11 +73,11 @@ data class extends TokenMatcher {
           |"})
         matches.add(match)
         matchParsers.add(parser)
-        if (!targetParser || parser.acceptImmediately()) {
+        if (!targetParser || parser.matcher.pattern.exact) {
           targetParser = parser
           targetMatch = match
 
-          if (parser.acceptImmediately()) {
+          if (parser.matcher.pattern.exact) {
             break
           }
         }
@@ -175,7 +175,7 @@ data class extends TokenMatcher {
         childMatches: childMatches.copy()
       )
 
-      let acceptImmediately = targetParser.acceptImmediately()
+      let acceptImmediately = targetParser.matcher.pattern.exact
 
       if (acceptImmediately) {
         log.traceFunc({"Contains exact match"})

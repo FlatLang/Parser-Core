@@ -13,6 +13,7 @@ abstract data class {
   visible Bool optional = false
   visible Bool repeat = false
   visible Bool greedy = true
+  visible Bool exact = false
   visible Bool includeTokens = true
 
   public abstract getMatcher() -> TokenMatcher

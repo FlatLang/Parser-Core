@@ -15,6 +15,7 @@ data class extends TokenPattern {
     this Bool optional = false,
     this Bool repeat = false,
     this Bool greedy = true,
+    this Bool exact = false,
     this Bool includeTokens = true
   ) {}
 
