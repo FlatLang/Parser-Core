@@ -793,4 +793,58 @@ testable class {
     expect(result?.tokens).toBe(expected)
     expect(matcher.partial).toBe(false)
   }
+
+  test `does not match on non-greedy repeating sub-match`() {
+    let pattern = GroupTokenPattern([
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "["),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "Target"),
+      XorTokenPattern([
+        GroupTokenPattern([
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "not"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER),
+        ]),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER)
+      ], repeat: true, greedy: false),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "]")
+    ])
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "[", type: Token.Type.SYMBOL),
+      Token(value: "Target", type: Token.Type.IDENTIFIER),
+      Token(value: "c", type: Token.Type.IDENTIFIER),
+    ], FlatParseContext()).last
+
+    expect(result).toBe(null)
+  }
+
+  test `can match after a non-greedy repeating sub-match`() {
+    let pattern = GroupTokenPattern([
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "["),
+      SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "Target"),
+      XorTokenPattern([
+        GroupTokenPattern([
+          SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "not"),
+          SingleTokenPattern(type: Token.Type.IDENTIFIER),
+        ]),
+        SingleTokenPattern(type: Token.Type.IDENTIFIER)
+      ], repeat: true, greedy: false),
+      SingleTokenPattern(type: Token.Type.SYMBOL, value: "]")
+    ])
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "[", type: Token.Type.SYMBOL),
+      Token(value: "Target", type: Token.Type.IDENTIFIER),
+      Token(value: "c", type: Token.Type.IDENTIFIER),
+      Token(value: "]", type: Token.Type.SYMBOL),
+    ], FlatParseContext()).last
+
+    expect(result?.tokens).toBe([
+      Token(value: "[", type: Token.Type.SYMBOL),
+      Token(value: "Target", type: Token.Type.IDENTIFIER),
+      Token(value: "c", type: Token.Type.IDENTIFIER),
+      Token(value: "]", type: Token.Type.SYMBOL),
+    ])
+  }
 }

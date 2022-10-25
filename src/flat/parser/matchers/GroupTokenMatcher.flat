@@ -23,6 +23,7 @@ data class extends TokenMatcher {
   var TokenMatcher lastMatcher
   var TokenMatcher matcher
   var Bool nonGreedyChecked = false
+  var Bool wasRepeat = false
   var Token[] successfulMatchedTokens = Token[]
 
   hasNextMatcher() -> Bool {
@@ -40,11 +41,15 @@ data class extends TokenMatcher {
     }
 
     matcher = iterator.stepNext
+    matcher.reset()
+    wasRepeat = false
   }
 
   repeatMatcher() {
     log.traceFunc({"Repeating matcher: " + magenta(matcher.pattern.toPatternString())})
     matcher = matcher.pattern.getMatcher()
+    matcher.reset()
+    wasRepeat = true
   }
 
   addSuccessfulMatch(TokenMatch tokenMatch) {
@@ -87,6 +92,8 @@ data class extends TokenMatcher {
   match(ParseContext context) -> TokenMatch => null {
     let token = tokens.last
 
+    let validMatch = wasRepeat || matcher.pattern.optional || matcher.valid && matcher.complete
+
     log.traceFunc({"|
       Matching tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         matcher: #{magenta(matcher.pattern.toPatternString())}
@@ -95,14 +102,15 @@ data class extends TokenMatcher {
         matcher.pattern.greedy: #{matcher.pattern.greedy}
         nonGreedyChecked: #{nonGreedyChecked}
         pattern: #{magenta(pattern.toPatternString())}
+        validMatch: #{validMatch}
       |"})
 
-    // TODO: Allow matcher.valid here too
-    if ((matcher.pattern.optional || matcher.valid && matcher.complete) && !matcher.pattern.greedy && !nonGreedyChecked) {
+    if (validMatch && !matcher.pattern.greedy && !nonGreedyChecked) {
       if (hasNextMatcher()) {
         log.traceFunc({"Checking next matcher because current matcher is non-greedy optional"})
         nonGreedyMatchers.push(matcher)
-        matcher = iterator.next.copy()
+        matcher = iterator.next
+        matcher.reset()
       } else {
         log.traceFunc({"No other matchers to match. Skipping greedy check"})
       }
@@ -244,12 +252,12 @@ data class extends TokenMatcher {
             }
           } else {
             if (hasNextMatcher()) {
-              nextMatcher()
+              repeatMatcher()
 
               if (iterator.allNextInclusive.all({ _.pattern.optional })) {
-                log.traceFunc({"This matcher is not greedy and there are other matchers. Returning match and skipped to next matcher: " + magenta(matcher.pattern.toPatternString())})
+                log.traceFunc({"This matcher is not greedy and there are other matchers. Returning match and repeated matcher: " + magenta(matcher.pattern.toPatternString())})
               } else {
-                log.traceFunc({"This matcher is not greedy and there are other required. Returning null for partial match and skipped to next matcher: " + magenta(matcher.pattern.toPatternString())})
+                log.traceFunc({"This matcher is not greedy and there are other required. Returning null for partial match and repeated matcher: " + magenta(matcher.pattern.toPatternString())})
                 return null
               }
             } else {
@@ -366,7 +374,9 @@ data class extends TokenMatcher {
     var Bool continueMatching = false
     complete = complete || !hasNextMatcher()
 
-    if (matcher.pattern.repeat && matcher.complete) { // Should this be `matcher.disqualified`?
+    let shouldRepeat = matcher.pattern.repeat && matcher.complete
+
+    if (shouldRepeat) { // Should this be `matcher.disqualified`?
       repeatMatcher()
       continueMatching = true
     } else if (hasNextMatcher() && matcher.complete && matcher.disqualified) { // FIXME: handle non-greedy
@@ -402,6 +412,19 @@ data class extends TokenMatcher {
         log.traceFunc({"Continuation match was not successful"})
 
         if (matcher.disqualified) {
+          if (shouldRepeat && hasNextMatcher()) {
+            let wasDisqualified = disqualified
+            disqualified = false
+
+            nextMatcher()
+            log.traceFunc({"Skipping to next matcher after failed attempt at a repeat. Skipped to next matcher: " + magenta(matcher.pattern.toPatternString())})
+            if (let continuation = continuationMatch(context)) {
+              return continuation
+            }
+
+            disqualified = wasDisqualified
+          }
+
           disqualified = true
           if (matcher.complete) {
             log.traceFunc({"Continuation match was complete and disqualified. Disqualified. Returning successful match without the remaining tokens"})
@@ -455,5 +478,6 @@ data class extends TokenMatcher {
     lastMatcher = null
     matcher = null
     nonGreedyChecked = false
+    wasRepeat = false
   }
 }
