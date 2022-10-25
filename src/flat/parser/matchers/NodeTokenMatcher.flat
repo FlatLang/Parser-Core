@@ -101,17 +101,20 @@ data class extends TokenMatcher {
           #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
       |"})
 
-    if (allParsersDisqualified() && childMatches.isNotEmpty) {
-      if (attemptingBacktrack) {
-        log.traceFunc({"Already attempting backtrack match. Disqualified"})
-        disqualified = true
-        return null
+    if (allParsersDisqualified()) {
+      log.traceFunc({"All parsers are disqualified"})
+      if (childMatches.isNotEmpty) {
+        if (attemptingBacktrack) {
+          log.traceFunc({"Already attempting backtrack match. Disqualified"})
+          disqualified = true
+          return null
+        }
+
+        return attemptBacktrackMatch()
       }
-
-      return attemptBacktrackMatch()
+    } else {
+      valid = true
     }
-
-    valid = true
 
     let remainingPartialMatches = currentParsers.any(p => p != targetParser && p.matcher.partial)
 
