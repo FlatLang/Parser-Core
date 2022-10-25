@@ -20,7 +20,7 @@ testable class {
       Token(value: "(", type: Token.Type.SYMBOL),
       Token(value: "hey", type: Token.Type.IDENTIFIER),
       Token(value: ")", type: Token.Type.SYMBOL)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     let expected = CaptureTokenMatch(
       tokens: [
@@ -44,7 +44,7 @@ testable class {
     let matcher = capturePattern.getMatcher()
     let result = matcher.matchAll([
       Token(value: "(", type: Token.Type.SYMBOL)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     let expected = [Token(value: "(", type: Token.Type.SYMBOL)]
 
@@ -62,7 +62,7 @@ testable class {
     let result = matcher.matchAll([
       Token(value: "(", type: Token.Type.SYMBOL),
       Token(value: "hey", type: Token.Type.IDENTIFIER)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     let expected = [
       Token(value: "(", type: Token.Type.SYMBOL),
@@ -86,7 +86,7 @@ testable class {
       Token(value: "(", type: Token.Type.SYMBOL),
       Token(value: "(", type: Token.Type.SYMBOL),
       Token(value: "(", type: Token.Type.SYMBOL)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     let expected = [
       Token(value: "(", type: Token.Type.SYMBOL),

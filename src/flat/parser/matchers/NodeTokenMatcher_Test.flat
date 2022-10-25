@@ -28,7 +28,7 @@ testable class {
     let result = matcher.matchAll([
       Token(value: "import", type: Token.Type.IDENTIFIER),
       Token(value: "test", type: Token.Type.IDENTIFIER)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     let expected = [
       Token(value: "import", type: Token.Type.IDENTIFIER),
@@ -72,7 +72,7 @@ testable class {
       Token(value: "String", type: Token.Type.IDENTIFIER),
       Token(value: "test", type: Token.Type.IDENTIFIER),
       Token(value: ",", type: Token.Type.SYMBOL)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result).toBe(
       GroupTokenMatch(
@@ -121,7 +121,7 @@ testable class {
       Token(value: "String", type: Token.Type.IDENTIFIER),
       Token(value: "test", type: Token.Type.IDENTIFIER),
       Token(value: ")", type: Token.Type.SYMBOL)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(match).toNotBe(null)
   }
@@ -145,7 +145,7 @@ testable class {
       Token(value: "]", type: Token.Type.SYMBOL),
       Token(value: "test", type: Token.Type.IDENTIFIER),
       Token(value: ")", type: Token.Type.SYMBOL)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(match).toNotBe(null)
   }
@@ -199,7 +199,7 @@ testable class {
       Token(value: "[", type: Token.Type.SYMBOL),
       Token(value: "otherThing", type: Token.Type.IDENTIFIER),
       Token(value: "]", type: Token.Type.SYMBOL)
-    ], FlatParseContext())
+    ], ParseContext())
 
     let match = matcher.lastMatch
 
@@ -215,7 +215,7 @@ testable class {
     let matcher = pattern.getMatcher()
     let result = matcher.matchAll([
       Token(value: "x", type: Token.Type.IDENTIFIER)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result?.tokens).toBe([
       Token(value: "x", type: Token.Type.IDENTIFIER)
@@ -229,7 +229,7 @@ testable class {
     let result = matcher.matchAll([
       Token(value: "async", type: Token.Type.IDENTIFIER),
       Token(value: "x", type: Token.Type.IDENTIFIER)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result?.tokens).toBe([
       Token(value: "async", type: Token.Type.IDENTIFIER),
@@ -246,7 +246,7 @@ testable class {
       Token(value: "<", type: Token.Type.SYMBOL),
       Token(value: "count", type: Token.Type.IDENTIFIER),
       Token(value: "++", type: Token.Type.SYMBOL),
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result?.tokens).toBe([
       Token(value: "x", type: Token.Type.IDENTIFIER),
@@ -267,7 +267,7 @@ testable class {
       Token(value: "<", type: Token.Type.SYMBOL),
       Token(value: "count", type: Token.Type.IDENTIFIER),
       Token(value: "++", type: Token.Type.SYMBOL),
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result?.tokens).toBe([
       Token(value: "x", type: Token.Type.IDENTIFIER),
@@ -290,7 +290,7 @@ testable class {
       Token(value: "<", type: Token.Type.SYMBOL),
       Token(value: "count", type: Token.Type.IDENTIFIER),
       Token(value: ";", type: Token.Type.SYMBOL),
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result?.tokens).toBe([
       Token(value: "x", type: Token.Type.IDENTIFIER),

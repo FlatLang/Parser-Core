@@ -69,7 +69,7 @@ testable class {
       Token(value: "[", type: Token.Type.SYMBOL),
       Token(value: "]", type: Token.Type.SYMBOL),
       Token(value: "test", type: Token.Type.IDENTIFIER)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result?.tokens).toBe([
       Token(value: "String", type: Token.Type.IDENTIFIER),
@@ -105,7 +105,7 @@ testable class {
       Token(value: "[", type: Token.Type.SYMBOL),
       Token(value: "]", type: Token.Type.SYMBOL),
       Token(value: "test", type: Token.Type.IDENTIFIER)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result?.tokens).toBe([
       Token(value: "String", type: Token.Type.IDENTIFIER),
@@ -162,7 +162,7 @@ testable class {
       Token(value: "x", type: Token.Type.IDENTIFIER),
       Token(value: ")", type: Token.Type.SYMBOL),
       Token(value: "=>", type: Token.Type.SYMBOL)
-    ], FlatParseContext()).last
+    ], ParseContext()).last
 
     expect(result?.tokens).toBe([
       Token(value: "(", type: Token.Type.SYMBOL),
