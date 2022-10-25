@@ -198,14 +198,14 @@ data class extends TokenMatcher {
           addedCurrentMatch = false
         } else if (attemptingBacktrack) {
           log.traceFunc({"No child matchers. Returning last match"})
-        } else if (!targetParser || !targetParser.isMetadata) {
+        } else if (!targetParser || !targetParser.matcher.pattern.metadata) {
           log.traceFunc({"No child matchers. Returning last match and disqualified"})
           disqualified = true
         } else {
           log.traceFunc({"No child matchers. Returning last match"})
         }
 
-        if (targetParser?.isMetadata) {
+        if (targetParser?.matcher.pattern.metadata) {
           if (let metadataNode = targetParser.generateNode()) {
             context.addMetadata(metadataNode)
             setCurrentParsers(currentParsers.map({ _.copy() }))
