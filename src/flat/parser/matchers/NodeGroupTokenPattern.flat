@@ -13,7 +13,7 @@ data class extends TokenPattern {
     this String: label = null,
     this Bool optional = false,
     this Bool repeat = false,
-    this Bool greedy = true,
+    this Bool greedy = false,
     this Bool includeTokens = true
   ) {}
 
