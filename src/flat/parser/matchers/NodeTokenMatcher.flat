@@ -47,7 +47,9 @@ data class extends TokenMatcher {
       Matching token '#{green(token.value)}'
         tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         childMatches:
-          #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+          #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+        currentParsers complete/disqualified/partial:
+          [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
       |"})
 
     var ParserBase targetParser
@@ -61,7 +63,7 @@ data class extends TokenMatcher {
         Matching token '#{green(token.value)}' #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())} against parser: #{green(parser.class.name)}
           tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           childMatches:
-            #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+            #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
         |"})
       if (let match = parser.match(token)) {
         log.traceFunc({"|
@@ -94,9 +96,9 @@ data class extends TokenMatcher {
       Finished matching all current parsers:
         matches.count: #{matches.count}
         targetParser: #{targetParser.class.name}
-        parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => p.class.name).join(", ", 50)}]
+        parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => green(p.class.name)).join(", ", 50)}]
         childMatches:
-          #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+          #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
       |"})
 
     if (allParsersDisqualified() && childMatches.isNotEmpty) {
@@ -120,7 +122,7 @@ data class extends TokenMatcher {
           #{matchParsers.map(m => magenta(m.pattern.toPatternString())).join("\n  ")}
           complete: #{complete}
           childMatches:
-            #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+            #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
         |"})
 
       if (addedCurrentMatch) {
@@ -179,7 +181,7 @@ data class extends TokenMatcher {
           Contains partial matches. Returning match and continuing
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             targetParser: #{targetParser.class.name}
-            parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => p.class.name).join(", ", 50)}]
+            parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => green(p.class.name)).join(", ", 50)}]
           |"})
       } else {
         log.traceFunc({"No partial matches"})
@@ -203,7 +205,7 @@ data class extends TokenMatcher {
         if (targetParser?.isMetadata) {
           if (let metadataNode = targetParser.generateNode()) {
             context.addMetadata(metadataNode)
-            setCurrentParsers(pattern.parsers.map({ _.copy() }))
+            setCurrentParsers(currentParsers.map({ _.copy() }))
             this.context = this.context.copy(annotations: Array())
             addedCurrentMatch = false
             log.traceFunc({"Added metadata node and reset parsers"})
@@ -223,7 +225,7 @@ data class extends TokenMatcher {
           currentParsers complete/disqualified/partial:
             [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
           childMatches:
-            #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+            #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
         |"})
       if (lastMatch) {
         log.traceFunc({"Has last match"})
@@ -232,9 +234,9 @@ data class extends TokenMatcher {
             Contains partial matches. Continuing
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               targetParser: #{targetParser.class.name}
-              parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => p.class.name).join(", ", 50)}]
+              parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => green(p.class.name)).join(", ", 50)}]
               childMatches:
-                #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+                #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
             |"})
           return null
         } else {
@@ -256,7 +258,7 @@ data class extends TokenMatcher {
             Contains partial matches. Returning null
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               targetParser: #{targetParser.class.name}
-              parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => p.class.name).join(", ", 50)}]
+              parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => green(p.class.name)).join(", ", 50)}]
             |"})
           return null
         } else {
@@ -274,7 +276,7 @@ data class extends TokenMatcher {
         currentParsers complete/disqualified/partial:
           [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
         childMatches:
-          #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+          #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
         disqualified: #{disqualified}
         complete: #{complete}
         valid: #{valid}
@@ -299,7 +301,7 @@ data class extends TokenMatcher {
           All matchers are incomplete and disqualified. Attempting to parse further child nodes from last match
             successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             childMatches:
-              #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+              #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
             lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -316,7 +318,7 @@ data class extends TokenMatcher {
             Matching continuation token '#{green(token.value)}'
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
-                #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+                #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               parser: #{lastParser.class.name}
@@ -328,7 +330,7 @@ data class extends TokenMatcher {
             Finished matching continuation token '#{green(token.value)}'
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
-                #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+                #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
               matchedTokens: #{value?.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -351,7 +353,7 @@ data class extends TokenMatcher {
             Got a complete match from child parser. Returning match
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
-                #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+                #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
               lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -368,7 +370,7 @@ data class extends TokenMatcher {
             Did not get a complete match from child parser
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
-                #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+                #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
               lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -386,7 +388,7 @@ data class extends TokenMatcher {
           No more tokens to match.
             successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             childMatches:
-              #{childMatches.map(m => m.parser.class.name + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+              #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
             lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
