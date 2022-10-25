@@ -1,7 +1,8 @@
 package flat/parser/matchers
 
 import flat/parser
-import flat/datastruct/HashMap
+import flat/datastruct
+import flat/datastruct/list
 import flat/compiler/models/Token
 import flat/log/Logger
 
@@ -12,15 +13,13 @@ data class extends TokenMatcher {
 
   NodeGroupTokenPattern pattern
 
-  var TokenMatch[] childMatches = TokenMatch[]
+  var Stack<NodeTokenMatch> currentMatches = Stack()
+  var NodeTokenMatch[] childMatches = NodeTokenMatch[]
   var NodeGroupTokenMatch groupMatch
   var ParserBase[] currentParsers
   var NodeTokenMatcher currentMatcher
   var Bool addedCurrentMatch = false
   var Bool attemptingBacktrackMatch = false
-
-  var TokenMatch[] nonGreedyChildMatches
-  var NodeGroupTokenMatch nonGreedyGroupMatch
 
   override public match(Token token, ParseContext context = null) -> NodeGroupTokenMatch {
     if (!currentParsers) {
@@ -51,41 +50,9 @@ data class extends TokenMatcher {
       log.traceFunc({"|
         Successful match with current matcher:
           parser: #{green(match.parser.class.name)}
-          pattern: #{magenta(match.parser.pattern.toPatternString())}
+          matcher: #{magenta(match.parser.pattern.toPatternString())}
+          pattern: #{magenta(pattern.toPatternString())}
         |"})
-
-      if (!match.parser.pattern.greedy) {
-        log.traceFunc({"Current matcher is not greedy"})
-        if (nonGreedyGroupMatch) {
-          // should this be a stack?
-          childMatches = nonGreedyChildMatches
-          groupMatch = nonGreedyGroupMatch
-          log.traceFunc({"Replacing last match"})
-          nonGreedyChildMatches = childMatches.copy():replaceLast(match)
-        } else {
-          if (addedCurrentMatch) {
-            log.traceFunc({"Replacing last match"})
-            nonGreedyChildMatches = childMatches.copy():replaceLast(match)
-          } else {
-            log.traceFunc({"Adding last match"})
-            nonGreedyChildMatches = childMatches.copy():add(match)
-          }
-        }
-
-        nonGreedyGroupMatch = addNodeMatchToGroupMatch(match, nonGreedyChildMatches)
-
-        log.traceFunc({"|
-          Returning groupMatch immediately for partial match
-            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-            nonGreedyGroupMatch.tokens: [#{nonGreedyGroupMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-            nonGreedyChildMatches:
-              #{nonGreedyChildMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-          |"})
-
-        return nonGreedyGroupMatch
-      } else {
-        resetNonGreedy()
-      }
 
       let wasDisqualified = currentMatcher.disqualified
       if (wasDisqualified) {
@@ -98,11 +65,14 @@ data class extends TokenMatcher {
       }
 
       valid = true
+      complete = complete || currentMatcher.complete
 
       if (addedCurrentMatch) {
+        currentMatches.push(match)
         log.traceFunc({"Replacing last match"})
         childMatches.replaceLast(match)
       } else {
+        currentMatches = Stack():push(match)
         log.traceFunc({"Adding last match"})
         childMatches.add(match)
       }
@@ -143,49 +113,11 @@ data class extends TokenMatcher {
     } else if (currentMatcher.partial) {
       log.traceFunc({"Partial match. Continuing"})
     } else if (groupMatch && !attemptingBacktrackMatch) {
-      let wasDisqualified = disqualified
-      if (let nonGreedy = attemptNonGreedyMatch(context)) {
-        return nonGreedy
-      } else if (currentMatcher.partial) {
-        log.traceFunc({"Partial non-greedy match. (not attempting another backtrack). Continuing"})
-        return null
-      } else {
-        disqualified = wasDisqualified
-      }
-
       return attemptBacktrackMatch(context)
-    } else if (nonGreedyGroupMatch) {
-      return attemptNonGreedyMatch(context)
     } else {
       log.traceFunc({"Did not match. Disqualified"})
       disqualified = true
     }
-  }
-
-  resetNonGreedy() {
-    nonGreedyChildMatches = null
-    nonGreedyGroupMatch = null
-  }
-
-  attemptNonGreedyMatch(ParseContext context) -> NodeGroupTokenMatch => null {
-    if (!nonGreedyGroupMatch) return null
-
-    log.traceFunc({"Attempting non-greedy match"})
-    let tmpChildMatches = childMatches
-    let tmpGroupMatch = groupMatch
-    childMatches = nonGreedyChildMatches
-    groupMatch = nonGreedyGroupMatch
-    resetNonGreedy()
-
-    if (let backtrack = attemptBacktrackMatch(context)) {
-      return backtrack
-    } else if (currentMatcher.partial) {
-      log.traceFunc({"Partial non-greedy match. Continuing"})
-      return null
-    }
-
-    childMatches = tmpChildMatches
-    groupMatch = tmpGroupMatch
   }
 
   addNodeMatchToGroupMatch(NodeTokenMatch match, TokenMatch[] childMatches) -> NodeGroupTokenMatch {
@@ -215,7 +147,6 @@ data class extends TokenMatcher {
   attemptBacktrackMatch(ParseContext context) -> NodeGroupTokenMatch => null {
     let tokensToMatch = tokens.skip(groupMatch.tokens.count)
     resetCurrentParsers(context)
-    resetNonGreedy()
     currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
     addedCurrentMatch = false
     log.traceFunc({"|
@@ -243,12 +174,6 @@ data class extends TokenMatcher {
           return null
         }
 
-        for (var Int i = values.count - 1; i >= 0; i--) {
-          if (values[i] == null) {
-            tokens.removeLast()
-          }
-        }
-
         log.traceFunc({"|
           Got successful backtrack match:
             matched tokens: [#{backtrackMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -262,6 +187,9 @@ data class extends TokenMatcher {
           |"})
 
         return backtrackMatch
+      } else if (currentMatcher.partial) {
+        log.traceFunc({"Partial backtrack match. Continuing"})
+        return null
       } else {
         log.traceFunc({"|
           Failed backtrack match:
@@ -272,7 +200,21 @@ data class extends TokenMatcher {
             disqualified: #{disqualified}
             complete: #{complete}
             valid: #{valid}
+            currentMatches.count: #{currentMatches.count}
           |"})
+
+        if (currentMatches.count > 1) {
+          let wasDisqualified = disqualified
+          disqualified = false
+          childMatches.replaceLast((currentMatches:pop().peek()))
+          groupMatch = groupMatch.copy(
+            tokens: pattern.includeTokens ? childMatches.flatMap({ _.tokens }) : Token[],
+            childMatches: childMatches.copy()
+          )
+
+          return attemptBacktrackMatch(context)
+        }
+
         return null
       }
     } else {
@@ -293,6 +235,7 @@ data class extends TokenMatcher {
     super.reset()
 
     pattern.parsers.forEach({ _.reset() })
+    currentMatches = Stack()
     childMatches = NodeTokenMatch[]
     groupMatch = null
     currentParsers = pattern.parsers

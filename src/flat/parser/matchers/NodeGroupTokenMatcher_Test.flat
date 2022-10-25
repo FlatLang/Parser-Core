@@ -898,4 +898,72 @@ testable class {
       )
     )
   }
+
+  test `can match package and then import`() {
+    let pattern = NodeGroupTokenPattern([
+      AnnotationParser(),
+      ImportParser(),
+      PackageParser(),
+      ClassParser()
+    ])
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "package", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: "/", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "import", type: Token.Type.IDENTIFIER),
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+    ], FlatParseContext()).last
+
+    expect(result).toBe(
+      NodeGroupTokenMatch(
+        tokens: [
+          Token(value: "package", type: Token.Type.IDENTIFIER),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+          Token(value: "/", type: Token.Type.SYMBOL),
+          Token(value: "y", type: Token.Type.IDENTIFIER),
+          Token(value: "import", type: Token.Type.IDENTIFIER),
+          Token(value: "x", type: Token.Type.IDENTIFIER),
+        ],
+        childMatches: [
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "package", type: Token.Type.IDENTIFIER),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+              Token(value: "/", type: Token.Type.SYMBOL),
+              Token(value: "y", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "package", type: Token.Type.IDENTIFIER),
+                  Token(value: "x", type: Token.Type.IDENTIFIER),
+                  Token(value: "/", type: Token.Type.SYMBOL),
+                  Token(value: "y", type: Token.Type.IDENTIFIER),
+                ],
+                parser: PackageParser()
+              ),
+            ]
+          ),
+          NodeTokenMatch(
+            tokens: [
+              Token(value: "import", type: Token.Type.IDENTIFIER),
+              Token(value: "x", type: Token.Type.IDENTIFIER),
+            ],
+            childMatches: [
+              NodeTokenMatchChild(
+                tokens: [
+                  Token(value: "import", type: Token.Type.IDENTIFIER),
+                  Token(value: "x", type: Token.Type.IDENTIFIER),
+                ],
+                parser: ImportParser()
+              ),
+            ]
+          ),
+        ]
+      )
+    )
+  }
 }
