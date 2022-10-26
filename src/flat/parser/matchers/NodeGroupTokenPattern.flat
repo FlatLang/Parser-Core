@@ -14,7 +14,8 @@ data class extends TokenPattern {
     this Bool optional = false,
     this Bool repeat = false,
     this Bool greedy = false,
-    this Bool includeTokens = true
+    this Bool includeTokens = true,
+    visible Token statementEndToken = null
   ) {}
 
   public getMatcher() => NodeGroupTokenMatcher(this) {

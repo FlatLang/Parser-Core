@@ -26,7 +26,7 @@ data class extends TokenMatcher {
       resetCurrentParsers(context)
     }
     if (!currentMatcher) {
-      currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
+      currentMatcher = NodeTokenPattern(currentParsers, statementEndToken: pattern.statementEndToken).getMatcher()
     }
 
     return tokenMatches.add(doMatch(token, context))
@@ -38,8 +38,9 @@ data class extends TokenMatcher {
     tokens.add(token)
 
     log.traceFunc({"|
-      Matching token '#{green(token.value)}' #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())}:
+      Matching token '#{green(token.value)}' #{token.type} #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())}:
         tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+        statementEndToken: #{pattern.statementEndToken}
       |"})
 
     if (let match = currentMatcher.match(token, context)) {
@@ -58,7 +59,7 @@ data class extends TokenMatcher {
       if (wasDisqualified) {
         log.traceFunc({"Current matcher is disqualified. Returning match and switching to new current matcher"})
         resetCurrentParsers(context)
-        currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
+        currentMatcher = NodeTokenPattern(currentParsers, statementEndToken: pattern.statementEndToken).getMatcher()
         complete = true
       } else {
         log.traceFunc({"Current matcher is partial. Returning match and continuing"})
@@ -147,7 +148,7 @@ data class extends TokenMatcher {
   attemptBacktrackMatch(ParseContext context) -> NodeGroupTokenMatch => null {
     let tokensToMatch = tokens.skip(groupMatch.tokens.count)
     resetCurrentParsers(context)
-    currentMatcher = NodeTokenPattern(currentParsers).getMatcher()
+    currentMatcher = NodeTokenPattern(currentParsers, statementEndToken: pattern.statementEndToken).getMatcher()
     addedCurrentMatch = false
     log.traceFunc({"|
       Attempting backtrack match:

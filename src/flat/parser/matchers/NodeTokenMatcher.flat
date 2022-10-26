@@ -44,12 +44,13 @@ data class extends TokenMatcher {
   doMatch(Token token) -> NodeTokenMatch {
     if (disqualified) return null
     log.traceFunc({"|
-      Matching token '#{green(token.value)}'
+      Matching token '#{green(token.value)}' #{token.type}
         tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         childMatches:
           #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
         currentParsers complete/disqualified/partial:
           [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
+        statementEndToken: #{pattern.statementEndToken}
       |"})
 
     var ParserBase targetParser
@@ -103,6 +104,9 @@ data class extends TokenMatcher {
 
     if (allParsersDisqualified()) {
       log.traceFunc({"All parsers are disqualified"})
+      if (let statementEnd = checkStatementEnd(token, targetParser, targetMatch)) {
+        return statementEnd
+      }
       if (childMatches.isNotEmpty) {
         if (attemptingBacktrack) {
           log.traceFunc({"Already attempting backtrack match. Disqualified"})
@@ -243,6 +247,9 @@ data class extends TokenMatcher {
             |"})
           return null
         } else {
+          if (let statementEnd = checkStatementEnd(token, targetParser, targetMatch)) {
+            return statementEnd
+          }
           if (!pattern.parseChildren) {
             log.traceFunc({"Child parsing is disabled for pattern. Disqualified. Returning last match"})
             complete = lastParser.matcher.complete
@@ -286,6 +293,44 @@ data class extends TokenMatcher {
       |"})
 
     return lastMatch
+  }
+
+  checkStatementEnd(Token token, ParserBase targetParser, TokenMatch targetMatch) -> NodeTokenMatch => null {
+    if (pattern.statementEndToken && token.type == pattern.statementEndToken.type && token.value == pattern.statementEndToken.value) {
+      disqualified = true
+      log.traceFunc({"|
+        Encountered statement end token. Returning match. Disqualified
+          tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          lastMatch?.tokens: [#{lastMatch?.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          currentParsers complete/disqualified/partial:
+            [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
+          childMatches:
+            #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+          disqualified: #{disqualified}
+          complete: #{complete}
+          valid: #{valid}
+        |"})
+
+      if (lastMatch) {
+        return lastMatch.copy(
+          tokens: pattern.includeTokens ? tokens.copy() : Token[]
+        )
+      } else if (targetParser) {
+        childMatches.add(
+          NodeTokenMatchChild(
+            tokens: targetMatch.tokens,
+            parser: targetParser
+          )
+        )
+        return NodeTokenMatch(
+          tokens: pattern.includeTokens ? tokens.copy() : Token[],
+          label: pattern.label,
+          childMatches: childMatches.copy()
+        )
+      } else {
+        log.traceFunc({"Failed to create match for statement end"})
+      }
+    }
   }
 
   attemptBacktrackMatch() -> NodeTokenMatch => null {

@@ -17,6 +17,7 @@ data class extends TokenPattern {
     this Bool exact = false,
     this Bool metadata = false,
     this Bool includeTokens = true,
+    visible Token statementEndToken = null,
     visible Bool parseChildren = true
   ) {}
 
