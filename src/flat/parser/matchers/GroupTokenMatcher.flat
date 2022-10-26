@@ -156,7 +156,7 @@ data class extends TokenMatcher {
       return continuationMatch(context)
     } else if (hasNextMatcher()) {
       log.traceFunc({"Match failed, but has next matcher"})
-      if (matcher.complete && matcher.valid) {
+      if (wasRepeat || matcher.complete && matcher.valid) {
         nextMatcher()
         log.traceFunc({"|
           Match was complete and valid. Skipped to next matcher: #{magenta(matcher.pattern.toPatternString())}
