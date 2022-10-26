@@ -226,6 +226,8 @@ data class extends TokenMatcher {
       |"})
     addSuccessfulMatch(tokenMatch)
 
+    complete = complete || iterator.allNext.all({ _.pattern.optional })
+
     if (successfulMatchedTokens.count < tokens.count) {
       return checkRemainingMatch(context)
     } else {
