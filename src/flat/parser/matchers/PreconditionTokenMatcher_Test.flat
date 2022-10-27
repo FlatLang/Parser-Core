@@ -36,11 +36,37 @@ testable class {
     expect(result).toBe(null)
   }
 
+  test `returns no tokens on successful baseParentType match`() {
+    let pattern = PreconditionTokenPattern(baseParentTypes: [FileNode.class])
+
+    let context = ParseContext(
+      currentBaseParser: FileParser()
+    )
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.match(Token(value: "package", type: Token.Type.IDENTIFIER), context)
+
+    expect(result?.tokens).toBe(Array())
+  }
+
+  test `returns null on unsuccessful baseParentType match`() {
+    let pattern = PreconditionTokenPattern(baseParentTypes: [FunctionNode.class])
+
+    let context = ParseContext(
+      currentBaseParser: FileParser()
+    )
+
+    let matcher = pattern.getMatcher()
+    let result = matcher.match(Token(value: "package", type: Token.Type.IDENTIFIER), context)
+
+    expect(result).toBe(null)
+  }
+
   test `returns no tokens on successful parentType match`() {
     let pattern = PreconditionTokenPattern(parentTypes: [FileNode.class])
 
     let context = ParseContext(
-      parserStack: Stack():push(FileParser())
+      parserStack: Stack():push(FileParser()):push(AnnotationParser())
     )
 
     let matcher = pattern.getMatcher()
@@ -53,7 +79,7 @@ testable class {
     let pattern = PreconditionTokenPattern(parentTypes: [FunctionNode.class])
 
     let context = ParseContext(
-      parserStack: Stack():push(FileParser())
+      parserStack: Stack():push(FileParser()):push(AnnotationParser())
     )
 
     let matcher = pattern.getMatcher()

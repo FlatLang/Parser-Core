@@ -36,8 +36,27 @@ data class extends TokenMatcher {
       log.traceFunc({"Matcher has no annotation checks"})
     }
 
+    if (pattern.baseParentTypes) {
+      if (let parser = context.currentBaseParser) {
+        let baseParent = parser.class.name.trimEnd(count: 6)
+        log.traceFunc({"Matcher has baseParentType checks for: [#{pattern.baseParentTypes.map(a => a.name.trimEnd(count: 4)).join(", ")}] against #{baseParent}"})
+        if (pattern.baseParentTypes.none(requiredType => baseParent == requiredType.name.trimEnd(count: 4))) {
+          log.traceFunc({"Context parent is not one of the required baseParentTypes"})
+          return null
+        } else {
+          log.traceFunc({"Matched some of the required baseParentTypes"})
+        }
+      } else {
+        disqualified = true
+        log.traceFunc({"Context parent is not set. Disqualified"})
+        return null
+      }
+    } else {
+      log.traceFunc({"Matcher has no baseParentType checks"})
+    }
+
     if (pattern.parentTypes) {
-      if (let parser = context.currentScopeParser) {
+      if (let parser = context.currentParentParser) {
         let parentName = parser.class.name.trimEnd(count: 6)
         log.traceFunc({"Matcher has parentType checks for: [#{pattern.parentTypes.map(a => a.name.trimEnd(count: 4)).join(", ")}] against #{parentName}"})
         if (pattern.parentTypes.none(requiredType => parentName == requiredType.name.trimEnd(count: 4))) {
@@ -48,7 +67,7 @@ data class extends TokenMatcher {
         }
       } else {
         disqualified = true
-        log.traceFunc({"Context parents are empty. Disqualified"})
+        log.traceFunc({"Context parent is not set. Disqualified"})
         return null
       }
     } else {

@@ -26,7 +26,10 @@ data class extends TokenMatcher {
 
   override public match(Token token, ParseContext context = null) -> NodeTokenMatch {
     if (!this.context) {
-      this.context = context?.copy(annotations: Array())
+      this.context = context?.copy(
+        annotations: Array(),
+        currentBaseParser: pattern.baseParser ? context.parserStack.peek() : context.currentBaseParser
+      )
 
       if (!this.context) {
         this.context = ParseContext()
