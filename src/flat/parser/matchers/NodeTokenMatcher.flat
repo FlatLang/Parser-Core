@@ -53,7 +53,7 @@ data class extends TokenMatcher {
           #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
         currentParsers complete/disqualified/partial:
           [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
-        statementEndToken: #{pattern.statementEndToken}
+        statementEndToken: #{pattern.statementEndToken?.value}
       |"})
 
     var ParserBase targetParser
@@ -93,6 +93,8 @@ data class extends TokenMatcher {
       log.traceFunc({"|
         Finished matching token '#{green(token.value)}' against parser: #{green(parser.class.name)}
           tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          valid: #{valid}
+          complete: #{complete}
         |"})
     }
 
@@ -101,6 +103,8 @@ data class extends TokenMatcher {
         matches.count: #{matches.count}
         targetParser: #{targetParser.class.name}
         parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => green(p.class.name)).join(", ", 50)}]
+        valid: #{valid}
+        complete: #{complete}
         childMatches:
           #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
       |"})
@@ -130,6 +134,7 @@ data class extends TokenMatcher {
       log.traceFunc({"|
         Contains matches for parser: #{green(targetParser.class.name)}
           #{matchParsers.map(m => magenta(m.pattern.toPatternString())).join("\n  ")}
+          valid: #{valid}
           complete: #{complete}
           childMatches:
             #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
@@ -206,8 +211,12 @@ data class extends TokenMatcher {
         } else if (attemptingBacktrack) {
           log.traceFunc({"No child matchers. Returning last match"})
         } else if (!targetParser || !targetParser.matcher.pattern.metadata) {
-          log.traceFunc({"No child matchers. Returning last match and disqualified"})
-          disqualified = true
+          if (pattern.statementEndToken) {
+            log.traceFunc({"No child matchers. Returning last match and waiting for statement end token"})
+          } else {
+            log.traceFunc({"No child matchers. Returning last match and disqualified"})
+            disqualified = true
+          }
         } else {
           log.traceFunc({"No child matchers. Returning last match"})
         }
@@ -337,7 +346,7 @@ data class extends TokenMatcher {
   }
 
   attemptBacktrackMatch() -> NodeTokenMatch => null {
-    log.traceFunc({"Attempting backtrack match"})
+    log.traceFunc({"Attempting backtrack match with parser #{green(lastParser.class.name)}"})
     if (let childParsers = lastParser.childParsers) {
       log.traceFunc({"Setting currentParsers to childParsers from parser: #{lastParser.class.name}"})
       setCurrentParsers(childParsers)
@@ -386,6 +395,8 @@ data class extends TokenMatcher {
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               parser: #{lastParser.class.name}
+              valid: #{valid}
+              complete: #{complete}
             |"})
 
           return value
