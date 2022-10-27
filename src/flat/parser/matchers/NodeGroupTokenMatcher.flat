@@ -40,7 +40,7 @@ data class extends TokenMatcher {
     log.traceFunc({"|
       Matching token '#{green(token.value)}' #{token.type} #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())}:
         tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-        statementEndToken: #{pattern.statementEndToken}
+        statementEndToken: #{pattern.statementEndToken?.value}
       |"})
 
     if (let match = currentMatcher.match(token, context)) {
