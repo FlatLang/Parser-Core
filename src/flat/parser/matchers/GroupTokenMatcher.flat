@@ -99,10 +99,11 @@ data class extends TokenMatcher {
         matcher: #{magenta(matcher.pattern.toPatternString())}
         matcher.valid: #{matcher.valid}
         matcher.complete: #{matcher.complete}
+        matcher.partial: #{matcher.partial}
+        validMatch: #{validMatch}
         matcher.pattern.greedy: #{matcher.pattern.greedy}
         nonGreedyChecked: #{nonGreedyChecked}
         pattern: #{magenta(pattern.toPatternString())}
-        validMatch: #{validMatch}
       |"})
 
     if (validMatch && !matcher.pattern.greedy && !nonGreedyChecked) {
@@ -366,8 +367,9 @@ data class extends TokenMatcher {
         successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         old tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         hasNext: #{hasNextMatcher()}
-        repeat: #{matcher.pattern.repeat}
-        complete: #{matcher.complete}
+        matcher.repeat: #{matcher.pattern.repeat}
+        matcher.complete: #{matcher.complete}
+        matcher.disqualified: #{matcher.disqualified}
         matcher: #{magenta(matcher.pattern.toPatternString())}
         pattern: #{magenta(pattern.toPatternString())}
       |"})
@@ -448,6 +450,22 @@ data class extends TokenMatcher {
       }
     } else {
       disqualified = true
+    }
+
+    if (!matcher.pattern.optional && !matcher.complete) {
+      log.traceFunc({"|
+        Matcher is required and not complete. Returning null for partial match
+          matcher: #{magenta(matcher.pattern.toPatternString())}
+          pattern: #{magenta(pattern.toPatternString())}
+        |"})
+      return null
+    } else if (iterator.allNext.any({ !_.pattern.optional })) {
+      log.traceFunc({"|
+        Contains future required matchers. Returning null for partial match
+          next matchers:
+            #{iterator.allNext.map(m => (m.pattern.optional ? "optional: " : "required: ") + magenta(m.pattern.toPatternString())).join("\n    ")}
+        |"})
+      return null
     }
 
     log.traceFunc({"|
