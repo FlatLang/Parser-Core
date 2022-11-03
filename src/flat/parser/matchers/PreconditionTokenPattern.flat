@@ -5,7 +5,7 @@ import flat/datastruct
 import flat/compiler/models/Token
 import flat/log/Logger
 
-data class extends TokenPattern {
+data class<NodeType extends Node> extends TokenPattern<NodeType> {
   static Logger log = Logger(PreconditionTokenPattern.class)
 
   public construct(

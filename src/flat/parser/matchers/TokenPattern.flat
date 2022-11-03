@@ -1,10 +1,11 @@
 package flat/parser/matchers
 
+import flat/ast
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 import flat/log/Logger
 
-abstract data class {
+abstract data class TokenPattern<reified NodeType extends Node> {
   static Logger log = Logger(TokenPattern.class)
 
   lazy Int requiredTokenCount => optional ? 0 : 1

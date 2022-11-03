@@ -1,10 +1,11 @@
 package flat/parser/matchers
 
+import flat/ast
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 import flat/log/Logger
 
-data class extends TokenPattern {
+data class<NodeType extends Node> extends TokenPattern<NodeType> {
   static Logger log = Logger(SingleTokenPattern.class)
 
   visible Int type
