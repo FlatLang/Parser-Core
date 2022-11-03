@@ -18,6 +18,8 @@ abstract data class TokenPattern<reified NodeType extends Node> {
   visible Bool metadata = false
   visible Bool includeTokens = true
 
+  public getNodeType() => NodeType.class
+
   public abstract getMatcher() -> TokenMatcher
 
   public abstract toPatternString() -> String
