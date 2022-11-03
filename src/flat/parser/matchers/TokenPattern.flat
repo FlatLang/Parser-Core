@@ -22,7 +22,7 @@ abstract data class TokenPattern<reified NodeType extends Node> {
 
   visible Class<NodeType> nodeType => NodeType.class
 
-  public generateNode() -> Node => null {
+  public generateNode() -> NodeType => null {
     if (let func = constructor) {
       return func.callStatic(nodeType)
     }
