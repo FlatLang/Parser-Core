@@ -8,6 +8,7 @@ import flat/parser/matchers
 
 [TestSuite [
   Parser_Test,
+  ParserBase_Test,
   ParseEngine_Test,
   SingleTokenMatcher_Test,
   GroupTokenMatcher_Test,

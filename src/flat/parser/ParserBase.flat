@@ -13,7 +13,14 @@ abstract data class {
   public var TokenMatch lastMatch <=> lastMatch
   public var ParseContext context <=> context
 
-  public abstract generateNode() -> Node
+  lazy Function constructor => pattern?.getNodeType().functions.firstWhere({ _.name == "construct" })
+
+  public generateNode() -> Node => null {
+    if (let func = constructor) {
+      return func.callStatic(pattern.getNodeType())
+    }
+  }
+
   public generateNodes() => Array<Node>():add(this.generateNode())
   public getChildNodeTokenMatches() => NodeTokenMatch[]
 
