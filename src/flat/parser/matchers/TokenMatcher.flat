@@ -33,7 +33,13 @@ abstract data class {
 
   public matchAll(Token[] tokens, ParseContext context = null) -> TokenMatch[] => tokens.map({ this.match(_, context) })
 
-  public abstract match(Token token, ParseContext context = null) -> TokenMatch
+  public match(Token token, ParseContext context = null) -> TokenMatch {
+    let value = checkMatch(token, context)
+    if (value) value.pattern = pattern
+    return tokenMatches.add(value)
+  }
+
+  public abstract checkMatch(Token token, ParseContext context) -> TokenMatch
 
   public reset() {
     if (!dirty) return

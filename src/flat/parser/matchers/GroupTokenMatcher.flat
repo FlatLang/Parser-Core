@@ -65,9 +65,7 @@ data class extends TokenMatcher {
     lastMatcher = matcher
   }
 
-  override public match(Token token, ParseContext context = null) => tokenMatches.add(doMatch(token, context))
-
-  doMatch(Token token, ParseContext context) -> TokenMatch => null {
+  override public checkMatch(Token token, ParseContext context) -> TokenMatch => null {
     if (disqualified) return null
     if (tokens.isEmpty) {
       if (hasNextMatcher()) {
@@ -86,10 +84,10 @@ data class extends TokenMatcher {
 
     tokens.add(token)
 
-    return this.match(context)
+    return this.innerMatch(context)
   }
 
-  match(ParseContext context) -> TokenMatch => null {
+  innerMatch(ParseContext context) -> TokenMatch => null {
     let token = tokens.last
 
     let validMatch = wasRepeat || matcher.pattern.optional || matcher.valid && matcher.complete
@@ -125,7 +123,7 @@ data class extends TokenMatcher {
       return null
     } else if (matcher.valid && matcher.pattern.repeat) {
       repeatMatcher()
-      return this.match(context)
+      return this.innerMatch(context)
     } else if (nonGreedyMatchers.isNotEmpty) {
       if (matcher.valid) {
         log.traceFunc({"Non-greedy matcher check is valid but partial. Returning last match"})
@@ -179,7 +177,7 @@ data class extends TokenMatcher {
       } else if (matcher.tokenMatches.getLast(1) != null) { // maybe need to check that the most recent match wasnt required
         nextMatcher()
         log.traceFunc({"Did not match, but had most recently successfully matched. Skipped to next matcher: " + magenta(matcher.pattern.toPatternString())})
-        return this.match(context)
+        return this.innerMatch(context)
       }
     }
 
@@ -212,7 +210,7 @@ data class extends TokenMatcher {
         return null
       }
       tokens.add(_)
-      return this.match(context)
+      return this.innerMatch(context)
     })
 
     return continuationMatches.lastWhere({ _ != null })
@@ -400,7 +398,7 @@ data class extends TokenMatcher {
         }
 
         tokens.add(_)
-        return this.match(context)
+        return this.innerMatch(context)
       })
 
       if (let continuationMatch = continuationMatches.lastWhere({ _ != null })) {

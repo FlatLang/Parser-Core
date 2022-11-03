@@ -29,10 +29,10 @@ data class extends TokenMatcher {
       currentMatcher = NodeTokenPattern(currentParsers, statementEndToken: pattern.statementEndToken, baseParser: true).getMatcher()
     }
 
-    return tokenMatches.add(doMatch(token, context))
+    return super.match(token, context)
   }
 
-  doMatch(Token token, ParseContext context) -> NodeGroupTokenMatch => null {
+  override public checkMatch(Token token, ParseContext context) -> NodeGroupTokenMatch => null {
     if (disqualified) return null
 
     tokens.add(token)
@@ -165,7 +165,7 @@ data class extends TokenMatcher {
     if (tokensToMatch.isNotEmpty) {
       attemptingBacktrackMatch = true
       let values = tokensToMatch.map({
-        return doMatch(_, context)
+        return this.checkMatch(_, context)
       })
       attemptingBacktrackMatch = false
 

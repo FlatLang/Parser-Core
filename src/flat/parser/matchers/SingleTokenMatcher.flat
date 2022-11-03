@@ -12,11 +12,7 @@ data class extends TokenMatcher {
 
   SingleTokenPattern pattern
 
-  override public match(Token token, ParseContext context = null) -> SingleTokenMatch {
-    return tokenMatches.add(doMatch(token))
-  }
-
-  doMatch(Token token) -> SingleTokenMatch {
+  override public checkMatch(Token token, ParseContext context) -> SingleTokenMatch {
     if (disqualified) return null
 
     log.traceFunc({"Matching token '#{green(token.value)}'"})

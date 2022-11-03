@@ -11,11 +11,7 @@ data class extends TokenMatcher {
 
   CaptureTokenPattern pattern
 
-  override public match(Token token, ParseContext context = null) -> CaptureTokenMatch {
-    return tokenMatches.add(doMatch(token, context))
-  }
-
-  doMatch(Token token, ParseContext context) -> CaptureTokenMatch => null {
+  override public checkMatch(Token token, ParseContext context) -> CaptureTokenMatch => null {
     if (disqualified) return null
     if (tokens.isEmpty && pattern.start && pattern.start.value != token.value) {
       log.traceFunc({"Tokens do not start with start value. Disqualified"})

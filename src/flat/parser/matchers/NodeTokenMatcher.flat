@@ -41,10 +41,10 @@ data class extends TokenMatcher {
 
     tokens.add(token)
 
-    return tokenMatches.add(doMatch(token))
+    return super.match(token, context)
   }
 
-  doMatch(Token token) -> NodeTokenMatch {
+  override public checkMatch(Token token, ParseContext context) -> NodeTokenMatch {
     if (disqualified) return null
     log.traceFunc({"|
       Matching token '#{green(token.value)}' #{token.type}

@@ -10,11 +10,7 @@ data class extends TokenMatcher {
 
   PreconditionTokenPattern pattern
 
-  override public match(Token token, ParseContext context = null) -> PreconditionTokenMatch {
-    return tokenMatches.add(doMatch(token, context))
-  }
-
-  doMatch(Token token, ParseContext context) -> PreconditionTokenMatch => null {
+  override public checkMatch(Token token, ParseContext context) -> PreconditionTokenMatch => null {
     if (disqualified) return null
     if (!context) {
       disqualified = true
