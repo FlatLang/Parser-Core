@@ -5,7 +5,7 @@ import flat/datastruct/HashMap
 import flat/compiler/models/Token
 import flat/ast/Node
 
-data class extends TokenMatch {
+data class extends TokenMatch<NodeGroupTokenPattern> {
   visible TokenMatch[] childMatches = TokenMatch[]
 
   visible ParserBase parser {

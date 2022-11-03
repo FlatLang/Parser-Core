@@ -3,6 +3,6 @@ package flat/parser/matchers
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 
-data class extends TokenMatch {
+data class extends TokenMatch<CaptureTokenPattern> {
   visible Token[] capture
 }

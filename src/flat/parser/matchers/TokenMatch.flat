@@ -3,9 +3,10 @@ package flat/parser/matchers
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 
-abstract data class {
+abstract data class<TokenPatternType extends TokenPattern> {
   visible Token[] tokens
   visible String label
+  visible var TokenPatternType pattern <=> pattern
 
   public getValue(String label) -> String {
     let values = this.getValues(label)

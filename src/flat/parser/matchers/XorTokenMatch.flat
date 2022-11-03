@@ -3,7 +3,7 @@ package flat/parser/matchers
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 
-data class extends TokenMatch {
+data class extends TokenMatch<XorTokenPattern> {
   visible TokenMatch tokenMatch
 
   override public getValues(String label) -> String[] {
