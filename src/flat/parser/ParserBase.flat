@@ -13,15 +13,9 @@ abstract data class {
   public var TokenMatch lastMatch <=> lastMatch
   public var ParseContext context <=> context
 
-  lazy Function constructor => pattern?.getNodeType().functions.firstWhere({ _.name == "construct" })
+  public generateNode() => pattern?.generateNode()
+  public generateNodes() => pattern?.generateNodes()
 
-  public generateNode() -> Node => null {
-    if (let func = constructor) {
-      return func.callStatic(pattern.getNodeType())
-    }
-  }
-
-  public generateNodes() => Array<Node>():add(this.generateNode())
   public getChildNodeTokenMatches() => NodeTokenMatch[]
 
   public matchAll(Token[] tokens) -> TokenMatch[] => tokens.map({ this.match(_) })

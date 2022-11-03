@@ -18,7 +18,17 @@ abstract data class TokenPattern<reified NodeType extends Node> {
   visible Bool metadata = false
   visible Bool includeTokens = true
 
-  public getNodeType() => NodeType.class
+  lazy Function constructor => nodeType.functions.firstWhere({ _.name == "construct" })
+
+  visible Class<NodeType> nodeType => NodeType.class
+
+  public generateNode() -> Node => null {
+    if (let func = constructor) {
+      return func.callStatic(nodeType)
+    }
+  }
+
+  public generateNodes() => Array<Node>():add(this.generateNode())
 
   public abstract getMatcher() -> TokenMatcher
 
