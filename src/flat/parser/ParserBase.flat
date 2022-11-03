@@ -13,7 +13,16 @@ abstract data class {
   public var TokenMatch lastMatch <=> lastMatch
   public var ParseContext context <=> context
 
-  public generateNode() => pattern?.generateNode()
+  public generateNode() -> Node {
+    if (let node = pattern?.generateNode()) {
+      if (lastMatch) {
+        return lastMatch.inflateNode(node)
+      }
+
+      return node
+    }
+  }
+
   public generateNodes() => pattern?.generateNodes()
 
   public getChildNodeTokenMatches() => NodeTokenMatch[]

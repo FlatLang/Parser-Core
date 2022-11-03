@@ -4,4 +4,15 @@ import flat/datastruct/HashMap
 import flat/compiler/models/Token
 
 data class extends TokenMatch<SingleTokenPattern> {
+  override public inflateNode<NodeType>(NodeType node) => node {
+    if (pattern.field) {
+      if (let nodeField = pattern.nodeType.getField(pattern.field, true)) {
+        if (let token = tokens.first) {
+          nodeField.setValue(node, token.value)
+        }
+      } else {
+        throw Exception("Invalid field '#{pattern.field}' for Node type '#{pattern.nodeType.name}'")
+      }
+    }
+  }
 }

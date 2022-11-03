@@ -12,6 +12,7 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
   visible String value = null
   visible String[] values = null
   visible String[] notValues = null
+  visible String field = null
 
   public getMatcher() => SingleTokenMatcher(this)
 

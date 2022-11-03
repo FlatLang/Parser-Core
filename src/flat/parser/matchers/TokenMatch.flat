@@ -8,6 +8,8 @@ abstract data class<TokenPatternType extends TokenPattern> {
   visible String label
   visible var TokenPatternType pattern <=> pattern
 
+  public inflateNode<NodeType>(NodeType node) => node
+
   public getValue(String label) -> String {
     let values = this.getValues(label)
 

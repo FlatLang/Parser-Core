@@ -17,7 +17,8 @@ import flat/parser/matchers
   NodeGroupTokenMatcher_Test,
   PreconditionTokenMatcher_Test,
   XorTokenMatcher_Test,
-  TokenPattern_Test
+  TokenPattern_Test,
+  SingleTokenPattern_Test
 ]]
 class {
   public static async main(String[] args) {
