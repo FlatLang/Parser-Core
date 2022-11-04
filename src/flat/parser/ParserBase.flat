@@ -1,7 +1,7 @@
 package flat/parser
 
+import flat/ast
 import flat/parser/matchers
-import flat/ast/Node
 import flat/compiler/models/Token
 
 abstract data class {
@@ -13,17 +13,9 @@ abstract data class {
   public var TokenMatch lastMatch <=> lastMatch
   public var ParseContext context <=> context
 
-  public generateNode() -> Node {
-    if (let node = pattern?.generateNode()) {
-      if (lastMatch) {
-        return lastMatch.inflateNode(node)
-      }
+  public generateNode() -> Node => lastMatch?.generateNode()
 
-      return node
-    }
-  }
-
-  public generateNodes() => pattern?.generateNodes()
+  public generateNodes() => Array<Node>():add(this.generateNode())
 
   public getChildNodeTokenMatches() => NodeTokenMatch[]
 

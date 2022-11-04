@@ -1,5 +1,6 @@
 package flat/parser/matchers
 
+import flat/ast
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 
@@ -8,7 +9,18 @@ abstract data class<TokenPatternType extends TokenPattern> {
   visible String label
   visible var TokenPatternType pattern <=> pattern
 
-  public inflateNode<NodeType>(NodeType node) => node
+  lazy Function constructor => pattern.getNodeType().functions.firstWhere({ _.name == "construct" })
+
+  public inflateNode<NodeType extends Node>(NodeType node) => node
+
+  public generateNode() -> Node => null {
+    if (let func = constructor) {
+      if (let value = func.callStatic(pattern.getNodeType())) {
+        let node = (Node)value
+        return inflateNode(node)
+      }
+    }
+  }
 
   public getValue(String label) -> String {
     let values = this.getValues(label)

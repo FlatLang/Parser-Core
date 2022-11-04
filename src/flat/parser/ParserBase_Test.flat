@@ -9,6 +9,7 @@ import flat/io/File
 testable class {
   test `can generate node from TokenPattern node type`() {
     let testParser = TestParser()
+    testParser.match(Token(type: Token.Type.IDENTIFIER, value: "test"))
 
     let node = testParser.generateNode()
 

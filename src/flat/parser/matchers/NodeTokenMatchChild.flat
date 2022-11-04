@@ -1,11 +1,11 @@
 package flat/parser/matchers
 
+import flat/ast
 import flat/parser
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
-import flat/ast/Node
 
-data class extends TokenMatch {
+data class extends TokenMatch<NodeTokenPattern> {
   visible ParserBase parser
 
   override public getValues(String label) => String[] {
