@@ -1,10 +1,15 @@
 package flat/parser/matchers
 
+import flat/ast
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 
 data class extends TokenMatch<GroupTokenPattern> {
   visible TokenMatch[] tokenMatches
+
+  public inflateNode<NodeType extends Node>(NodeType node) => node {
+    tokenMatches.forEach({ _.inflateNode(node) })
+  }
 
   override public getValues(String label) -> String[] {
     return tokenMatches.flatMap({ _.getValues(label) })
