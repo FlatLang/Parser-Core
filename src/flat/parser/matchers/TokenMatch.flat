@@ -22,6 +22,8 @@ abstract data class<TokenPatternType extends TokenPattern> {
     }
   }
 
+  public generateNodes() -> Node[] => Array(1):set(0, generateNode())
+
   public getValue(String label) -> String {
     let values = this.getValues(label)
 
