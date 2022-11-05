@@ -7,7 +7,7 @@ import flat/compiler/models/Token
 abstract data class<TokenPatternType extends TokenPattern> {
   visible Token[] tokens
   visible String label
-  visible data_ignore var TokenPatternType pattern
+  visible data_equals_ignore var TokenPatternType pattern
 
   lazy Function constructor => pattern.getNodeType().functions.firstWhere({ _.name == "construct" })
 
