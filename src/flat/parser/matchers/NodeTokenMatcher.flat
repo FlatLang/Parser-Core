@@ -405,7 +405,7 @@ data class extends TokenMatcher {
         attemptingBacktrack = false
 
         if (let matchValue = continuationMatches.lastWhere({ _ != null })) {
-          for (var Int i = continuationMatches.count - 1; i >= 0; i--) {
+          for (var Int i = continuationMatches.count - 1; tokens.isNotEmpty && i >= 0; i--) {
             if (continuationMatches[i] == null) {
               tokens.removeLast()
             }
