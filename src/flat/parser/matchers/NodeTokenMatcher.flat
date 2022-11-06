@@ -229,7 +229,7 @@ data class extends TokenMatcher {
             addedCurrentMatch = false
             log.traceFunc({"Added metadata node and reset parsers"})
           } else {
-            log.warnFunc({"Failed to parse metadata node"})
+            log.warnFunc({"Failed to parse metadata node for parser #{targetParser.class.name}"})
           }
         } else {
           complete = true
