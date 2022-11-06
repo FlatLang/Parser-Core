@@ -26,6 +26,8 @@ data class extends TokenMatch<NodeGroupTokenPattern> {
     }
   }
 
+  public generateNodes() => childMatches.flatMap({ _.generateNodes() })
+
   override public getValues(String label) => String[] {
     return childMatches.flatMap({ _.getValues(label) })
   }

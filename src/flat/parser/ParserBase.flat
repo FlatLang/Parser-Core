@@ -15,7 +15,7 @@ abstract data class {
 
   public generateNode() -> Node => lastMatch?.generateNode()
 
-  public generateNodes() => Array<Node>():add(this.generateNode())
+  public generateNodes() => lastMatch?.generateNodes()
 
   public getChildNodeTokenMatches() => NodeTokenMatch[]
 

@@ -3,13 +3,23 @@ package flat/parser/matchers
 import flat/ast
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
+import flat/log
 
 data class extends TokenMatch<GroupTokenPattern> {
+  static Logger log = Logger(GroupTokenMatch.class)
+
   visible TokenMatch[] tokenMatches
 
-  public inflateNode<NodeType extends Node>(NodeType node) => node {
-    tokenMatches.forEach({ _.inflateNode(node) })
+  override public inflateNode<NodeType extends Node>(NodeType node) => node {
+    tokenMatches
+      .filter({ Object.referenceEquals(_.pattern.getNodeType(), Node.class) })
+      .forEach({ _.inflateNode(node) })
   }
+
+  override public generateNodes() => Array()
+    :add(generateNode())
+    :addAll(tokenMatches.flatMap({ _.generateNodes() }))
+    .filterNull()
 
   override public getValues(String label) -> String[] {
     return tokenMatches.flatMap({ _.getValues(label) })

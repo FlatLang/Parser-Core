@@ -4,11 +4,17 @@ import flat/parser
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 import flat/ast
+import flat/log
 
 data class extends TokenMatch<NodeTokenPattern> {
+  static Logger log = Logger(NodeTokenMatch.class)
+
   visible NodeTokenMatchChild[] childMatches = NodeTokenMatchChild[]
 
   visible ParserBase parser => childMatches.last.parser
+
+  public generateNode() => childMatches.first.generateNode()
+  public generateNodes() => childMatches.flatMap({ _.generateNodes() })
 
   override public getValues(String label) => String[] {
     return childMatches.flatMap({ _.getValues(label) })
@@ -22,26 +28,5 @@ data class extends TokenMatch<NodeTokenPattern> {
     }
 
     return array:addAll(childMatches.flatMap({ _.getMatches(label, addSelf) }))
-  }
-
-  public generateNode() =>
-    childMatches.first.generateNode()
-
-  public generateNodes() -> Node[] {
-    let nodes = Node[]
-
-    childMatches.forEach((match) => {
-      nodes.add(match.generateNode())
-
-      if (let childNodeMatches = match.parser.getChildNodeTokenMatches()) {
-        if (childNodeMatches.isNotEmpty) {
-          childNodeMatches.forEach((childMatch) => {
-            nodes.addAll(childMatch.generateNodes())
-          })
-        }
-      }
-    })
-
-    return nodes
   }
 }

@@ -1,10 +1,22 @@
 package flat/parser/matchers
 
+import flat/ast
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
 
 data class extends TokenMatch<XorTokenPattern> {
   visible TokenMatch tokenMatch
+
+  override public inflateNode<NodeType extends Node>(NodeType node) => tokenMatch.inflateNode(node)
+
+  override public generateNodes() -> Node[] {
+    let nodes = tokenMatch.generateNodes()
+    if (Object.referenceEquals(pattern.getNodeType(), Node.class)) {
+      return nodes
+    } else {
+      return Array():add(generateNode()):addAll(nodes)
+    }
+  }
 
   override public getValues(String label) -> String[] {
     return tokenMatch.getValues(label)

@@ -3,17 +3,22 @@ package flat/parser/matchers
 import flat/ast
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
+import flat/log
 
 abstract data class<TokenPatternType extends TokenPattern> {
+  static Logger log = Logger(TokenMatch.class)
+
   visible Token[] tokens
   visible String label
-  visible data_equals_ignore var TokenPatternType pattern
+  visible data_equals_ignore data_tostring_ignore var TokenPatternType pattern
 
   lazy Function constructor => pattern.getNodeType().functions.firstWhere({ _.name == "construct" })
 
   public inflateNode<NodeType extends Node>(NodeType node) => node
 
   public generateNode() -> Node => null {
+    if (Object.referenceEquals(pattern.getNodeType(), Node.class)) return null
+
     if (let func = constructor) {
       if (let value = func.callStatic(pattern.getNodeType())) {
         let node = (Node)value
@@ -22,7 +27,7 @@ abstract data class<TokenPatternType extends TokenPattern> {
     }
   }
 
-  public generateNodes() -> Node[] => Array(1):set(0, generateNode())
+  public generateNodes() -> Node[] => Array(1):set(0, generateNode()).filterNull()
 
   public getValue(String label) -> String {
     let values = this.getValues(label)

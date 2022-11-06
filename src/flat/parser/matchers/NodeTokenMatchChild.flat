@@ -4,9 +4,15 @@ import flat/ast
 import flat/parser
 import flat/datastruct/HashMap
 import flat/compiler/models/Token
+import flat/log
 
 data class extends TokenMatch<NodeTokenPattern> {
+  static Logger log = Logger(NodeTokenMatchChild.class)
+
   visible ParserBase parser
+
+  public generateNode() => parser.generateNode()
+  public generateNodes() => parser.generateNodes()
 
   override public getValues(String label) => String[] {
     if (parser?.lastMatch) {
@@ -27,6 +33,4 @@ data class extends TokenMatch<NodeTokenPattern> {
 
     return array.unique()
   }
-
-  public generateNode() => parser.generateNode()
 }

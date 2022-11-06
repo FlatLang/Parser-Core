@@ -11,15 +11,15 @@ testable class {
     let testParser = TestParser()
     testParser.match(Token(type: Token.Type.IDENTIFIER, value: "test"))
 
-    let node = (FieldNode)testParser.generateNode()
+    let nodes = testParser.generateNodes()
 
-    expect(node).toNotBe(null)
-    expect(node.class).toBe(FieldNode.class)
-    expect(node.name).toBe("test")
+    expect(nodes).toBe([
+      IdentifierNode(name: "test")
+    ])
   }
 
   class TestParser extends ParserBase {
-    override lazy TokenPattern pattern => SingleTokenPattern<FieldNode>(
+    override lazy TokenPattern pattern => SingleTokenPattern<IdentifierNode>(
       type: Token.Type.IDENTIFIER,
       field: "name"
     )

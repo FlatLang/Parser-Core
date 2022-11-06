@@ -34,7 +34,7 @@ testable class {
   }
 
   test `can generate node and inflate it`() {
-    let pattern = SingleTokenPattern<FieldNode>(
+    let pattern = SingleTokenPattern<IdentifierNode>(
       type: Token.Type.IDENTIFIER,
       field: "name"
     )
@@ -43,10 +43,10 @@ testable class {
 
     expect(match).toNotBe(null)
 
-    let node = (FieldNode)match.generateNode()
+    let nodes = match.generateNodes()
 
-    expect(node).toNotBe(null)
-    expect(node.class).toBe(FieldNode.class)
-    expect(node.name).toBe("test")
+    expect(nodes).toBe([
+      IdentifierNode(name: "test")
+    ])
   }
 }
