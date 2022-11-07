@@ -17,8 +17,6 @@ abstract data class {
 
   public generateNodes() => lastMatch?.generateNodes()
 
-  public getChildNodeTokenMatches() => NodeTokenMatch[]
-
   public matchAll(Token[] tokens) -> TokenMatch[] => tokens.map({ this.match(_) })
 
   public match(Token token) -> TokenMatch => null {
