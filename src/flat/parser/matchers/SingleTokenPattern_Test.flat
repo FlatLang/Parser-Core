@@ -14,7 +14,7 @@ testable class {
     let nodes = testParser.generateNodes()
 
     expect(nodes).toBe([
-      IdentifierNode(name: "test")
+      IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "test"))
     ])
   }
 

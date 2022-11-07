@@ -46,7 +46,7 @@ testable class {
     let nodes = match.generateNodes()
 
     expect(nodes).toBe([
-      IdentifierNode(name: "test")
+      IdentifierNode(name: Token(type: Token.Type.IDENTIFIER, value: "test"))
     ])
   }
 }

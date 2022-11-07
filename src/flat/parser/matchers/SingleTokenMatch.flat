@@ -9,7 +9,7 @@ data class extends TokenMatch<SingleTokenPattern> {
     if (pattern.field) {
       if (let nodeField = node.class.getField(pattern.field, true)) {
         if (let token = tokens.first) {
-          nodeField.setValue(node, token.value)
+          nodeField.setValue(node, token)
         }
       } else {
         throw Exception("Invalid field '#{pattern.field}' for Node type '#{node.class.name}'")
