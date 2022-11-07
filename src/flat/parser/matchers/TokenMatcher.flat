@@ -35,7 +35,10 @@ abstract data class {
 
   public match(Token token, ParseContext context = null) -> TokenMatch {
     let value = checkMatch(token, context)
-    if (value) value.pattern = pattern
+    if (value) {
+      value.pattern = pattern
+      value.context = context
+    }
     return tokenMatches.add(value)
   }
 

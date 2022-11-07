@@ -16,10 +16,10 @@ data class extends TokenMatch<GroupTokenPattern> {
       .forEach({ _.inflateNode(node) })
   }
 
-  override public generateNodes() => Array()
-    :add(generateNode())
-    :addAll(tokenMatches.flatMap({ _.generateNodes() }))
-    .filterNull()
+  override public traverseNodes(func(Node, ParseContext, TokenPattern)) {
+    super.traverseNodes(func)
+    tokenMatches.forEach({ _.traverseNodes(func) })
+  }
 
   override public getValues(String label) -> String[] {
     return tokenMatches.flatMap({ _.getValues(label) })

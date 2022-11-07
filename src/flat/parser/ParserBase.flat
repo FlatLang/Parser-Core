@@ -13,9 +13,23 @@ abstract data class {
   public data_ignore var TokenMatch lastMatch
   public data_ignore var ParseContext context
 
-  public generateNode() -> Node => lastMatch?.generateNode()
+  public generateNode() -> Node {
+    var Node value = null
 
-  public generateNodes() => lastMatch?.generateNodes()
+    traverseNodes({ value = value ?: _ })
+
+    return value
+  }
+
+  public generateNodes() -> Node[] {
+    let array = Node[]
+
+    traverseNodes({ array.add(_) })
+
+    return array
+  }
+
+  public traverseNodes(func(Node, ParseContext, TokenPattern)) => lastMatch?.traverseNodes(func)
 
   public matchAll(Token[] tokens) -> TokenMatch[] => tokens.map({ this.match(_) })
 

@@ -13,8 +13,7 @@ data class extends TokenMatch<NodeTokenPattern> {
 
   visible ParserBase parser => childMatches.last.parser
 
-  public generateNode() => childMatches.first.generateNode()
-  public generateNodes() => childMatches.flatMap({ _.generateNodes() })
+  public traverseNodes(func(Node, ParseContext, TokenPattern)) => childMatches.forEach({ _.traverseNodes(func) })
 
   override public getValues(String label) => String[] {
     return childMatches.flatMap({ _.getValues(label) })

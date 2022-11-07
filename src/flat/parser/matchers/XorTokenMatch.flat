@@ -9,13 +9,12 @@ data class extends TokenMatch<XorTokenPattern> {
 
   override public inflateNode<NodeType extends Node>(NodeType node) => tokenMatch.inflateNode(node)
 
-  override public generateNodes() -> Node[] {
-    let nodes = tokenMatch.generateNodes()
-    if (Object.referenceEquals(pattern.getNodeType(), Node.class)) {
-      return nodes
-    } else {
-      return Array():add(generateNode()):addAll(nodes)
+  override public traverseNodes(func(Node, ParseContext, TokenPattern)) {
+    if (!Object.referenceEquals(pattern.getNodeType(), Node.class)) {
+      super.traverseNodes(func)
     }
+
+    tokenMatch.traverseNodes(func)
   }
 
   override public getValues(String label) -> String[] {
