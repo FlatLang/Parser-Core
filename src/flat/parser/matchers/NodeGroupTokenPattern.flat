@@ -27,7 +27,13 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
 
   override public toPatternString() => _pattern {
     if (!_pattern) {
-      _pattern = "#{label ? label + ":" : ""}node_group(#{parsers.map(p => p.class.name.trimEnd("Parser".count)).join(" ")})#{getModifiersString()}"
+      _pattern = ""
+
+      if (getNodeType() != Node.class) {
+        _pattern += "#{getNodeType().name} => "
+      }
+
+      _pattern += "#{label ? label + ":" : ""}node_group(#{parsers.map(p => p.class.name.trimEnd("Parser".count)).join(" ")})#{getModifiersString()}"
     }
   }
 }

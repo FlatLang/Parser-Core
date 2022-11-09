@@ -30,6 +30,10 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
     if (!_pattern) {
       _pattern = ""
 
+      if (getNodeType() != Node.class) {
+        _pattern += "#{getNodeType().name} => "
+      }
+
       if (label) {
         _pattern += "#{label}:"
       }
