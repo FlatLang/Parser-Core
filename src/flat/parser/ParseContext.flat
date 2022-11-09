@@ -9,18 +9,14 @@ import flat/log/Logger
 data class {
   static Logger log = Logger(ParseContext.class)
 
-  visible Stack<Node> parentStack = Stack()
   visible Stack<ParserBase> parserStack = Stack()
   visible var ParserBase currentParser => parserStack.peek()
   visible var ParserBase currentParentParser => parserStack.peek(1)
   visible var ParserBase currentBaseParser
-  visible var Stack<Node> statementParentStack = Stack()
-  visible var Node currentNode => statementParentStack.peek()
   visible var Token[] tokens = Token[]
   visible var AnnotationNode[] annotations = AnnotationNode[]
 
   visible File file
-  visible FileNode fileNode => parentStack.toArray().firstWhere({ _.class.isOfType(FileNode.class) })
 
   public addMetadata(Node node) {
     if (node.class.isOfType(AnnotationNode.class)) {
