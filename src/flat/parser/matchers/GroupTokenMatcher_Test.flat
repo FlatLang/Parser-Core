@@ -562,7 +562,7 @@ testable class {
     ])
 
     let context = ParseContext(
-      annotations: [LetModifier(aliasUsed: "let")]
+      annotations: [LetModifier(aliasUsed: Token(value: "let", type: Token.Type.IDENTIFIER))]
     )
 
     let matcher = pattern.getMatcher()
@@ -587,7 +587,7 @@ testable class {
     ])
 
     let context = ParseContext(
-      annotations: [VarModifier(aliasUsed: "var")]
+      annotations: [VarModifier(aliasUsed: Token(value: "var", type: Token.Type.IDENTIFIER))]
     )
 
     let matcher = pattern.getMatcher()
