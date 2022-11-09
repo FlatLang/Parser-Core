@@ -50,12 +50,12 @@ class {
   }
 
   public matchToken(Token token) {
-    ParseEngine.log.debugFunc({"Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]) #{green(rootParser.class.name)}"})
+    log.debugFunc({"Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]) #{green(rootParser.class.name)}"})
 
     if (let match = rootParser.match(token)) {
-      ParseEngine.log.debugFunc({"Matched: #{rootParser.class.name}"})
+      log.debugFunc({"Matched: #{rootParser.class.name}"})
     } else if (rootParser.matcher.partial) {
-      ParseEngine.log.debugFunc({"Partial match: #{rootParser.class.name}"})
+      log.debugFunc({"Partial match: #{rootParser.class.name}"})
     } else {
       invalidTokens()
     }
@@ -66,14 +66,14 @@ class {
   }
 
   public invalidTokensError(Token[] tokens) {
-    ParseEngine.log.debugFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]. Resetting tokens. Parser #{context.currentParser.class.name}"})
+    log.debugFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]. Resetting tokens. Parser #{context.currentParser.class.name}"})
     if (tokens.isNotEmpty && tokens.first.location) {
       if (tokens.count == 1) {
         let token = tokens.first
 
-        ParseEngine.log.errorFunc({"Could not parse token '#{token.value}' at #{token.location.lineNumber}:#{token.location.column}"})
+        log.errorFunc({"Could not parse token '#{token.value}' at #{token.location.lineNumber}:#{token.location.column}"})
       } else {
-        ParseEngine.log.errorFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}] at #{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}"})
+        log.errorFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}] at #{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}"})
       }
     }
     stream.emit("quit")$

@@ -374,7 +374,7 @@ data class extends TokenMatcher {
           if (disqualified) {
             return null
           }
-          NodeTokenMatcher.log.traceFunc({"|
+          log.traceFunc({"|
             Matching continuation token '#{green(token.value)}'
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
@@ -386,7 +386,7 @@ data class extends TokenMatcher {
 
           let value = this.match(token)
 
-          NodeTokenMatcher.log.traceFunc({"|
+          log.traceFunc({"|
             Finished matching continuation token '#{green(token.value)}'
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
