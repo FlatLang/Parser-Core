@@ -14,7 +14,10 @@ abstract data class<TokenPatternType extends TokenPattern> {
   visible data_equals_ignore data_tostring_ignore var TokenPatternType pattern
   visible data_equals_ignore data_tostring_ignore var ParseContext context
 
-  lazy Function constructor => pattern.getNodeType().functions.firstWhere({ _.name == "construct" })
+  lazy Function constructor => pattern
+    .getNodeType()
+    .functions
+    .firstWhere({ _.name == "construct" })
 
   public inflateNode<NodeType extends Node>(NodeType node) => node
 
