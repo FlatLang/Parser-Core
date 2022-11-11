@@ -43,7 +43,7 @@ data class extends TokenMatcher {
         statementEndToken: #{pattern.statementEndToken?.value}
       |"})
 
-    if (let match = currentMatcher.match(token, context)) {
+    if (let match = Logger.indent({ currentMatcher.match(token, context) })) {
       if (match.childMatches.isEmpty) {
         log.traceFunc({"Partial match for current matcher"})
         return null

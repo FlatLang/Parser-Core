@@ -69,7 +69,7 @@ data class extends TokenMatcher {
           childMatches:
             #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
         |"})
-      if (let match = parser.match(token)) {
+      if (let match = Logger.indent({ parser.match(token) })) {
         log.traceFunc({"|
           Matched token '#{green(token.value)}'
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]

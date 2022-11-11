@@ -115,7 +115,7 @@ data class extends TokenMatcher {
       }
     }
 
-    if (let tokenMatch = matcher.match(token, context)) {
+    if (let tokenMatch = Logger.indent({ matcher.match(token, context) })) {
       nonGreedyChecked = false
       return handleSuccessfulMatch(tokenMatch, context)
     } else if (matcher.partial) {

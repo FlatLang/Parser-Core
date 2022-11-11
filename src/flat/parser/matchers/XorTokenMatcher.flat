@@ -24,7 +24,7 @@ data class extends TokenMatcher {
         pattern: #{magenta(pattern.toPatternString())}
       |"})
 
-    let matchedMatchers = matchers.filter({ _.match(token, context) != null })
+    let matchedMatchers = matchers.filter(matcher => Logger.indent({ matcher.match(token, context) != null }))
 
     let allComplete = matchers.all({ _.complete })
     let anyPartial = matchers.any({ _.partial })
