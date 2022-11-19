@@ -10,7 +10,6 @@ abstract data class TokenPattern<reified NodeType extends Node> {
 
   lazy Int requiredTokenCount => optional ? 0 : 1
 
-  visible String label = null
   visible Bool optional = false
   visible Bool repeat = false
   visible Bool greedy = true

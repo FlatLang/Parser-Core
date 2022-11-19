@@ -12,24 +12,4 @@ data class extends TokenMatch<NodeTokenPattern> {
   visible ParserBase parser
 
   public traverseNodes(func(Node, ParseContext, TokenPattern)) => parser.traverseNodes(func)
-
-  override public getValues(String label) => String[] {
-    if (parser?.lastMatch) {
-      return parser.lastMatch.getValues(label)
-    }
-  }
-
-  override public getMatches<Type extends TokenMatch>(String label, Bool addSelf = true) -> Type[] {
-    let array = Type[]
-
-    if (addSelf && this.label == label) {
-      array.add(this)
-    }
-
-    if (let subMatches = parser?.lastMatch?.getMatches(label)) {
-      array.addAll(subMatches)
-    }
-
-    return array.unique()
-  }
 }

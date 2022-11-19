@@ -10,7 +10,6 @@ abstract data class<TokenPatternType extends TokenPattern> {
   static Logger log = Logger(TokenMatch.class)
 
   visible Token[] tokens
-  visible String label
   visible data_equals_ignore data_tostring_ignore var TokenPatternType pattern
   visible data_equals_ignore data_tostring_ignore var ParseContext context
 
@@ -30,35 +29,5 @@ abstract data class<TokenPatternType extends TokenPattern> {
         func(inflateNode(node), context, pattern)
       }
     }
-  }
-
-  public getValue(String label) -> String {
-    let values = this.getValues(label)
-
-    return values.first
-  }
-
-  public getValues(String label) -> String[] {
-    if (this.label == label) {
-      return tokens.map({ _.value })
-    }
-
-    return String[]
-  }
-
-  public getMatch<Type extends TokenMatch>(String label) -> Type {
-    let matches = this.getMatches(label)
-
-    return matches.first
-  }
-
-  public getMatches<Type extends TokenMatch>(String label, Bool addSelf = true) -> Type[] {
-    let array = Type[]
-
-    if (addSelf && this.label == label) {
-      array.add(this)
-    }
-
-    return array
   }
 }

@@ -16,22 +16,4 @@ data class extends TokenMatch<XorTokenPattern> {
 
     tokenMatch.traverseNodes(func)
   }
-
-  override public getValues(String label) -> String[] {
-    return tokenMatch.getValues(label)
-  }
-
-  override public getMatches<Type extends TokenMatch>(String label, Bool addSelf = true) -> Type[] {
-    let array = Type[]
-
-    if (addSelf && this.label == label) {
-      array.add(this)
-    }
-
-    tokenMatch.getMatches(label)
-      .filter({ _.label == label })
-      :forEach({ array.add(_) })
-
-    return array
-  }
 }

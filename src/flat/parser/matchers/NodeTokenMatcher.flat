@@ -183,7 +183,6 @@ data class extends TokenMatcher {
 
       lastMatch = NodeTokenMatch(
         tokens: pattern.includeTokens ? successfulMatchedTokens.copy() : Token[],
-        label: pattern.label,
         childMatches: childMatches.copy()
       )
 
@@ -336,7 +335,6 @@ data class extends TokenMatcher {
         )
         return NodeTokenMatch(
           tokens: pattern.includeTokens ? tokens.copy() : Token[],
-          label: pattern.label,
           childMatches: childMatches.copy()
         )
       } else {

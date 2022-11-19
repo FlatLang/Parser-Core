@@ -139,7 +139,6 @@ data class extends TokenMatcher {
         |"})
       return NodeGroupTokenMatch(
         tokens: pattern.includeTokens ? match.tokens.copy() : Token[],
-        label: pattern.label,
         childMatches: childMatches
       )
     }

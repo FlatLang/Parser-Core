@@ -496,41 +496,6 @@ testable class {
     )
   }
 
-  test `can access node group token match from match inside a node token pattern`() {
-    let pattern = NodeTokenPattern([LocalScopeParser()])
-
-    let matcher = pattern.getMatcher()
-    let result = matcher.matchAll([
-      Token(value: "{", type: Token.Type.SYMBOL),
-      Token(value: "x", type: Token.Type.IDENTIFIER),
-      Token(value: "}", type: Token.Type.SYMBOL)
-    ], ParseContext()).last
-
-    expect(result).toNotBe(null)
-
-    let bodyContentsMatch = result.getMatch("scope_body_contents")
-
-    expect(bodyContentsMatch).toBe(
-      NodeGroupTokenMatch(
-        label: "scope_body_contents",
-        tokens: [
-          Token(value: "x", type: Token.Type.IDENTIFIER)
-        ],
-        childMatches: [
-          NodeTokenMatch(
-            tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
-            childMatches: [
-              NodeTokenMatchChild(
-                tokens: [Token(value: "x", type: Token.Type.IDENTIFIER)],
-                parser: IdentifierParser()
-              )
-            ]
-          )
-        ]
-      )
-    )
-  }
-
   test `can match identifier and then function call`() {
     let pattern = NodeGroupTokenPattern([
       LocalDeclarationParser(),

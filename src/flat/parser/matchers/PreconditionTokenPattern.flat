@@ -12,7 +12,6 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
     visible Array<Class<AnnotationNode>> annotations = null,
     visible Array<Class<Node>> parentTypes = null,
     visible Array<Class<Node>> baseParentTypes = null,
-    this String: label = null,
     this Bool optional = false,
     this Bool repeat = false,
     this Bool greedy = true,
@@ -31,10 +30,6 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
 
       if (getNodeType() != Node.class) {
         _pattern += "#{getNodeType().name} => "
-      }
-
-      if (label) {
-        _pattern += "#{label}:"
       }
 
       _pattern += "pre("

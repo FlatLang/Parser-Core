@@ -40,8 +40,7 @@ data class extends TokenMatcher {
         log.traceFunc({"Matched capture tokens. Returning match"})
         return CaptureTokenMatch(
           tokens: pattern.includeTokens ? (pattern.includeEndToken ? tokens.copy() : tokens.skipLast(1)) : Token[],
-          capture: capture.skipLast(1),
-          label: pattern.label
+          capture: capture.skipLast(1)
         )
       } else {
         log.traceFunc({"Matched capture tokens, but did not meet the minimum token count. Disqualified"})

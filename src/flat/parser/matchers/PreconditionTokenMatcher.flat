@@ -75,8 +75,7 @@ data class extends TokenMatcher {
     valid = true
 
     return PreconditionTokenMatch(
-      tokens: pattern.includeTokens ? tokens.copy() : Token[],
-      label: pattern.label
+      tokens: pattern.includeTokens ? tokens.copy() : Token[]
     )
   }
 }

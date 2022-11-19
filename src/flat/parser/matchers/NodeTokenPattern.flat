@@ -11,7 +11,6 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
 
   public construct(
     visible var ParserBase[] parsers,
-    this String: label = null,
     this Bool optional = false,
     this Bool repeat = false,
     this Bool greedy = true,
@@ -37,7 +36,7 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
         _pattern += "#{getNodeType().name} => "
       }
 
-      _pattern += "#{label ? label + ":" : ""}node(#{parsers.map(p => p.class.name.trimEnd("Parser".count)).join(" ")})#{getModifiersString()}"
+      _pattern += "node(#{parsers.map(p => p.class.name.trimEnd("Parser".count)).join(" ")})#{getModifiersString()}"
     }
   }
 }

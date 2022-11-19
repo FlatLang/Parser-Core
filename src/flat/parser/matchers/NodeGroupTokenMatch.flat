@@ -28,20 +28,6 @@ data class extends TokenMatch<NodeGroupTokenPattern> {
 
   public traverseNodes(func(Node, ParseContext, TokenPattern)) => childMatches.forEach({ _.traverseNodes(func) })
 
-  override public getValues(String label) => String[] {
-    return childMatches.flatMap({ _.getValues(label) })
-  }
-
-  override public getMatches<Type extends TokenMatch>(String label, Bool addSelf = true) -> Type[] {
-    let array = Type[]
-
-    if (addSelf && this.label == label) {
-      array.add(this)
-    }
-
-    return array:addAll(childMatches.flatMap({ _.getMatches(label, addSelf) }))
-  }
-
   tokenMatchToNodeTokenMatches(TokenMatch childMatch) -> NodeTokenMatch[] {
     if (childMatch.class.isOfType(NodeGroupTokenMatch.class)) {
       let groupMatch = (NodeGroupTokenMatch)childMatch

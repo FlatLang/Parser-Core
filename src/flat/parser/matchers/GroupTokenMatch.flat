@@ -20,25 +20,4 @@ data class extends TokenMatch<GroupTokenPattern> {
     super.traverseNodes(func)
     tokenMatches.forEach({ _.traverseNodes(func) })
   }
-
-  override public getValues(String label) -> String[] {
-    return tokenMatches.flatMap({ _.getValues(label) })
-  }
-
-  override public getMatches<Type extends TokenMatch>(String label, Bool addSelf = true) -> Type[] {
-    let array = Type[]
-
-    if (addSelf && this.label == label) {
-      array.add(this)
-    }
-
-    tokenMatches
-      .filter({ _.label == label })
-      :forEach({ array.add(_) })
-
-    tokenMatches
-      .forEach({ array.addAll(_.getMatches(label, false)) })
-
-    return array
-  }
 }
