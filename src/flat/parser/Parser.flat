@@ -22,6 +22,7 @@ class {
         log.traceFunc({"Received data from Token EventStream: #{token}"})
 
         engine.consume(token)
+        stream.emit("parsed_token", token)
       })
 
       tokenStream.on<String>("error", (error) => {
