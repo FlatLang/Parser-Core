@@ -18,7 +18,7 @@ abstract data class {
   visible TokenMatch lastMatch => _tokenMatches.lastWhere({ _ != null })
 
   var Token[] _tokens = Token[]
-  visible Token[] tokens <=> _tokens
+  visible var Token[] tokens <=> _tokens
 
   var Bool _disqualified = false
   visible var Bool disqualified <=> _disqualified
