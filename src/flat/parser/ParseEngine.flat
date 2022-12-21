@@ -71,9 +71,9 @@ class {
       if (tokens.count == 1) {
         let token = tokens.first
 
-        log.errorFunc({"Could not parse token '#{token.value}' at #{token.location.lineNumber}:#{token.location.column}"})
+        log.errorFunc({"Could not parse token '#{token.value}' at #{context.file?.name}:#{token.location.lineNumber}:#{token.location.column}"})
       } else {
-        log.errorFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}] at #{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}"})
+        log.errorFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}] at #{context.file?.name}:#{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}"})
       }
     }
     stream.emit("quit")$
