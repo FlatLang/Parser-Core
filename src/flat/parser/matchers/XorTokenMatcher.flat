@@ -19,7 +19,7 @@ data class extends TokenMatcher {
 
     tokens.add(token)
 
-    log.traceFunc({"|
+    log.trace({"|
       Matching tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         pattern: #{magenta(pattern.toPatternString())}
       |"})
@@ -31,10 +31,10 @@ data class extends TokenMatcher {
 
     if (matchedMatchers.isEmpty) {
       if (anyPartial) {
-        log.traceFunc({"None of the matchers matched, but still contains partial matches. Returning null"})
+        log.trace({"None of the matchers matched, but still contains partial matches. Returning null"})
         return null
       } else {
-        log.traceFunc({"None of the matchers matched. Disqualified"})
+        log.trace({"None of the matchers matched. Disqualified"})
         disqualified = true
         return null
       }
@@ -44,14 +44,14 @@ data class extends TokenMatcher {
 
       if (anyPartial) {
         if (matcher.valid) {
-          log.traceFunc({"Contains a single valid match, but still has some partial matchers. Returning match"})
-          log.traceFunc({"Partial matchers:\n  #{matchers.filter(m => m.partial).map(m => magenta(m.pattern.toPatternString())).join("\n  ")}"})
+          log.trace({"Contains a single valid match, but still has some partial matchers. Returning match"})
+          log.trace({"Partial matchers:\n  #{matchers.filter(m => m.partial).map(m => magenta(m.pattern.toPatternString())).join("\n  ")}"})
         } else {
-          log.traceFunc({"Contains a single invalid match, but still has some partial matchers. Returning null"})
+          log.trace({"Contains a single invalid match, but still has some partial matchers. Returning null"})
           return null
         }
       } else {
-        log.traceFunc({"Contains a single match. Returning match"})
+        log.trace({"Contains a single match. Returning match"})
         disqualified = true
       }
 
@@ -63,7 +63,7 @@ data class extends TokenMatcher {
         tokenMatch: match
       )
     } else {
-      log.traceFunc({"Contains multiple matches. Returning null"})
+      log.trace({"Contains multiple matches. Returning null"})
       return null
     }
   }
@@ -71,7 +71,7 @@ data class extends TokenMatcher {
   override public reset() {
     if (!dirty) return
 
-    log.traceFunc({"Resetting matcher"})
+    log.trace({"Resetting matcher"})
     super.reset()
 
     matchers.forEach({ _.reset() })

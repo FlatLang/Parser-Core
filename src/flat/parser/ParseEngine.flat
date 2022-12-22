@@ -32,7 +32,7 @@ class {
 
     if (token.location && token.location.lineNumber > lastLineNumber) {
       lastLineNumber = token.location.lineNumber
-      log.debugFunc({"line #{magenta(token.location.lineNumber.toString())} col #{magenta(token.location.column.toString())}"})
+      log.debug({"line #{magenta(token.location.lineNumber.toString())} col #{magenta(token.location.column.toString())}"})
     }
 
     context.tokens.add(token)
@@ -41,7 +41,7 @@ class {
   }
 
   public end() {
-    log.debugFunc({"Reached end of parsing"})
+    log.debug({"Reached end of parsing"})
     if (rootParser.lastMatch) {
       rootParser.traverseNodes((node, context, pattern) => {
         stream.emit("data", NodeResult(node, context, pattern))$
@@ -50,12 +50,12 @@ class {
   }
 
   public matchToken(Token token) {
-    log.debugFunc({"Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]) #{green(rootParser.class.name)}"})
+    log.debug({"Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]) #{green(rootParser.class.name)}"})
 
     if (let match = rootParser.match(token)) {
-      log.debugFunc({"Matched: #{rootParser.class.name}"})
+      log.debug({"Matched: #{rootParser.class.name}"})
     } else if (rootParser.matcher.partial) {
-      log.debugFunc({"Partial match: #{rootParser.class.name}"})
+      log.debug({"Partial match: #{rootParser.class.name}"})
     } else {
       invalidTokens()
     }
@@ -66,14 +66,14 @@ class {
   }
 
   public invalidTokensError(Token[] tokens) {
-    log.debugFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]. Resetting tokens. Parser #{context.currentParser.class.name}"})
+    log.debug({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]. Resetting tokens. Parser #{context.currentParser.class.name}"})
     if (tokens.isNotEmpty && tokens.first.location) {
       if (tokens.count == 1) {
         let token = tokens.first
 
-        log.errorFunc({"Could not parse token '#{token.value}' at #{context.file?.name}:#{token.location.lineNumber}:#{token.location.column}"})
+        log.error({"Could not parse token '#{token.value}' at #{context.file?.name}:#{token.location.lineNumber}:#{token.location.column}"})
       } else {
-        log.errorFunc({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}] at #{context.file?.name}:#{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}"})
+        log.error({"Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}] at #{context.file?.name}:#{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}"})
       }
     }
     stream.emit("quit")$

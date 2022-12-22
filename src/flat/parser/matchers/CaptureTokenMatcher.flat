@@ -14,12 +14,12 @@ data class extends TokenMatcher {
   override public checkMatch(Token token, ParseContext context) -> CaptureTokenMatch => null {
     if (disqualified) return null
     if (tokens.isEmpty && pattern.start && pattern.start.value != token.value) {
-      log.traceFunc({"Tokens do not start with start value. Disqualified"})
+      log.trace({"Tokens do not start with start value. Disqualified"})
       disqualified = true
       return null
     }
     if (pattern.allowedTokens && !pattern.allowedTokens.any(t => (t.value == null || t.value == token.value) && t.type == token.type)) {
-      log.traceFunc({"Token '#{token.value}' does match allowed values. Disqualified"})
+      log.trace({"Token '#{token.value}' does match allowed values. Disqualified"})
       disqualified = true
       return null
     }
@@ -37,16 +37,16 @@ data class extends TokenMatcher {
         valid = true
         complete = true
 
-        log.traceFunc({"Matched capture tokens. Returning match"})
+        log.trace({"Matched capture tokens. Returning match"})
         return CaptureTokenMatch(
           tokens: pattern.includeTokens ? (pattern.includeEndToken ? tokens.copy() : tokens.skipLast(1)) : Token[],
           capture: capture.skipLast(1)
         )
       } else {
-        log.traceFunc({"Matched capture tokens, but did not meet the minimum token count. Disqualified"})
+        log.trace({"Matched capture tokens, but did not meet the minimum token count. Disqualified"})
       }
     } else {
-      log.traceFunc({"Did not match the end token"})
+      log.trace({"Did not match the end token"})
     }
   }
 }
