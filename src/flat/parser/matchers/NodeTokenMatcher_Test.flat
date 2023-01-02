@@ -275,6 +275,32 @@ testable class {
     expect(matcher.partial).toBe(true)
   }
 
+  test `can match multiple child continuation tokens that eventually break at statement end token`() {
+    let pattern = NodeTokenPattern(
+      [IdentifierParser(), FunctionCallParser()],
+      statementEndToken: Token(value: ";", type: Token.Type.SYMBOL)
+    )
+    let matcher = pattern.getMatcher()
+    let result = matcher.matchAll([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ".", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "<", type: Token.Type.SYMBOL),
+      Token(value: "count", type: Token.Type.IDENTIFIER),
+      Token(value: ";", type: Token.Type.SYMBOL),
+    ], ParseContext()).last
+
+    expect(result?.tokens).toBe([
+      Token(value: "x", type: Token.Type.IDENTIFIER),
+      Token(value: ".", type: Token.Type.SYMBOL),
+      Token(value: "y", type: Token.Type.IDENTIFIER),
+      Token(value: "<", type: Token.Type.SYMBOL),
+      Token(value: "count", type: Token.Type.IDENTIFIER),
+      Token(value: ";", type: Token.Type.SYMBOL),
+    ])
+    expect(matcher.partial).toBe(false)
+  }
+
   test `can match multiple child continuation tokens that eventually break`() {
     let pattern = NodeTokenPattern([IdentifierParser(), FunctionCallParser()])
     let matcher = pattern.getMatcher()
