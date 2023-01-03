@@ -46,7 +46,7 @@ data class extends TokenMatcher {
 
   override public checkMatch(Token token, ParseContext context) -> NodeTokenMatch {
     if (disqualified) return null
-    log.trace({"|
+    log.trace("|
       Matching token '#{green(token.value)}' #{token.type}
         tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         childMatches:
@@ -54,7 +54,7 @@ data class extends TokenMatcher {
         currentParsers complete/disqualified/partial:
           [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
         statementEndToken: #{pattern.statementEndToken?.value}
-      |"})
+      |")
 
     var ParserBase targetParser
     targetMatch = null
@@ -63,18 +63,18 @@ data class extends TokenMatcher {
 
     for (parser in currentParsers) {
       if (parser.matcher.disqualified) continue
-      log.trace({"|
+      log.trace("|
         Matching token '#{green(token.value)}' #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())} against parser: #{green(parser.class.name)}
           tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           childMatches:
             #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-        |"})
+        |")
       if (let match = Logger.indent({ parser.match(token) })) {
-        log.trace({"|
+        log.trace("|
           Matched token '#{green(token.value)}'
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-          |"})
+          |")
         matches.add(match)
         matchParsers.add(parser)
         if (!targetParser || parser.matcher.pattern.exact) {
@@ -86,19 +86,19 @@ data class extends TokenMatcher {
           }
         }
       } else if (parser.matcher.partial) {
-        log.trace({"Partial match for token '#{green(token.value)}'"})
+        log.trace("Partial match for token '#{green(token.value)}'")
       } else {
-        log.trace({"Didn't match token '#{green(token.value)}'"})
+        log.trace("Didn't match token '#{green(token.value)}'")
       }
-      log.trace({"|
+      log.trace("|
         Finished matching token '#{green(token.value)}' against parser: #{green(parser.class.name)}
           tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           valid: #{valid}
           complete: #{complete}
-        |"})
+        |")
     }
 
-    log.trace({"|
+    log.trace("|
       Finished matching all current parsers:
         matches.count: #{matches.count}
         targetParser: #{targetParser.class.name}
@@ -107,16 +107,16 @@ data class extends TokenMatcher {
         complete: #{complete}
         childMatches:
           #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-      |"})
+      |")
 
     if (allParsersDisqualified()) {
-      log.trace({"All parsers are disqualified"})
+      log.trace("All parsers are disqualified")
       if (let statementEnd = checkStatementEnd(token, targetParser, targetMatch)) {
         return statementEnd
       }
       if (childMatches.isNotEmpty) {
         if (attemptingBacktrack) {
-          log.trace({"Already attempting backtrack match. Disqualified"})
+          log.trace("Already attempting backtrack match. Disqualified")
           disqualified = true
           return null
         }
@@ -131,25 +131,25 @@ data class extends TokenMatcher {
 
     if (matches.isNotEmpty) {
       complete = complete || targetParser.matcher.complete
-      log.trace({"|
+      log.trace("|
         Contains matches for parser: #{green(targetParser.class.name)}
           #{matchParsers.map(m => magenta(m.pattern.toPatternString())).join("\n  ")}
           valid: #{valid}
           complete: #{complete}
           childMatches:
             #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-        |"})
+        |")
 
       if (addedCurrentMatch) {
         successfulMatchedTokens.addAll(targetMatch.tokens.skip(lastTargetMatch.tokens.count))
-        log.trace({"|
+        log.trace("|
           Replacing last match
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             targetMatch.tokens: [#{targetMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             lastTargetMatch.tokens: [#{lastTargetMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             lastMatch.tokens: [#{lastMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-          |"})
+          |")
         childMatches.replaceLast(
           NodeTokenMatchChild(
             tokens: targetMatch.tokens,
@@ -158,12 +158,12 @@ data class extends TokenMatcher {
         )
       } else {
         successfulMatchedTokens.addAll(targetMatch.tokens)
-        log.trace({"|
+        log.trace("|
           Adding last match
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             targetMatch.tokens: [#{targetMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-          |"})
+          |")
         childMatches.add(
           NodeTokenMatchChild(
             tokens: targetMatch.tokens,
@@ -189,35 +189,35 @@ data class extends TokenMatcher {
       let acceptImmediately = targetParser.matcher.pattern.exact
 
       if (acceptImmediately) {
-        log.trace({"Contains exact match"})
+        log.trace("Contains exact match")
       } else if (remainingPartialMatches) {
-        log.trace({"|
+        log.trace("|
           Contains partial matches. Returning match and continuing
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             targetParser: #{targetParser.class.name}
             parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => green(p.class.name)).join(", ", 50)}]
-          |"})
+          |")
       } else {
-        log.trace({"No partial matches"})
+        log.trace("No partial matches")
       }
 
       if (acceptImmediately || !targetParser.matcher.partial && !remainingPartialMatches) {
         if (let childParsers = targetParser.childParsers) {
-          log.trace({"Contains possible child matchers. Continuing with childParsers: [#{childParsers.map(p => green(p.class.name)).join(", ", 50)}]"})
+          log.trace("Contains possible child matchers. Continuing with childParsers: [#{childParsers.map(p => green(p.class.name)).join(", ", 50)}]")
           setCurrentParsers(childParsers)
           this.context = this.context.copy(annotations: Array())
           addedCurrentMatch = false
         } else if (attemptingBacktrack) {
-          log.trace({"No child matchers. Returning last match"})
+          log.trace("No child matchers. Returning last match")
         } else if (!targetParser || !targetParser.matcher.pattern.metadata) {
           if (pattern.statementEndToken) {
-            log.trace({"No child matchers. Returning last match and waiting for statement end token"})
+            log.trace("No child matchers. Returning last match and waiting for statement end token")
           } else {
-            log.trace({"No child matchers. Returning last match and disqualified"})
+            log.trace("No child matchers. Returning last match and disqualified")
             disqualified = true
           }
         } else {
-          log.trace({"No child matchers. Returning last match"})
+          log.trace("No child matchers. Returning last match")
         }
 
         if (targetParser?.matcher.pattern.metadata) {
@@ -226,71 +226,71 @@ data class extends TokenMatcher {
             setCurrentParsers(currentParsers.map({ _.copy() }))
             this.context = this.context.copy(annotations: Array())
             addedCurrentMatch = false
-            log.trace({"Added metadata node and reset parsers"})
+            log.trace("Added metadata node and reset parsers")
           } else {
-            log.warn({"Failed to parse metadata node for parser #{targetParser.class.name}"})
+            log.warn("Failed to parse metadata node for parser #{targetParser.class.name}")
           }
         } else {
           complete = true
         }
       } else {
-        log.trace({"Current targetParser is partial or has other remaining partial matches"})
+        log.trace("Current targetParser is partial or has other remaining partial matches")
       }
     } else {
-      log.trace({"|
+      log.trace("|
         Matches are empty
           tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           currentParsers complete/disqualified/partial:
             [#{currentParsers.map(p => green(p.class.name) + ":" + p.matcher.complete + "/" + p.matcher.disqualified + "/" + p.matcher.partial).join(", ", 50)}]
           childMatches:
             #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-        |"})
+        |")
       if (lastMatch) {
-        log.trace({"Has last match"})
+        log.trace("Has last match")
         if (remainingPartialMatches) {
-          log.trace({"|
+          log.trace("|
             Contains partial matches. Continuing
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               targetParser: #{targetParser.class.name}
               parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => green(p.class.name)).join(", ", 50)}]
               childMatches:
                 #{childMatches.map(m => green(m.parser.class.name) + ": " + "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-            |"})
+            |")
           return null
         } else {
           if (let statementEnd = checkStatementEnd(token, targetParser, targetMatch)) {
             return statementEnd
           }
           if (!pattern.parseChildren) {
-            log.trace({"Child parsing is disabled for pattern. Disqualified. Returning last match"})
+            log.trace("Child parsing is disabled for pattern. Disqualified. Returning last match")
             complete = lastParser.matcher.complete
             disqualified = true
           } else if (!lastParser) {
-            log.trace({"lastParser is null. Returning null"})
+            log.trace("lastParser is null. Returning null")
             return null
           } else {
             return attemptBacktrackMatch()
           }
         }
       } else {
-        log.trace({"Does not have last match"})
+        log.trace("Does not have last match")
         if (remainingPartialMatches) {
-          log.trace({"|
+          log.trace("|
             Contains partial matches. Returning null
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               targetParser: #{targetParser.class.name}
               parsers: [#{currentParsers.filter(p => p != targetParser && p.matcher.partial).map(p => green(p.class.name)).join(", ", 50)}]
-            |"})
+            |")
           return null
         } else {
-          log.trace({"Never matched. Disqualified"})
+          log.trace("Never matched. Disqualified")
           disqualified = true
           return null
         }
       }
     }
 
-    log.trace({"|
+    log.trace("|
       Returning match at end of function
         tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         lastMatch.tokens: [#{lastMatch?.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -301,7 +301,7 @@ data class extends TokenMatcher {
         disqualified: #{disqualified}
         complete: #{complete}
         valid: #{valid}
-      |"})
+      |")
 
     return lastMatch
   }
@@ -309,7 +309,7 @@ data class extends TokenMatcher {
   checkStatementEnd(Token token, ParserBase targetParser, TokenMatch targetMatch) -> NodeTokenMatch => null {
     if (pattern.statementEndToken && token.type == pattern.statementEndToken.type && token.value == pattern.statementEndToken.value) {
       disqualified = true
-      log.trace({"|
+      log.trace("|
         Encountered statement end token. Returning match. Disqualified
           tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           lastMatch?.tokens: [#{lastMatch?.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -320,7 +320,7 @@ data class extends TokenMatcher {
           disqualified: #{disqualified}
           complete: #{complete}
           valid: #{valid}
-        |"})
+        |")
 
       if (lastMatch) {
         return lastMatch.copy(
@@ -338,15 +338,15 @@ data class extends TokenMatcher {
           childMatches: childMatches.copy()
         )
       } else {
-        log.trace({"Failed to create match for statement end"})
+        log.trace("Failed to create match for statement end")
       }
     }
   }
 
   attemptBacktrackMatch() -> NodeTokenMatch => null {
-    log.trace({"Attempting backtrack match with parser #{green(lastParser.class.name)}"})
+    log.trace("Attempting backtrack match with parser #{green(lastParser.class.name)}")
     if (let childParsers = lastParser.childParsers) {
-      log.trace({"Setting currentParsers to childParsers from parser: #{lastParser.class.name}"})
+      log.trace("Setting currentParsers to childParsers from parser: #{lastParser.class.name}")
       setCurrentParsers(childParsers)
       this.context = this.context.copy(annotations: Array())
       addedCurrentMatch = false
@@ -355,7 +355,7 @@ data class extends TokenMatcher {
       tokens = successfulMatchedTokens.copy()
 
       if (tokensToMatch.isNotEmpty) {
-        log.trace({"|
+        log.trace("|
           All matchers are incomplete and disqualified. Attempting to parse further child nodes from last match
             successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             childMatches:
@@ -364,7 +364,7 @@ data class extends TokenMatcher {
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             parser: #{lastParser.class.name}
-          |"})
+          |")
 
         attemptingBacktrack = true
 
@@ -372,7 +372,7 @@ data class extends TokenMatcher {
           if (disqualified) {
             return null
           }
-          log.trace({"|
+          log.trace("|
             Matching continuation token '#{green(token.value)}'
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
@@ -380,11 +380,11 @@ data class extends TokenMatcher {
               tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               parser: #{lastParser.class.name}
-            |"})
+            |")
 
           let value = this.match(token)
 
-          log.trace({"|
+          log.trace("|
             Finished matching continuation token '#{green(token.value)}'
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
@@ -395,7 +395,7 @@ data class extends TokenMatcher {
               parser: #{lastParser.class.name}
               valid: #{valid}
               complete: #{complete}
-            |"})
+            |")
 
           return value
         })
@@ -409,7 +409,7 @@ data class extends TokenMatcher {
             }
           }
 
-          log.trace({"|
+          log.trace("|
             Got a complete match from child parser. Returning match
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
@@ -422,11 +422,11 @@ data class extends TokenMatcher {
               disqualified: #{disqualified}
               complete: #{complete}
               valid: #{valid}
-            |"})
+            |")
 
           return matchValue
         } else {
-          log.trace({"|
+          log.trace("|
             Did not get a complete match from child parser
               successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
               childMatches:
@@ -440,11 +440,11 @@ data class extends TokenMatcher {
               disqualified: #{disqualified}
               complete: #{complete}
               valid: #{valid}
-            |"})
+            |")
           return null
         }
       } else {
-        log.trace({"|
+        log.trace("|
           No more tokens to match.
             successfulMatchedTokens: [#{successfulMatchedTokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             childMatches:
@@ -458,14 +458,14 @@ data class extends TokenMatcher {
             disqualified: #{disqualified}
             complete: #{complete}
             valid: #{valid}
-          |"})
+          |")
         if (currentParsers.any(p => p.matcher.partial)) {
-          log.trace({"Contains partial matches. Returning null"})
+          log.trace("Contains partial matches. Returning null")
           return null
         }
       }
     } else {
-      log.trace({"No child matchers. Disqualified"})
+      log.trace("No child matchers. Disqualified")
     }
 
     disqualified = true
@@ -481,7 +481,7 @@ data class extends TokenMatcher {
   override public reset() {
     if (!dirty) return
 
-    log.trace({"Resetting matcher"})
+    log.trace("Resetting matcher")
     super.reset()
 
     childMatches = NodeTokenMatch[]

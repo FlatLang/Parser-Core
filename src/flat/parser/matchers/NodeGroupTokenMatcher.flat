@@ -37,32 +37,32 @@ data class extends TokenMatcher {
 
     tokens.add(token)
 
-    log.trace({"|
+    log.trace("|
       Matching token '#{green(token.value)}' #{token.type} #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())}:
         tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         statementEndToken: #{pattern.statementEndToken?.value}
-      |"})
+      |")
 
     if (let match = Logger.indent({ currentMatcher.match(token, context) })) {
       if (match.childMatches.isEmpty) {
-        log.trace({"Partial match for current matcher"})
+        log.trace("Partial match for current matcher")
         return null
       }
-      log.trace({"|
+      log.trace("|
         Successful match with current matcher:
           parser: #{green(match.parser.class.name)}
           matcher: #{magenta(match.parser.pattern.toPatternString())}
           pattern: #{magenta(pattern.toPatternString())}
-        |"})
+        |")
 
       let wasDisqualified = currentMatcher.disqualified
       if (wasDisqualified) {
-        log.trace({"Current matcher is disqualified. Returning match and switching to new current matcher"})
+        log.trace("Current matcher is disqualified. Returning match and switching to new current matcher")
         resetCurrentParsers(context)
         currentMatcher = NodeTokenPattern(currentParsers, statementEndToken: pattern.statementEndToken, baseParser: true).getMatcher()
         complete = true
       } else {
-        log.trace({"Current matcher is partial. Returning match and continuing"})
+        log.trace("Current matcher is partial. Returning match and continuing")
       }
 
       valid = true
@@ -70,11 +70,11 @@ data class extends TokenMatcher {
 
       if (addedCurrentMatch) {
         currentMatches.push(match)
-        log.trace({"Replacing last match"})
+        log.trace("Replacing last match")
         childMatches.replaceLast(match)
       } else {
         currentMatches = Stack():push(match)
-        log.trace({"Adding last match"})
+        log.trace("Adding last match")
         childMatches.add(match)
       }
 
@@ -87,12 +87,12 @@ data class extends TokenMatcher {
       groupMatch = addNodeMatchToGroupMatch(match, childMatches.copy())
 
       if (groupMatch.tokens.count == tokens.count) {
-        log.trace({"|
+        log.trace("|
           Returning group match:
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             childMatches:
               #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-          |"})
+          |")
 
         return groupMatch
       }
@@ -102,41 +102,41 @@ data class extends TokenMatcher {
       }
 
       if (!partial) {
-        log.trace({"|
+        log.trace("|
           Backtrack was not partial. Returning group match:
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             childMatches:
               #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
-          |"})
+          |")
 
         return groupMatch
       }
     } else if (currentMatcher.partial) {
-      log.trace({"Partial match. Continuing"})
+      log.trace("Partial match. Continuing")
     } else if (groupMatch && !attemptingBacktrackMatch) {
       return attemptBacktrackMatch(context)
     } else {
-      log.trace({"Did not match. Disqualified"})
+      log.trace("Did not match. Disqualified")
       disqualified = true
     }
   }
 
   addNodeMatchToGroupMatch(NodeTokenMatch match, TokenMatch[] childMatches) -> NodeGroupTokenMatch {
     if (groupMatch) {
-      log.trace({"|
+      log.trace("|
         Adding to current groupMatch
           current groupMatch.tokens: [#{groupMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
           match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-        |"})
+        |")
       return groupMatch.copy(
         tokens: pattern.includeTokens ? childMatches.flatMap({ _.tokens }) : Token[],
         childMatches: childMatches
       )
     } else {
-      log.trace({"|
+      log.trace("|
         Creating new groupMatch from tokens:
           match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-        |"})
+        |")
       return NodeGroupTokenMatch(
         tokens: pattern.includeTokens ? match.tokens.copy() : Token[],
         childMatches: childMatches
@@ -149,7 +149,7 @@ data class extends TokenMatcher {
     resetCurrentParsers(context)
     currentMatcher = NodeTokenPattern(currentParsers, statementEndToken: pattern.statementEndToken, baseParser: true).getMatcher()
     addedCurrentMatch = false
-    log.trace({"|
+    log.trace("|
       Attempting backtrack match:
         old tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
         new tokens: [#{groupMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -159,7 +159,7 @@ data class extends TokenMatcher {
         disqualified: #{disqualified}
         complete: #{complete}
         valid: #{valid}
-      |"})
+      |")
     tokens = groupMatch.tokens.copy()
     if (tokensToMatch.isNotEmpty) {
       attemptingBacktrackMatch = true
@@ -170,11 +170,11 @@ data class extends TokenMatcher {
 
       if (let backtrackMatch = values.lastWhere({ _ != null })) {
         if (values.last == null && partial) {
-          log.trace({"Successful backtrack match. Matcher is partial. Returning null"})
+          log.trace("Successful backtrack match. Matcher is partial. Returning null")
           return null
         }
 
-        log.trace({"|
+        log.trace("|
           Got successful backtrack match:
             matched tokens: [#{backtrackMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -184,14 +184,14 @@ data class extends TokenMatcher {
             disqualified: #{disqualified}
             complete: #{complete}
             valid: #{valid}
-          |"})
+          |")
 
         return backtrackMatch
       } else if (currentMatcher.partial) {
-        log.trace({"Partial backtrack match. Continuing"})
+        log.trace("Partial backtrack match. Continuing")
         return null
       } else {
-        log.trace({"|
+        log.trace("|
           Failed backtrack match:
             tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
             tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
@@ -201,7 +201,7 @@ data class extends TokenMatcher {
             complete: #{complete}
             valid: #{valid}
             currentMatches.count: #{currentMatches.count}
-          |"})
+          |")
 
         if (currentMatches.count > 1) {
           let wasDisqualified = disqualified
@@ -218,7 +218,7 @@ data class extends TokenMatcher {
         return null
       }
     } else {
-      log.trace({"No more tokens to match. Disqualified"})
+      log.trace("No more tokens to match. Disqualified")
       disqualified = true
     }
   }
@@ -231,7 +231,7 @@ data class extends TokenMatcher {
   override public reset() {
     if (!dirty) return
 
-    log.trace({"Resetting matcher"})
+    log.trace("Resetting matcher")
     super.reset()
 
     pattern.parsers.forEach({ _.reset() })

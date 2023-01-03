@@ -19,19 +19,19 @@ class {
       let engine = ParseEngine(rootParser, parseContext, stream)
 
       tokenStream.on<Token>("data", (token) => {
-        log.trace({"Received data from Token EventStream: #{token}"})
+        log.trace("Received data from Token EventStream: #{token}")
 
         engine.consume(token)
         stream.emit("parsed_token", token)
       })
 
       tokenStream.on<String>("error", (error) => {
-        log.trace({"Received error from Token EventStream: #{error}"})
+        log.trace("Received error from Token EventStream: #{error}")
         stream.emit("error", error)
       })
 
       tokenStream.on("close", {
-        log.trace({"Token EventStream closed"})
+        log.trace("Token EventStream closed")
         engine.end()
         stream.emit("close")
       })
