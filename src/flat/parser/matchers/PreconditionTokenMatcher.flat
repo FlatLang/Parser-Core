@@ -21,7 +21,7 @@ data class extends TokenMatcher {
     disqualified = true
 
     if (pattern.annotations) {
-      log.trace("Matcher has annotation checks for: [#{pattern.annotations.map(a => a.name).join(", ")}]")
+      log.trace("Matcher has annotation checks for: [#{pattern.annotations.map({ _.name }).join(", ")}]")
       if (pattern.annotations.any(requiredAnnotation => context.annotations.none({ _.class == requiredAnnotation }))) {
         log.trace("Context annotations have none of the required annotations")
         return null
@@ -35,8 +35,8 @@ data class extends TokenMatcher {
     if (pattern.baseParentTypes) {
       if (let parser = context.currentBaseParser) {
         let baseParent = parser.class.name.trimEnd(count: 6)
-        log.trace("Matcher has baseParentType checks for: [#{pattern.baseParentTypes.map(a => a.name.trimEnd(count: 4)).join(", ")}] against #{baseParent}")
-        if (pattern.baseParentTypes.none(requiredType => baseParent == requiredType.name.trimEnd(count: 4))) {
+        log.trace("Matcher has baseParentType checks for: [#{pattern.baseParentTypes.map({ _x.name.trimEnd(count: 4) }).join(", ")}] against #{baseParent}")
+        if (pattern.baseParentTypes.none({ baseParent == _.name.trimEnd(count: 4) })) {
           log.trace("Context parent is not one of the required baseParentTypes")
           return null
         } else {
@@ -54,8 +54,8 @@ data class extends TokenMatcher {
     if (pattern.parentTypes) {
       if (let parser = context.currentParentParser) {
         let parentName = parser.class.name.trimEnd(count: 6)
-        log.trace("Matcher has parentType checks for: [#{pattern.parentTypes.map(a => a.name.trimEnd(count: 4)).join(", ")}] against #{parentName}")
-        if (pattern.parentTypes.none(requiredType => parentName == requiredType.name.trimEnd(count: 4))) {
+        log.trace("Matcher has parentType checks for: [#{pattern.parentTypes.map({ _x.name.trimEnd(count: 4) }).join(", ")}] against #{parentName}")
+        if (pattern.parentTypes.none({ parentName == _.name.trimEnd(count: 4) })) {
           log.trace("Context parent is not one of the required parentTypes")
           return null
         } else {

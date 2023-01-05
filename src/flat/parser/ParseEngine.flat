@@ -50,7 +50,7 @@ class {
   }
 
   public matchToken(Token token) {
-    log.debug("Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]) #{green(rootParser.class.name)}")
+    log.debug("Matching token: '#{token.value}' (line #{magenta(token.location?.lineNumber.toString())}) (tokens: [#{context.tokens.map({ "'#{green(_x.value)}'" }).join(", ", 50)}]) #{green(rootParser.class.name)}")
 
     if (let match = rootParser.match(token)) {
       log.debug("Matched: #{rootParser.class.name}")
@@ -66,14 +66,14 @@ class {
   }
 
   public invalidTokensError(Token[] tokens) {
-    log.debug("Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}]. Resetting tokens. Parser #{context.currentParser.class.name}")
+    log.debug("Could not parse tokens [#{tokens.map({ "'#{green(_x.value)}'" }).join(", ")}]. Resetting tokens. Parser #{context.currentParser.class.name}")
     if (tokens.isNotEmpty && tokens.first.location) {
       if (tokens.count == 1) {
         let token = tokens.first
 
         log.error("Could not parse token '#{token.value}' at #{context.file?.name}:#{token.location.lineNumber}:#{token.location.column}")
       } else {
-        log.error("Could not parse tokens [#{tokens.map(t => "'" + green(t.value) + "'").join(", ")}] at #{context.file?.name}:#{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}")
+        log.error("Could not parse tokens [#{tokens.map({ "'#{green(_x.value)}'" }).join(", ")}] at #{context.file?.name}:#{tokens.first.location.lineNumber}:#{tokens.first.location.column}-#{tokens.last.endLineNumber}:#{tokens.last.endColumn}")
       }
     }
     stream.emit("quit")$

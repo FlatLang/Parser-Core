@@ -39,7 +39,7 @@ data class extends TokenMatcher {
 
     log.trace("|
       Matching token '#{green(token.value)}' #{token.type} #{magenta(token.location?.lineNumber.toString())}:#{magenta(token.location?.column.toString())}:
-        tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+        tokens: [#{tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
         statementEndToken: #{pattern.statementEndToken?.value}
       |")
 
@@ -89,9 +89,9 @@ data class extends TokenMatcher {
       if (groupMatch.tokens.count == tokens.count) {
         log.trace("|
           Returning group match:
-            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            tokens: [#{tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
             childMatches:
-              #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+              #{childMatches.map({ "[" + _.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50) + "]" }).join("\n    ")}
           |")
 
         return groupMatch
@@ -104,9 +104,9 @@ data class extends TokenMatcher {
       if (!partial) {
         log.trace("|
           Backtrack was not partial. Returning group match:
-            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            tokens: [#{tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
             childMatches:
-              #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+              #{childMatches.map({ "[" + _.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50) + "]" }).join("\n    ")}
           |")
 
         return groupMatch
@@ -125,8 +125,8 @@ data class extends TokenMatcher {
     if (groupMatch) {
       log.trace("|
         Adding to current groupMatch
-          current groupMatch.tokens: [#{groupMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-          match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          current groupMatch.tokens: [#{groupMatch.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
+          match.tokens: [#{match.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
         |")
       return groupMatch.copy(
         tokens: pattern.includeTokens ? childMatches.flatMap({ _.tokens }) : Token[],
@@ -135,7 +135,7 @@ data class extends TokenMatcher {
     } else {
       log.trace("|
         Creating new groupMatch from tokens:
-          match.tokens: [#{match.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+          match.tokens: [#{match.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
         |")
       return NodeGroupTokenMatch(
         tokens: pattern.includeTokens ? match.tokens.copy() : Token[],
@@ -151,11 +151,11 @@ data class extends TokenMatcher {
     addedCurrentMatch = false
     log.trace("|
       Attempting backtrack match:
-        old tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-        new tokens: [#{groupMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-        tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+        old tokens: [#{tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
+        new tokens: [#{groupMatch.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
+        tokensToMatch: [#{tokensToMatch.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
         childMatches:
-          #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+          #{childMatches.map({ "[" + _.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50) + "]" }).join("\n    ")}
         disqualified: #{disqualified}
         complete: #{complete}
         valid: #{valid}
@@ -176,11 +176,11 @@ data class extends TokenMatcher {
 
         log.trace("|
           Got successful backtrack match:
-            matched tokens: [#{backtrackMatch.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-            tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            matched tokens: [#{backtrackMatch.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
+            tokens: [#{tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
+            tokensToMatch: [#{tokensToMatch.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
             childMatches:
-              #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+              #{childMatches.map({ "[" + _.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50) + "]" }).join("\n    ")}
             disqualified: #{disqualified}
             complete: #{complete}
             valid: #{valid}
@@ -193,10 +193,10 @@ data class extends TokenMatcher {
       } else {
         log.trace("|
           Failed backtrack match:
-            tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
-            tokensToMatch: [#{tokensToMatch.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+            tokens: [#{tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
+            tokensToMatch: [#{tokensToMatch.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
             childMatches:
-              #{childMatches.map(m => "[" + m.tokens.map(t => "'" + green(t.value) + "'").join(", ", 50) + "]").join("\n    ")}
+              #{childMatches.map({ "[" + _.tokens.map({ "'#{green(_.value)}'" }).join(", ", 50) + "]" }).join("\n    ")}
             disqualified: #{disqualified}
             complete: #{complete}
             valid: #{valid}

@@ -18,7 +18,7 @@ data class extends TokenMatcher {
       disqualified = true
       return null
     }
-    if (pattern.allowedTokens && !pattern.allowedTokens.any(t => (t.value == null || t.value == token.value) && t.type == token.type)) {
+    if (pattern.allowedTokens && !pattern.allowedTokens.any({ (_x.value == null || _x.value == token.value) && _x.type == token.type })) {
       log.trace("Token '#{token.value}' does match allowed values. Disqualified")
       disqualified = true
       return null

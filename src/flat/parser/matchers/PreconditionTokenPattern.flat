@@ -37,11 +37,11 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
       let args = String[]
 
       if (annotations) {
-        args.add("Annotations[#{annotations.map(a => a.name).join(", ")}]")
+        args.add("Annotations[#{annotations.map({ _x.name }).join(", ")}]")
       }
 
       if (parentTypes) {
-        args.add("ParentTypes[#{parentTypes.map(a => a.name).join(", ")}]")
+        args.add("ParentTypes[#{parentTypes.map({ _x.name }).join(", ")}]")
       }
 
       _pattern += args.join(" ")

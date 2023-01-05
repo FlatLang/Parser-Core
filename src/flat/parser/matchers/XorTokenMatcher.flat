@@ -20,7 +20,7 @@ data class extends TokenMatcher {
     tokens.add(token)
 
     log.trace("|
-      Matching tokens: [#{tokens.map(t => "'" + green(t.value) + "'").join(", ", 50)}]
+      Matching tokens: [#{tokens.map({ "'#{green(_.value)}'" }).join(", ", 50)}]
         pattern: #{magenta(pattern.toPatternString())}
       |")
 
@@ -45,7 +45,7 @@ data class extends TokenMatcher {
       if (anyPartial) {
         if (matcher.valid) {
           log.trace("Contains a single valid match, but still has some partial matchers. Returning match")
-          log.trace("Partial matchers:\n  #{matchers.filter(m => m.partial).map(m => magenta(m.pattern.toPatternString())).join("\n  ")}")
+          log.trace("Partial matchers:\n  #{matchers.filter({ _.partial }).map({ magenta(_.pattern.toPatternString()) }).join("\n  ")}")
         } else {
           log.trace("Contains a single invalid match, but still has some partial matchers. Returning null")
           return null

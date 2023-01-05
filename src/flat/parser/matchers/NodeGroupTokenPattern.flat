@@ -32,7 +32,7 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
         _pattern += "#{getNodeType().name} => "
       }
 
-      _pattern += "node_group(#{parsers.map(p => p.class.name.trimEnd("Parser".count)).join(" ")})#{getModifiersString()}"
+      _pattern += "node_group(#{parsers.map({ _.class.name.trimEnd("Parser".count) }).join(" ")})#{getModifiersString()}"
     }
   }
 }

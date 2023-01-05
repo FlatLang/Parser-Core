@@ -31,7 +31,7 @@ data class<NodeType extends Node> extends TokenPattern<NodeType> {
         _pattern += "#{getNodeType().name} => "
       }
 
-      _pattern += "xor(#{patterns.map(p => p.toPatternString()).join(" ")})#{getModifiersString()}"
+      _pattern += "xor(#{patterns.map({ _.toPatternString() }).join(" ")})#{getModifiersString()}"
     }
   }
 }
