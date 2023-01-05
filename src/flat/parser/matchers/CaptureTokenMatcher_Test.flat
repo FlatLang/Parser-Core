@@ -73,7 +73,7 @@ testable class {
     expect(matcher.partial).toBe(true)
   }
 
-  test `can match partial parentheses capture with nested parentheses contents`() {
+  test `can match partial parentheses capture with tested parentheses contents`() {
     let capturePattern = CaptureTokenPattern(
       start: Token(value: "("),
       end: Token(value: ")")

@@ -117,7 +117,7 @@ testable class {
     expect(result).toNotBe(null)
   }
 
-  test `can match multiple nested matcher groups with matched optional repeating values`() {
+  test `can match multiple tested matcher groups with matched optional repeating values`() {
     let groupPattern = GroupTokenPattern([
       SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "class"),
       SingleTokenPattern(type: Token.Type.IDENTIFIER, optional: true, greedy: false),
@@ -153,7 +153,7 @@ testable class {
     expect(result).toNotBe(null)
   }
 
-  test `can match multiple nested matcher groups with matched optional repeating values where the non-greedy value is matched`() {
+  test `can match multiple tested matcher groups with matched optional repeating values where the non-greedy value is matched`() {
     let groupPattern = GroupTokenPattern([
       SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "class"),
       SingleTokenPattern(type: Token.Type.IDENTIFIER, optional: true, greedy: false),
@@ -405,7 +405,7 @@ testable class {
     expect(result).toBe(null)
   }
 
-  test `can match complete multiple captures with nested contents`() {
+  test `can match complete multiple captures with tested contents`() {
     let groupPattern = GroupTokenPattern([
       CaptureTokenPattern(
         start: Token(value: "<"),
@@ -440,7 +440,7 @@ testable class {
     expect(matcher.partial).toBe(false)
   }
 
-  test `can match partial multiple captures with nested contents`() {
+  test `can match partial multiple captures with tested contents`() {
     let groupPattern = GroupTokenPattern([
       CaptureTokenPattern(
         start: Token(value: "<"),

@@ -342,7 +342,7 @@ testable class {
     )
   }
 
-  test `can match one if statement with one nested if statement`() {
+  test `can match one if statement with one tested if statement`() {
     let pattern = NodeGroupTokenPattern([IfParser()])
 
     let matcher = pattern.getMatcher()

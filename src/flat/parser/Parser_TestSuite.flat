@@ -1,6 +1,6 @@
 package flat/parser
 
-import novex/nest/TestResult
+import flat/test/TestResult
 
 import flat/time/Timer
 import flat/io/FancyOutputStream

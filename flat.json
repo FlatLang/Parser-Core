@@ -24,7 +24,7 @@
       "mainClass": "flat/parser/Parser_TestSuite",
       "source": "src/**/*_Test*.flat",
       "dependencies": {
-        "github:FlatLang/Nest": "master",
+        "github:FlatLang/Test": "master",
         "github:FlatLang/Flat-Parser": "master"
       }
     }
