@@ -43,8 +43,8 @@ class {
   public end() {
     log.debug("Reached end of parsing")
     if (rootParser.lastMatch) {
-      rootParser.traverseNodes((node, context, pattern) => {
-        stream.emit("data", NodeResult(node, context, pattern))$
+      rootParser.traverseNodes({
+        stream.emit("data", NodeResult(_node, _context, _pattern))$
       })
     }
   }

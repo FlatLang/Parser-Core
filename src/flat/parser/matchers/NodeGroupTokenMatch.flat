@@ -43,8 +43,6 @@ data class extends TokenMatch<NodeGroupTokenPattern> {
   }
 
   public getChildNodeMatches() -> NodeTokenMatch[] {
-    return childMatches.flatMap((childMatch) => {
-      return tokenMatchToNodeTokenMatches(childMatch)
-    })
+    return childMatches.flatMap({ tokenMatchToNodeTokenMatches(_x) })
   }
 }

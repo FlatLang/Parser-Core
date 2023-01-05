@@ -15,7 +15,7 @@ class {
     ParseContext parseContext,
     EventStream tokenStream
   ) =>
-    EventStream(true).on("start", (data, stream) => {
+    EventStream(true).on("start", (_, stream) => {
       let engine = ParseEngine(rootParser, parseContext, stream)
 
       tokenStream.on<Token>("data", (token) => {

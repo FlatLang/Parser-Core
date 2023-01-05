@@ -29,7 +29,7 @@ abstract data class {
     return array
   }
 
-  public traverseNodes(func(Node, ParseContext, TokenPattern)) => lastMatch?.traverseNodes(func)
+  public traverseNodes(func(Node node, ParseContext context, TokenPattern pattern)) => lastMatch?.traverseNodes(func)
 
   public matchAll(Token[] tokens) -> TokenMatch[] => tokens.map({ this.match(_) })
 
