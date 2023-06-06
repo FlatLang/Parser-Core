@@ -7,9 +7,9 @@ import flat/compiler/models/Token
 import flat/log
 
 data class extends TokenMatch<NodeTokenPattern> {
-  static Logger log = Logger(NodeTokenMatchChild.class)
+    static Logger log = Logger(NodeTokenMatchChild.class)
 
-  visible ParserBase parser
+    visible ParserBase parser
 
-  public traverseNodes(func(Node, ParseContext, TokenPattern)) => parser.traverseNodes(func)
+    public traverseNodes(func(Node, ParseContext, TokenPattern)) => parser.traverseNodes(func)
 }

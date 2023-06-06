@@ -9,27 +9,27 @@ import flat/compiler/models/Token
 import flat/io/File
 
 testable class {
-  test `can match token`() {
-    let pattern = SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package")
+    test `can match token`() {
+        let pattern = SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package")
 
-    let result = pattern
-      .getMatcher()
-      .match(Token(value: "package", type: Token.Type.IDENTIFIER))
+        let result = pattern
+            .getMatcher()
+            .match(Token(value: "package", type: Token.Type.IDENTIFIER))
 
-    let expected = [Token(value: "package", type: Token.Type.IDENTIFIER)]
+        let expected = [Token(value: "package", type: Token.Type.IDENTIFIER)]
 
-    expect(result?.tokens).toBe(expected)
-  }
+        expect(result?.tokens).toBe(expected)
+    }
 
-  test `doesnt match wrong token`() {
-    let pattern = SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package")
+    test `doesnt match wrong token`() {
+        let pattern = SingleTokenPattern(type: Token.Type.IDENTIFIER, value: "package")
 
-    let result = pattern
-      .getMatcher()
-      .match(Token(value: "parckage", type: Token.Type.IDENTIFIER))
+        let result = pattern
+            .getMatcher()
+            .match(Token(value: "parckage", type: Token.Type.IDENTIFIER))
 
-    let expected = null
+        let expected = null
 
-    expect(result).toBe(expected)
-  }
+        expect(result).toBe(expected)
+    }
 }

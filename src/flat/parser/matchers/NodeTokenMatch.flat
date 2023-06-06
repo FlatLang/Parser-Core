@@ -7,11 +7,11 @@ import flat/ast
 import flat/log
 
 data class extends TokenMatch<NodeTokenPattern> {
-  static Logger log = Logger(NodeTokenMatch.class)
+    static Logger log = Logger(NodeTokenMatch.class)
 
-  visible NodeTokenMatchChild[] childMatches = NodeTokenMatchChild[]
+    visible NodeTokenMatchChild[] childMatches = NodeTokenMatchChild[]
 
-  visible ParserBase parser => childMatches.last.parser
+    visible ParserBase parser => childMatches.last.parser
 
-  public traverseNodes(func(Node, ParseContext, TokenPattern)) => childMatches.forEach({ _.traverseNodes(func) })
+    public traverseNodes(func(Node, ParseContext, TokenPattern)) => childMatches.forEach({ _.traverseNodes(func) })
 }

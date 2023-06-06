@@ -5,7 +5,7 @@ import flat/datastruct/list
 import flat/parser/matchers
 
 data class {
-  visible Node node
-  visible ParseContext context
-  visible TokenPattern pattern
+    visible Node node
+    visible ParseContext context
+    visible TokenPattern pattern
 }

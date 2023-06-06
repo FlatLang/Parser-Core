@@ -5,15 +5,15 @@ import flat/datastruct/HashMap
 import flat/compiler/models/Token
 
 data class extends TokenMatch<XorTokenPattern> {
-  visible TokenMatch tokenMatch
+    visible TokenMatch tokenMatch
 
-  override public inflateNode<NodeType extends Node>(NodeType node) => tokenMatch.inflateNode(node)
+    override public inflateNode<NodeType extends Node>(NodeType node) => tokenMatch.inflateNode(node)
 
-  override public traverseNodes(func(Node, ParseContext, TokenPattern)) {
-    if (!Object.referenceEquals(pattern.getNodeType(), Node.class)) {
-      super.traverseNodes(func)
+    override public traverseNodes(func(Node, ParseContext, TokenPattern)) {
+        if (!Object.referenceEquals(pattern.getNodeType(), Node.class)) {
+            super.traverseNodes(func)
+        }
+
+        tokenMatch.traverseNodes(func)
     }
-
-    tokenMatch.traverseNodes(func)
-  }
 }
