@@ -47,14 +47,6 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: Setup Airship
-        run: |
-          node airship.js setup
-
-      - name: Link Parser-Core
-        run: |
-          node airship.js install --link
-
       - name: Build Parser-Core Test
         run: |
           node airship.js install test -t es6
